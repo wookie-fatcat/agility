@@ -13,26 +13,29 @@ by automatically selecting the cheapest times from the Octopus Agile tariff and 
 solar batteries, using Agility's expectations of how much grid power you need to augment your solar
 generation.
 
-Agility is designed for use with Solar and Battery systems that use a Solis Hybrid Inverter.
-It has been tested using my own domestic Solis Inverter with PylonTech batteries, but should work with any other
+Agility is designed for use with Solar and Battery systems that use a [Solis](https://www.solisinverters.com/uk) Hybrid Inverter.
+It has been tested using my own domestic Solis Inverter and [PylonTech](https://en.pylontech.com.cn/products/us5000) 
+batteries, but should work with any other
 battery systems where the Solis Inverter is responsible for and controls charging and discharging of 
 the batteries.  Unfortunately if you use any other inverter for your solar system, Agility isn't for you.
 
-Agility is written in JavaScript and runs using either Node.js or Bun.js.  However, it makes use of a Docker Container
+Agility is written in JavaScript and runs using either [Node.js](https://nodejs.org) or 
+[Bun.js](https://bun.sh).  However, it makes use of a [Docker](https://www.docker.com) Container
 that we provide, and this looks after the entire run-time environment for you.  So provided you
 have Docker installed on your computer, that's all you should need to worry about!  
 
 Ideally though, we'd recommend running it on either:
 
-- a Linux-based computer such as a Raspberry Pi on your own home network
+- a Linux-based computer such as a [Raspberry Pi](https://www.raspberrypi.com/) on your own home network
 - a Linux virtual machine running on a Windows or Mac computer on your home network
-- an external cloud-based Linux virtual server that you have full access to
+- an external cloud-based Linux virtual server to which you have full access
 
 ## The Octopus Agile Tariff
 
 Agility is designed to automatically optimise use of the Octopus Agile electricity tariff.  This is a 
-highly dynamic tariff from the UK energy provider, Octopus.  Unlike other tariffs, in the Agile
-Tariff the price of electricity varies every half-hour throughout the day, based on actual wholesale
+highly dynamic tariff from the UK energy provider, [Octopus](https://octopus.energy/).  
+Unlike other tariffs, in the [Agile Tariff](https://octopus.energy/smart/agile/) 
+the price of electricity varies every half-hour throughout the day, based on actual wholesale
 electricity prices.  Typically there are 
 very cheap half-hour slots during the night but also sometimes during other times of the day or evening.
 Occasionally, primarily if there's a lot of windy weather, some slots are priced negatively, and
@@ -79,7 +82,8 @@ tariff: Agility will learn and adapt to the profile of your typical daily power 
 about when and how much battery charging is required to meet that power usage pattern so that you almost always
 have sufficient power in your batteries to meet your needs, charged up at the cheapest possible times.
 
-It's still interesting to check what Agility has done and the decisions it's made using your SolisCloud App and
+It's still interesting to check what Agility has done and the decisions it's made using your 
+[SolisCloud](https://www.solisinverters.com/global/accessories6/SolisCloud.html) App and
 see the amount of power you've consumed each day and how much (or little!) it's cost on the Octopus App.  It's
 actually rather addictive!
 
