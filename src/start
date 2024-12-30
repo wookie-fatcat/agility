@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+nohup node start.mjs >> agility.log 2>&1 &
+
+
