@@ -186,7 +186,7 @@ Your installer should have already done this for you.
 send those APIs to the SolisCloud server.
 
 - In order to improve the accuracy of the predictions made by Agility in terms of how much grid power you
-need at any time of the day, you can optionally make use of the excellent Solcast system.  Solcast offer a
+need at any time of the day, you can optionally make use of the excellent [Solcast](https://solcast.com/) system.  Solcast offer a
 free tier of service for domestic users, which provides enough information to allow Agility to make much
 more accurate predictions about how much or how little solar power your system will provide in the hours
 ahead.  This helps to ensure that Agility doesn't unnecessarily purchase more grid power than you need on sunny days, 
