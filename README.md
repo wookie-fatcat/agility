@@ -75,6 +75,33 @@ Nothing!  I've made it available free of charge as what's known as an Open Sourc
 
 You're free to download it and use it as much and for as long as you wish.
 
+## How Much Money Will Agility Save Me?
+
+That's impossible to predict.  It will depend on a number of factors:
+
+- the size of your solar system: ie how much power your panels can generate
+- the amount of battery storage
+- the amount of electricity you typically consume each day
+- the weather:
+  - it affects the Octopus Agile tariff prices (they're typically cheapest when its windy or stormy)
+  - it also, of course, affects how much power your solar panels will generate
+- the time of year.  In the UK, a solar system will generate approximately 10 times in high Summer what it generates in the depths of Winter!
+
+I'd recommend that you have sufficient battery storage to cover at least a third to a half of your 
+typical daily power needs.  Basically the more battery storage you can afford the better.  The good
+news is that battery storage continues to fall in price, and there's no VAT on domestic batteries.
+
+The more power you typically use, the more Agile slots you'll need to charge your batteries, so you'll
+begin to need to use more expensive slots.  So if you're also charging an EV and running a heat pump,
+your potential savings may be less than if you consume at or below the UK average of 7kWh per day.
+
+So I can't make any guarantees, but over the last year, by way of example, I've seen my average price
+for electrictity to be around 12p/kWh - about half the Ofgem capped price.  
+
+To put that into context, I don't have an EV or Heat Pump,
+but we're an above-average power consumer.  I have sufficient battery storage for between 75% and 100% of
+our daily needs and I have a fairly large (6kW peak) solar array.
+
 ## Warranty and Liabilities
 
 You'll see a copy of the Open Source license at the end of this Readme document.  You'll notice that
@@ -106,7 +133,9 @@ An update procedure for Agility will be added in due course.
 ## Prerequisites for Running Agility
 
 - As described above, you need a Solar and Battery system based around a Solis Inverter
-- Your Solis system needs to be registered to use the SolisCloud system and associate Apps
+- Your Solis system needs to be registered to use the SolisCloud system and associate Apps.
+Your installer should have already done this for you.
+
 - You need to use Octopus as your power supplier and sign up to use their Octopus Agile tariff.
 
   If you aren't currently an Octopus customer, please use this referal link:
