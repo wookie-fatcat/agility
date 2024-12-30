@@ -1,8 +1,17 @@
 # Agility: Automated Optimisation of the Octopus Agile Tariff on Solis Solar Systems
 
+## NOTE: UNDER DEVELOPMENT AND NOT YET READY FOR USE
+
+Feel free to read the documentation so far though!
+
 ## What is Agility?
 
 Agility is a software application that can be run on pretty much any computer, including a Raspberry Pi.
+
+Agility is designed for use with Solar and Battery systems, and aims to reduce your electricity bill 
+by automatically selecting the cheapest times from the Octopus Agile tariff and using them to charge your 
+solar batteries, depending on Agility's expectations of how much grid power you need to augment your solar
+generation.
 
 Agility is designed for use with Solar and Battery systems that use a Solis Hybrid Inverter.
 It has been tested using my own domestic Solis Inverter with PylonTech batteries, but should work with any other
@@ -19,30 +28,46 @@ Ideally though, we'd recommend running it on either:
 - a Linux virtual machine running on a Windows or Mac computer on your home network
 - an external cloud-based Linux virtual server that you have full access to
 
+## The Octopus Agile Tariff
+
 Agility is designed to automatically optimise use of the Octopus Agile electricity tariff.  This is a 
-highly dynamic tariff whereby the price varies every half-hour throughout the day.  Typically there are 
+highly dynamic tariff from the UK energy provider, Octopus.  Unlike other tariffs, in the Agile
+Tariff the price of electricity varies every half-hour throughout the day.  Typically there are 
 very cheap half-hour slots during the night but also sometimes during other times of the day or evening.
-However, between the peak UK electrictity usage period between 16:00 and 19:00 the slots become
-extremely expensive.  The pricing of each half-hour slot will differ from day to day.  Octopus releases
-the next day's tariff pricing at around 16:00 each day.  Agility will automatically fetch this tariff
-as soon as it becomes available.
+Occasionally, primarily if there's a lot of windy weather, some slots are priced negatively, and
+you're actually paid for any electricity you use during that slot!
+
+The Agile Tariff isn't all upsides: during the peak UK electrictity usage period between 
+16:00 and 19:00 the slots become extremely expensive, but Agility will try to ensure you don't fall
+foul of them!
+
+The pricing of each Agile half-hour slot will differ from day to day.  Octopus releases
+the next day's tariff pricing at around 16:00 each day.  Agility will automatically fetch this new tariff
+table as soon as Octopus makes it available.
 
 Agility is primarily designed to save you money during the late Autumn, Winter and early Spring months
 when your solar panels are typically generating less power than you consume each day and therefore you
-need to rely on the grid for much or most of your power.  It does this by automatically and dynamically
+need to rely on the grid for some or most of your power.  It does this by automatically and dynamically
 identifying how much grid power you need throughout the day and night, identifying the cheapest Octopus
 Agile tariff slots to use to provide that power, and instructing your Solis Inverter to force-charge
-your battery from the grid during those cheapest slot periods.
+your battery from the grid during those cheapest slot periods.  As a result, the vast 
+majority of your household power needs will be provided from what's stored in your batteries rather than
+being supplied directly from the grid.
 
 Unlike other systems for optimising use of the Octopus Agile tariff, Agility is completely automatic.
-Once started you should be able to leave it to optimise everything for you.  Whilst it's still advisable
+Once started you should be able to leave it to optimise everything for you behind the scenes.  
+
+Whilst it's still advisable
 to try to avoid doing anything during the 16:00 to 19:00 peak period that consumes large amounts of power,
-it's not essential.  The idea of Agility is that you don't need to change your behaviour around the Agile
-tariff: it will learn and adapt to the profile of your typical daily power usage, and make its decisions
-about when and how much battery charging is required to meet that power usage pattern.
+it's not essential.  The idea of Agility is that you don't need to fit your behaviour and power use around the Agile
+tariff: Agility will learn and adapt to the profile of your typical daily power usage, and make its decisions
+about when and how much battery charging is required to meet that power usage pattern so that you almost always
+have sufficient power in your batteries to meet your needs, charged up at the cheapest possible times.
 
 It's still interesting to check what Agility has done and the decisions it's made using your SolisCloud App and
-see the amount of power you've consumed each day and how much (or little!) it's cost on the Octopus App.
+see the amount of power you've consumed each day and how much (or little!) it's cost on the Octopus App.  It's
+actually rather addictive!
+
 
 ## How Much Does Agility Cost?
 
@@ -53,17 +78,28 @@ You're free to download it and use it as much and for as long as you wish.
 ## Warranty and Liabilities
 
 You'll see a copy of the Open Source license at the end of this Readme document.  You'll notice that
-no warranty is provided: you use it entirely at your own risk.
+no warranty is provided under the terms of the license: you use Agility entirely at your own risk.
 
-However, I use the exact same software myself 24 X 7 to manage my own Solar system!
+However, I use the exact same software myself 24 X 7 to manage my own Solar system, so I believe it should
+be safe and reliable for others to use.
 
 ## Technical Support
 
-No technical support is available for free.  If you know about Github, then you can raise issues here
-but I'm under no obligation to fix or troubleshoot issues that you come across.
+No technical support is provided for Agility.  
+
+If you know about Github, then you can raise issues here
+but I'm under no obligation to fix or troubleshoot issues that you come across or report.
 
 In future I'll probably set up a Facebook group for Agility users for self-help, discussions, 
 suggestions etc.
+
+## Updates
+
+Updates to the Agility software will be made available from time to time via this Github repository.
+
+It's worth checking here occasionally for updates.
+
+An update procedure for Agility will be added in due course.
 
 ----
 
