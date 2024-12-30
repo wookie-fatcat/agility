@@ -10,7 +10,7 @@ Agility is a software application that can be run on pretty much any computer, i
 
 Agility is designed for use with Solar and Battery systems, and aims to reduce your electricity bill 
 by automatically selecting the cheapest times from the Octopus Agile tariff and using them to charge your 
-solar batteries, depending on Agility's expectations of how much grid power you need to augment your solar
+solar batteries, using Agility's expectations of how much grid power you need to augment your solar
 generation.
 
 Agility is designed for use with Solar and Battery systems that use a Solis Hybrid Inverter.
@@ -32,17 +32,23 @@ Ideally though, we'd recommend running it on either:
 
 Agility is designed to automatically optimise use of the Octopus Agile electricity tariff.  This is a 
 highly dynamic tariff from the UK energy provider, Octopus.  Unlike other tariffs, in the Agile
-Tariff the price of electricity varies every half-hour throughout the day.  Typically there are 
+Tariff the price of electricity varies every half-hour throughout the day, based on actual wholesale
+electricity prices.  Typically there are 
 very cheap half-hour slots during the night but also sometimes during other times of the day or evening.
 Occasionally, primarily if there's a lot of windy weather, some slots are priced negatively, and
 you're actually paid for any electricity you use during that slot!
 
 The Agile Tariff isn't all upsides: during the peak UK electrictity usage period between 
 16:00 and 19:00 the slots become extremely expensive, but Agility will try to ensure you don't fall
-foul of them!
+foul of them!  Occasionally there will be days when even the lowest priced slots are quite high, but 
+even these are rarely as high as the Ofgem cap price.
 
-The pricing of each Agile half-hour slot will differ from day to day.  Octopus releases
-the next day's tariff pricing at around 16:00 each day.  Agility will automatically fetch this new tariff
+The pricing of each Agile half-hour slot will differ from day to day.  The highly variable nature of
+the Agile tariff makes it very difficult to use effectively without automation,but with the aid of
+automation, such as provided by Agilty, it's possible to "game" the tariff to make significant savings.
+
+Octopus releases
+the next day's Agile tariff pricing at around 16:00 each day.  Agility will automatically fetch and use this new tariff
 table as soon as Octopus makes it available.
 
 Agility is primarily designed to save you money during the late Autumn, Winter and early Spring months
@@ -53,6 +59,15 @@ Agile tariff slots to use to provide that power, and instructing your Solis Inve
 your battery from the grid during those cheapest slot periods.  As a result, the vast 
 majority of your household power needs will be provided from what's stored in your batteries rather than
 being supplied directly from the grid.
+
+However there are sometimes savings to be made even during summer months.  Agility allows you to set a
+price below which a slot is always used to charge your battery (unless it's already full). Agility defaults 
+this price at 10p/kWh.  On summer days,if such very low-priced slots become available, Agility will use them to
+fill up the battery, which means that when the sun rises, your system will begin exporting sooner than usual.
+By using the Octopus export tariff that pays 15p/kWh, you'll effectively make at least 5p/kWh on any low-cost slot that was used.
+
+Essentially Agility allows you to buy electricity at a low price and potentially sell any surplus back to the grid
+later at a higher price.
 
 Unlike other systems for optimising use of the Octopus Agile tariff, Agility is completely automatic.
 Once started you should be able to leave it to optimise everything for you behind the scenes.  
