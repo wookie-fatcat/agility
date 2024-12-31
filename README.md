@@ -167,20 +167,18 @@ Your installer should have already done this for you.
 - You need to contact Solis technical support to do two key things:
 
   - activate remote access to your Inverter
-  - get authorisation to use their remote control APIs.  This requires you to sign a Non-Disclosure
-    Agreement (NDA), which essentially waives any liabilities if your use of the APIs messes up your inverter.
+  - get authorisation to use their official remote control APIs.  As part of this step, you'll be able to obtain an API key and secret
+ which are needed by Agility to control your inverter.
 
-  I've provided details later in this document on how you do these two key things.
+  I've provided details elsewhere in this documentation on how you do these two key steps.
 
   These steps are needed to allow Agility to send the signals across the Internet, via the SolisCloud system, 
   that tell your when to charge your batteries.  By default, Solis don't automatically allow access
-  to its APIs, and they make it a bit of a pain to do so.  Fortunately it's a one-off process, and once
-  set up, it should all be plain sailing.  Their NDA is a fairly daunting document, but I've not had
-  any follow-up regarding it from Solis in the year I've been running and developing Agility for my
-  own system.
+  to its APIs, and, to be honest, they make it a bit of a pain to do so.  Fortunately it's a one-off process, and once
+  set up, it should all be plain sailing from then on.  
 
-  Unlike other solutions for automating Solis systems, there's no physical changes you otherwise need
-  to make to your inverter set-up: Agility does everything by using SolisCloud's APIs.
+  Unlike other solutions for automating Solis systems, there's no physical changes you need
+  to make to your inverter set-up: Agility does everything by using SolisCloud's official APIs.
 
 - Needless to say, the computer on which you run Agility needs access to the Internet in order to 
 send those APIs to the SolisCloud server.
@@ -194,11 +192,14 @@ but also ensures that Agility purchases any additional power to cover your needs
 
   Using Solcast is optional but recommended: it's pretty straightforward to set up an account and specify
 the specific details of your system so that they can provide the daily predictions (which are more
-often than not uncannily accurate!).  If you opt not to use Solcast, then Agility will make its predictions
-using a moving average of your daily solar output that is derived from the SolisCloud data for your system.
-Using this information may occasionally result in Agility charging your batteries more than needed, or
-failing to charge them sufficiently so that they run out prematurely and you begin to directly use grid power,
-potentially during a high-priced slot.
+often than not uncannily accurate!). 
+
+  If you opt not to use Solcast, then Agility will still make predictions, but
+it uses a moving average of your daily solar output that is derived from the SolisCloud data for your system.
+Using this information may occasionally result in Agility charging your batteries more than needed (if
+it's an unusually sunny day), or
+failing to charge your batteries sufficiently (if it's an unusually gloomy day), in which case they may run out prematurely and you 
+may begin to directly use grid power, potentially during a high-priced slot.
 
 ----
 

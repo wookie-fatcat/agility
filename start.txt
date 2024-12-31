@@ -9,3 +9,35 @@ NB: Change the -v path from ~/agility/src if you installed the files elsewhere
 
 docker run -it --name agility --rm -p 8080:8080 -e TZ=Europe/London -v ~/agility/src:/opt/mgateway/mapped mg-showcase
 
+
+
+Checklist:
+
+- Check your Solis inverter settings:
+
+  - Time Zone should be UK/Europe (+00)
+  - I leave mine with daylight saving set on
+
+  - Contact Solis EU Support to:
+    - enable remote control
+    - enable control APIs
+
+  - get your SolisCloud customer ID and Inverter Serial Number (SN) from your SolisCloud App,
+    and add these to the Agility configuration
+
+  - Add your API key and secret settings to the Agility configuration
+
+- You must configure your Octopus Agile Tariff zone (eg J = South East)
+
+- Make sure you've set up your battery configuration in Agility, in particular:
+
+  - its maximum storage capacity (in kWh)
+  - the minimum level (defaults to 20)
+  - the charge power in Amps (defaults to 50)
+  - the discharge power in Amps (defaults to 50)
+
+- If you want to use Solcast, set up a subscription, configure your solar system settings and
+  obtain your specific endpoint URL, API key and secret
+
+  - Add these to the Agility configuration
+
