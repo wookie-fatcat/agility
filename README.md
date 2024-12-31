@@ -127,7 +127,7 @@ You'll see a copy of the Open Source license at the end of this Readme document.
 no warranty is provided under the terms of the license: you use Agility entirely at your own risk.
 
 However, I use the exact same software myself 24 X 7 to manage my own Solar system, so I believe it should
-be safe and reliable for others to use.
+be safe and reliable for others to use, provided it is set up and used correctly.
 
 ## Technical Support
 
@@ -136,8 +136,12 @@ No technical support is provided for Agility.
 If you know about Github, then you can raise issues here
 but I'm under no obligation to fix or troubleshoot issues that you come across or report.
 
-In future I'll probably set up a Facebook group for Agility users for self-help, discussions, 
-suggestions etc.
+Users of Agility are encouraged to join and use the following Facebook Group to discuss its use and
+for help with any issues:
+
+  [Octopus Energy Automations Unofficial (Batteries / Solar / Home Assistant)](https://www.facebook.com/groups/octopusenergyautomations/)
+
+I'll be monitoring this Facebook Group from time to time and will assist whenever practical.
 
 ## Updates
 
