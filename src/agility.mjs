@@ -95,7 +95,7 @@ let Agility = class {
   }
 
   enableDischarging() {
-    this.config.$(['operation', 'dischargingEnabled']) = true;
+    this.config.$(['operation', 'dischargingEnabled']).value = true;
   }
 
   disableDischarging() {
