@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 December 2024
+ 31 December 2024
 
  */
 
@@ -279,26 +279,33 @@ let Agility = class {
   initialise() {
     let ok = true;
     if (!this.config.exists) {
+      this.logger.write('No Configuration defined for Agility: Attempt to load from config.json');
+      let ok = this.loadConfig();
+      if (!ok) {
+        this.logger.write('Unable to load from config.json');
+      }
+    }
+    if (ok && !this.config.exists) {
       this.logger.write('No Configuration defined for Agility');
       ok = false;
     }
-    if (!this.battery.isConfigured) {
+    if (ok && !this.battery.isConfigured) {
       this.logger.write('Battery Configuration does not exist or is incomplete');
       ok = false;
     }
-    if (!this.battery.isConfigured) {
+    if (ok && !this.battery.isConfigured) {
       this.logger.write('Battery Configuration does not exist or is incomplete');
       ok = false;
     }
-    if (!this.octopus.isConfigured) {
+    if (ok && !this.octopus.isConfigured) {
       this.logger.write('Octopus Configuration does not exist or is incomplete');
       ok = false;
     }
-    if (this.useSolcast && !this.solcast.isConfigured) {
+    if (ok && this.useSolcast && !this.solcast.isConfigured) {
       this.logger.write('Solcast Configuration does not exist or is incomplete');
       ok = false;
     }
-    if (!this.solis.isConfigured) {
+    if (ok && !this.solis.isConfigured) {
       this.logger.write('SolisCloud Configuration does not exist or is incomplete');
       ok = false;
     }
@@ -349,6 +356,15 @@ let Agility = class {
     }
   }
 
+  resetData() {
+    // delete all the operational data
+    //  Agility will reload what it can when it is restarted
+    this.solis.data.delete();
+    this.octopus.tariffs.delete();
+    if (this.useSolcast) this.solcast.document.delete();
+    this.logger.loggerDoc.delete(); 
+    this.logger.write('Agility Data has been deleted');
+  }
 }
 
 export {Agility}

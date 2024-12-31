@@ -1,0 +1,25 @@
+{
+  "solisCloud": {
+    "key": "",
+    "secret": "",
+    "endpoint": "https://www.soliscloud.com:13333",
+    "customerId": "",
+    "inverterSn": ""
+  },
+  "octopus": {
+    "zone": "J",
+    "url1": "https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-",
+    "url2": "/standard-unit-rates/"
+  },
+  "battery": {
+    "storage": 14,
+    "minimumLevel": 20,
+    "chargeLimit": 95,
+    "chargeCurrent": 50,
+    "dischargeCurrent": 50
+  },
+  "operation": {
+    "movingAveragePeriod": 14,
+    "alwaysUseSlotPrice": 10
+  }
+}

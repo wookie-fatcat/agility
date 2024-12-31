@@ -194,8 +194,11 @@ but also ensures that Agility purchases any additional power to cover your needs
 
   Using Solcast is optional but recommended: it's pretty straightforward to set up an account and specify
 the specific details of your system so that they can provide the daily predictions (which are more
-often that not uncannily accurate!).  If you opt to not use Solcast, then Agility will make its predictions
+often than not uncannily accurate!).  If you opt not to use Solcast, then Agility will make its predictions
 using a moving average of your daily solar output that is derived from the SolisCloud data for your system.
+Using this information may occasionally result in Agility charging your batteries more than needed, or
+failing to charge them sufficiently so that they run out prematurely and you begin to directly use grid power,
+potentially during a high-priced slot.
 
 ----
 

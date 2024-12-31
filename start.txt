@@ -1,0 +1,11 @@
+To build the Docker Container:
+
+docker build -t mg-showcase -f dockerfiles/yottadb/Dockerfile --progress plain .
+
+
+To Run, mapping in your Agility folder
+
+NB: Change the -v path from ~/agility/src if you installed the files elsewhere
+
+docker run -it --name agility --rm -p 8080:8080 -e TZ=Europe/London -v ~/agility/src:/opt/mgateway/mapped mg-showcase
+

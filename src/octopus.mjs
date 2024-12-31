@@ -50,7 +50,7 @@ let Octopus = class {
     if (!data.url1) return false;
     if (!data.url2) return false;
     if (!data.zone) return false;
-    if (!data.username) return false;
+    //if (!data.username) return false;
     return true;
   }
 
@@ -77,7 +77,7 @@ let Octopus = class {
         'Content-type': 'application/json'
       }
     };
-    if (username) {
+    if (username && username !== '') {
       options.headers.Authorization = 'Basic ' + Buffer.from(username + ':', 'utf8').toString('base64');
     }
     let res = await fetch(url, options);
