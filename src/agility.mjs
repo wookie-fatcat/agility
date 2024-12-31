@@ -55,7 +55,7 @@ let Agility = class {
     this.config = new glsdb.node('agilityConfig');
     this.solis = new Solis(this);
     this.octopus = new Octopus(this);
-    if (!this.isConfigured) this.loadConfig();
+    //if (!this.isConfigured) this.loadConfig();
     // solcast
     if (this.useSolcast) {
       this.solcast = new Solcast(this);

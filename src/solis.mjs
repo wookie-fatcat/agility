@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 December 2024
+ 31 December 2024
 
  */
 
@@ -45,10 +45,22 @@ class Solis {
   get isConfigured() {
     if (!this.config.exists) return false;
     let data = this.config.document;
-    if (!data.customerId) return false;
-    if (!data.inverterSn) return false;
-    if (!data.key) return false;
-    if (!data.secret) return false;
+    if (!data.customerId) {
+      this.logger.write('CustomerId not set in SolisCloud configuration');
+      return false;
+    }
+    if (!data.inverterSn) {
+      this.logger.write('InverterSn not set in SolisCloud configuration');
+      return false;
+    }
+    if (!data.key) {
+      this.logger.write('Key not set in SolisCloud configuration');
+      return false;
+    }
+    if (!data.secret) {
+      this.logger.write('Secret not set in SolisCloud configuration');
+      return false;
+    }
     return true;
   }
 
