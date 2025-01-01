@@ -4,7 +4,7 @@
  | Agility: Solar Battery Optimisation against Octopus Agile Tariff          |
  |           specifically for Solis Inverters                                |
  |                                                                           |
- | Copyright (c) 2024 MGateway Ltd,                                          |
+ | Copyright (c) 2024-25 MGateway Ltd,                                       |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 December 2024
+ 1 January 2025
 
 */
 
@@ -252,19 +252,36 @@ let Octopus = class {
   }
 
   getEarliestSlotToUse(noOfSlots) {
+    console.log('calculating earliest slot of ' + noOfSlots);
     // includes slots under always use price
     this.sortSlots();
     let slots = this.cheapestSlotArray;
+    console.log(JSON.stringify(slots));
     let count = 0;
+    let currentSlot = this.date.now().slotTimeIndex;
+    console.log('current slot timeIndex: ' + currentSlot);
     let alwaysUsePrice = this.agility.alwaysUsePrice;
     let earliestSlot = 9999999999999;
     for (let slot of slots) {
-      if (slot.price <= alwaysUsePrice) {
-        if (slot.timeIndex < earliestSlot) earliestSlot = slot.timeIndex;
-      }
-      else {
-        count++;
-        if (count <= noOfSlots && slot.timeIndex < earliestSlot) earliestSlot = slot.timeIndex;
+      count++;
+      console.log('count: ' + count + '; timeIndex: ' + slot.timeIndex);
+      if (slot.timeIndex > currentSlot) {
+        if (slot.price <= alwaysUsePrice) {
+          if (slot.timeIndex < earliestSlot) {
+            earliestSlot = slot.timeIndex;
+            let d = this.date.at(slot.timeIndex);
+            console.log('slot under always buy price');
+            console.log('slot: ' + d.timeText + ': price: ' + slot.price + 'updated earliest slot');
+          }
+        }
+        else {
+          if (count <= noOfSlots && slot.timeIndex < earliestSlot) {
+            earliestSlot = slot.timeIndex;
+            let d = this.date.at(slot.timeIndex);
+            console.log('slot over always buy price');
+            console.log('slot: ' + d.timeText + ': price: ' + slot.price + 'updated earliest slot');
+          }
+        }
       }
     }
     return earliestSlot;

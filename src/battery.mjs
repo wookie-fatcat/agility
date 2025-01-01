@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 December 2024
+ 31 December 2024
 
  */
 
@@ -306,7 +306,10 @@ class Battery {
     // calculate net power needed between now and earliest charging slot
 
     let noOfSlotsNeeded = this.noOfSlotsNeeded;
+    console.log('noOfSlotsNeeded: ' + noOfSlotsNeeded);
     let earliestSlotTimeIndex = this.octopus.getEarliestSlotToUse(noOfSlotsNeeded);
+    let earlyD = this.date.at(earliestSlotTimeIndex);
+    this.logger.write('earliest charging slot is at ' + earlyD.timeText);
     let power = this.solis.averagePowerBetweenTimeIndices(d.timeIndex, earliestSlotTimeIndex);
     let powerNeeded = +power.load;
     this.logger.write('Power needed from now until earliest charge slot: ' + powerNeeded.toFixed(2));

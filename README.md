@@ -73,7 +73,9 @@ Essentially Agility allows you to buy electricity at a low price and potentially
 later at a higher price.
 
 Unlike other systems for optimising use of the Octopus Agile tariff, Agility is completely automatic.
-Once started you should be able to leave it to optimise everything for you behind the scenes.  
+Once started you should be able to leave it to optimise everything for you behind the scenes.  Agility
+is designed to be resilient: it automatically and cleanly handles any API failures, which can occur 
+particularly with SolisCloud, and re-issues the API calls if necessary until they are handled successfully.
 
 Whilst it's still advisable
 to try to avoid doing anything during the 16:00 to 19:00 peak period that consumes large amounts of power,
@@ -136,12 +138,13 @@ No technical support is provided for Agility.
 If you know about Github, then you can raise issues here
 but I'm under no obligation to fix or troubleshoot issues that you come across or report.
 
-Users of Agility are encouraged to join and use the following Facebook Group to discuss its use and
+Users of Agility are encouraged to join and use the following Facebook Groups to discuss its use and
 for help with any issues:
 
   [Octopus Energy Automations Unofficial (Batteries / Solar / Home Assistant)](https://www.facebook.com/groups/octopusenergyautomations/)
+  [Solis Solar Inverter Owners Group](https://www.facebook.com/groups/288045168816481/)
 
-I'll be monitoring this Facebook Group from time to time and will assist whenever practical.
+I'll be monitoring these Facebook Groups from time to time and will assist whenever practical.
 
 ## Updates
 
@@ -174,7 +177,16 @@ Your installer should have already done this for you.
   - get authorisation to use their official remote control APIs.  As part of this step, you'll be able to obtain an API key and secret
  which are needed by Agility to control your inverter.
 
-  I've provided details elsewhere in this documentation on how you do these two key steps.
+  Here's what you need to do:
+
+  - Submit a [service ticket](https://solis-service.solisinverters.com/support/solutions/articles/44002212561-api-access-soliscloud) and wait until you get their response.
+  - Next, go to [https://www.soliscloud.com/#/apiManage](https://www.soliscloud.com/#/apiManage).
+  - Activate API management and agree with the usage conditions.
+  - After activation, click on *View Key". A pop-up window window will appear asking for the verification code.
+  - First click on *Verification code*.  You will get an image with 2 puzzle pieces, 
+which you need to overlap each other using the slider below.
+  - You should receive an email with the required verification code
+  - Once confirmed, you will get your API key, secret and API URL
 
   These steps are needed to allow Agility to send the signals across the Internet, via the SolisCloud system, 
   that tell your when to charge your batteries.  By default, Solis don't automatically allow access
