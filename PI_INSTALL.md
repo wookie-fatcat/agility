@@ -16,7 +16,7 @@ Ensure you have Docker installed on your Raspberry Pi.  Here's some useful instr
 Ensure you have *git* installed.  If not, type the following in Terminal
 
 ```console
-apt install git
+sudo apt install git
 ```
 
 ## Step 3
