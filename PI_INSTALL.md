@@ -78,7 +78,12 @@ You'll now have a directory named *agility*: *~/agility*
 Edit the file *config.json* that you'll find in the *~/agility/src* directory
 and add your SolisCloud credentials to the empty locations.
 
-Also make sure your Octopus zone is correct - change it as appropriate.
+Make sure your Octopus zone is correct - change it as appropriate.
+
+Also make sure you change the battery storage size to the correct value for your system.  The
+value is in kWh.
+
+To begin with you should be able to use the other values provided in the *config.json* file.
 
 Save your edited version of *config.json*.
 
