@@ -8,7 +8,7 @@
   },
   "octopus": {
     "zone": "J",
-    "url1": "https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-",
+    "url1": "https://api.octopus.energy/v1/products/AGILE-23-12-06/electricity-tariffs/E-1R-AGILE-23-12-06-",
     "url2": "/standard-unit-rates/"
   },
   "battery": {
