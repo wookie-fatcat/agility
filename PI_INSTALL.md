@@ -75,7 +75,7 @@ You'll now have a directory named *agility*: *~/agility*
 
 ## Step 9
 
-Edit the file *config.json* that you'll see in the *~/agility* directory
+Edit the file *config.json* that you'll find in the *~/agility/src* directory
 and add your SolisCloud credentials to the empty locations.
 
 Also make sure your Octopus zone is correct - change it as appropriate.
