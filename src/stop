@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-node stop.mjs
+bun stop.mjs

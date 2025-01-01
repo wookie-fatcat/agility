@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-node tail.mjs
+bun tail.mjs

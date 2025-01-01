@@ -4,7 +4,7 @@
  | Agility: Solar Battery Optimisation against Octopus Agile Tariff          |
  |           specifically for Solis Inverters                                |
  |                                                                           |
- | Copyright (c) 2024 MGateway Ltd,                                          |
+ | Copyright (c) 2024-25 MGateway Ltd,                                       |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 31 December 2024
+ 1 January 2025
 
  */
 
@@ -44,7 +44,7 @@ let Agility = class {
 
   constructor() {
     this.name = 'Agility';
-    this.version = '1.0';
+    this.version = '1.1';
     this.glsdb = glsdb;
     this.todayIndex = this.getDateIndex(0);
     this.logger = new Logger(glsdb, 'Agility');
@@ -71,6 +71,16 @@ let Agility = class {
   get isAlreadyRunning() {
     let status = this.control.$('running').lock(1);
     return !status;
+  }
+
+  waitUntilStopped() {
+    if (this.isAlreadyRunning) {
+      this.logger.write('Waiting for Agility to stop: this may take up to a minute')
+      let status = this.control.$('running').lock(65);
+    }
+    this.releaseLock();
+    this.removeTask('stop');
+    this.logger.write('Agility has stopped');
   }
 
   releaseLock() {

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+bun stopAndWait.mjs
+nohup bun start.mjs >> agility.log 2>&1 &
+
+
