@@ -1,0 +1,68 @@
+1 Ensure you have Docker installed
+
+  eg: https://pimylifeup.com/raspberry-pi-docker/
+
+2 Ensure you have git installed
+
+  (apt install git)
+
+4 Make sure you're in your home directory, eg cd ~
+
+5 git clone https://github.com/robtweed/mg-showcase
+
+  You'll now have a directory: ~/mg-showcase
+
+6 cd to that directory, eg cd mg-showcase
+
+7 Build the Docker Container that we'll be using:
+
+  docker build -t mg-showcase -f dockerfiles/yottadb/Dockerfile --progress plain .
+
+  It may take a while - let it run to completion
+
+8 Return to your home directory:
+
+    cd ..
+
+9 git clone https://github.com/robtweed/agility
+
+  You'll now have a directory named agility, eg: ~/agility
+
+10  Edit the file *config.json* that you'll see in the *~/agility* directory
+and add your SolisCloud credentials to the empty locations.  
+
+  Also make sure your Octopus zone is correct - change it as appropriate.
+
+  Save your edited version of *config.json*.
+
+11 Run the initialisation script:
+
+  cd ~/agility
+  source init.sh
+
+12 Start the Docker container and map the agility directory into it.  Use the following command:
+
+docker run -it --name agility --rm -p 8080:8080 -e TZ=Europe/London -v ~/agility/src:/opt/mgateway/mapped mg-showcase
+
+This ensures that:
+
+- the time zone is correctly maintained within the container
+- port 8080 is available for Agility's web interface
+- the container is named *agility*, eg when you run to see the running container:
+
+  - docker ps
+
+The Agility environment is now set up and ready for use.  You'll normally leave the container running
+constantly on your computer: it shouldn't need to be stopped, but if it does stop for any reason, just
+restart it with the same *docker run* command above.
+
+12 Start Agility:
+
+  cd ~/agility (if you're not already in this directory)
+  ./agility_start
+
+13 You can monitor Agility's activity log at any time:
+
+  cd ~/agility (if you're not already in this directory)
+  ./agility_log
+
