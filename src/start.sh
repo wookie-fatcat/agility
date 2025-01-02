@@ -11,6 +11,10 @@ chmod +x /opt/mgateway/mapped/agility_start
 chmod +x /opt/mgateway/mapped/agility_stop
 chmod +x /opt/mgateway/mapped/agility_restart
 chmod +x /opt/mgateway/mapped/agility_log
+chmod +x /opt/mgateway/mapped/test_loadConfig
+chmod +x /opt/mgateway/mapped/test_octopus
+chmod +x /opt/mgateway/mapped/test_solisapi
+chmod +x /opt/mgateway/mapped/test_solischarge
 
 echo "Permissions set for commands in mapped directory"
 
