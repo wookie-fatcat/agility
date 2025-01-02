@@ -45,10 +45,6 @@ class Solis {
   get isConfigured() {
     if (!this.config.exists) return false;
     let data = this.config.document;
-    if (!data.customerId) {
-      this.logger.write('CustomerId not set in SolisCloud configuration');
-      return false;
-    }
     if (!data.inverterSn) {
       this.logger.write('InverterSn not set in SolisCloud configuration');
       return false;
@@ -62,13 +58,6 @@ class Solis {
       return false;
     }
     return true;
-  }
-  get customerId() {
-    return this.config.$('customerId').value;
-  }
-
-  set customerId(value) {
-    this.config.$('customerId').value = value;
   }
 
   get endpoint() {
