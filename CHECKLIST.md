@@ -89,6 +89,7 @@ Your *config.json* file should then look something like this:
     "endpoint": "https://api.solcast.com.au/rooftop_sites/xxxxxxxxxx/forecasts?format=json"
   }
 }
+```
 
 - Before starting Agility, run the following tests to make sure the key APIs are able to work correctly:
 
