@@ -4,7 +4,7 @@
  | Agility: Solar Battery Optimisation against Octopus Agile Tariff          |
  |           specifically for Solis Inverters                                |
  |                                                                           |
- | Copyright (c) 2024 MGateway Ltd,                                          |
+ | Copyright (c) 2024-25 MGateway Ltd,                                       |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 31 December 2024
+ 2 January 2025
 
  */
 
@@ -63,8 +63,6 @@ class Solis {
     }
     return true;
   }
-
-
   get customerId() {
     return this.config.$('customerId').value;
   }
@@ -411,6 +409,27 @@ class Solis {
       }
       return {ok: 'Solis Data updated successfully'};
     }
+  }
+
+  async inverterChargeTest(forMinutes) {
+    // Set inverter to charge for specified time: five minutes by default
+
+    forMinutes = forMinutes || 5;
+    let forMs = forMinutes * 60000;
+    // first get current inverter charge settings
+    let resp = await this.atReadAPI();
+    if (resp.error) {
+      return resp;
+    }
+    let chargeString = resp.data.msg;
+    let fromD = this.date.now();
+    let toD = this.date.at(fromD.timeIndex + forMs);
+    chargeString = this.chargeTimeString(chargeString, fromD.timeText, toD.timeText);
+    resp = await this.chargeAPI(chargeString);
+    if (resp.error) {
+      return resp;
+    }
+    return {status: 'Inverter successfully set to charge between ' + fromD.timeText + ' and ' + toD.timeText};
   }
 
   async inverterCharge() {
