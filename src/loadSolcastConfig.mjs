@@ -1,5 +1,8 @@
 import {Agility} from './agility.mjs';
+import {Solcast} from './solcast.mjs';
 
 let agility = new Agility();
-agility.solcast.loadConfig();
+let solcast = new Solcast(agility);
+let ok = solcast.loadConfig();
+console.log(ok);
 

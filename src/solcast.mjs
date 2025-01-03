@@ -29,6 +29,8 @@
 
 */
 
+import fs from 'fs';
+
 let Solcast = class {
 
   constructor(agility) {
