@@ -4,7 +4,7 @@
  | Agility: Solar Battery Optimisation against Octopus Agile Tariff          |
  |           specifically for Solis Inverters                                |
  |                                                                           |
- | Copyright (c) 2024 MGateway Ltd,                                          |
+ | Copyright (c) 2024-25 MGateway Ltd,                                       |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 December 2024
+ 3 January 2025
 
 */
 
@@ -356,6 +356,21 @@ let Solcast = class {
     this.logger.write('Prediction after adjustment: ' + total.toFixed(2));
     return total.toFixed(4);
   }
+
+  loadConfig(filepath) {
+    filepath = filepath || './solcastConfig.json';
+    try {
+      let json = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' });
+      this.config.delete();
+      this.config.document = JSON.parse(json);
+      return true;
+    }
+    catch(err) {
+      // config couldn't be set up
+      return false;
+    }
+  }
+
 
   cleardown() {
     let noOfDaysToKeep = this.agility.movingAveragePeriod;
