@@ -306,6 +306,28 @@ router.get('/agility/octopus/agiletariff', async (Request, ctx) => {
 
 });
 
+router.get('/agility/solcast/update', async (Request, ctx) => {
+
+  let res = await agility.solcast.request();
+  if (res.error) {
+    return {
+      payload: {
+        error: 'Unable to fetch your Solcast prediction',
+        details: res.error
+      }
+    };
+  }
+
+  return {
+    payload: {
+      ok: true,
+      example: res.forecasts[0]
+    }
+  };
+
+});
+
+
 
 
 

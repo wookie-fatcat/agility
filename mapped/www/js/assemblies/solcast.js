@@ -21,6 +21,26 @@ export function load() {
         </fieldset>
       </sbadmin-form>
 
+      <sbadmin-spacer />
+
+      <sbadmin-div golgi:ref="tests">
+        <sbadmin-card-text>Test your Solcast API Credentials Below:</sbadmin-card-text>
+
+        <sbadmin-card-text>Note: You are limited to 10 requests per day by Solcast</sbadmin-card-text>
+
+        <sbadmin-form golgi:ref="testingform">
+          <fieldset>
+            <sbadmin-button-group>
+              <sbadmin-button color="blue" text="Fetch Your Solcast Prediction" golgi:ref="fetchBtn" />
+              <sbadmin-button color="orange" text="Clear Results" golgi:ref="clearBtn" />
+            </sbadmin-button-group>
+            <sbadmin-card-text golgi:ref="testResults"></sbadmin-card-text>
+
+          </fieldset>
+        </sbadmin-form>
+      </sbadmin-div>
+
+
     </sbadmin-card-body>
   </sbadmin-card>
 
@@ -122,6 +142,26 @@ export function load() {
               }
             }
           });
+
+          _this.fetchBtn.on('clicked', async () => {
+            let json = await _this.context.request('/agility/solcast/update');
+            if (json.error) {
+              _this.toast.headerTxt = 'Error';
+              _this.toast.display(json.error + '<br>Check that your credentials are correct');
+              _this.testResults.rootElement.innerHTML = `<p>Error Details:</p><p>` + json.details + `</p>`;
+            }
+            else {
+              _this.toast.headerTxt = 'Success!';
+              _this.toast.display('Agility was able to fetch your Solcast Prediction');
+              _this.testResults.rootElement.innerHTML = `<p>Here is a sample:</p><p>` + JSON.stringify(json.example) + `</p>`;
+            }
+
+          });
+
+          _this.clearBtn.on('clicked', async () => {
+            _this.testResults.rootElement.textContent = '';
+          });
+
         });
       }
     }

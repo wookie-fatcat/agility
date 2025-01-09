@@ -150,6 +150,18 @@ let Solcast = class {
   }
 
   async request() {
+    if (!this.isConfigured) {
+      return {
+        error: 'Solcast configuration is incomplete'
+      };
+    }
+
+    if (!this.isEnabled) {
+      return {
+        error: 'Solcast is not enabled for use with Agility'
+      };
+    }
+
     let options = {
       method: 'GET',
       headers: {

@@ -88,6 +88,7 @@ export function load() {
             if (json.error) {
               _this.toast.headerTxt = 'Error';
               _this.toast.display(json.error + '<br>Check that your credentials are correct');
+              _this.testResults.rootElement.innerHTML = `<p>Error Details:</p><p>` + json.details + `</p>`;
             }
             else {
               _this.toast.headerTxt = 'Success!';
