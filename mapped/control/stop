@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+bun /opt/agility/mapped/control/stop.mjs

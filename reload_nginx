@@ -1,0 +1,2 @@
+docker exec -i --workdir /opt/agility agility ./nginx reload
+

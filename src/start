@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-nohup bun start.mjs >> agility.log 2>&1 &
-
-

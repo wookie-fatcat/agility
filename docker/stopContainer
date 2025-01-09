@@ -1,0 +1,2 @@
+docker exec -i --workdir /opt/agility agility ./stop_ydb_procs
+docker stop agility

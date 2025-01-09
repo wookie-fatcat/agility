@@ -1,2 +1,0 @@
-docker exec -i --workdir /opt/mgateway/mapped --env PATH=/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin agility ./start
-

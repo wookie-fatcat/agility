@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+export NVM_DIR="/root/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+
+if [ -d "/opt/agility/mapped" ]; then
+
+  if [ ! -d "/opt/agility/mapped/ydb_data" ]; then
+
+    mkdir /opt/agility/mapped/ydb_data
+    cp /opt/yottadb/* /opt/agility/mapped/ydb_data
+    echo "YottaDB Global Directory files copied to mapped folder"
+
+  fi
+
+  # set symbolic links to use ydb_data directory for YottaDB storage
+
+  rm /opt/yottadb/mumps.dat
+  rm /opt/yottadb/yottadb.gld
+  ln -s /opt/agility/mapped/ydb_data/mumps.dat /opt/yottadb/mumps.dat
+  ln -s /opt/agility/mapped/ydb_data/yottadb.gld /opt/yottadb/yottadb.gld
+
+  export ydb_gbldir=/opt/yottadb/yottadb.gld
+  /usr/local/lib/yottadb/r202/mupip rundown -region default
+  /usr/local/lib/yottadb/r202/mupip set -key_size=1019 -region default
+  /usr/local/lib/yottadb/r202/mupip set -record_size=1048576 -region default
+
+  echo "Note: Data saved in YottaDB will persist in your mapped folder"
+
+  # run custom startup script in mapped directory if it exists
+  if [ -f "/opt/agility/mapped/start.sh" ]; then
+    source /opt/agility/mapped/start.sh
+  fi
+
+else
+
+  echo "NOTE: You have not started with the mapped directory"
+  echo "Data saved in YottaDB will not persist when you stop"
+  echo "the Container"
+
+fi
+
+./nginx start
+nohup node /opt/agility/mgweb_server.mjs >> /opt/agility/mapped/mgweb/mgweb_server.log 2>&1 &
+
+

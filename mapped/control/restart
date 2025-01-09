@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+bun /opt/agility/mapped/control/stopAndWait.mjs
+nohup bun /opt/agility/mapped/control/start.mjs >> /opt/agility/mapped/logs/agility.log 2>&1 &
+
+
