@@ -47,53 +47,9 @@ which you need to overlap each other using the slider below.
 
 - Follow the [installation instructions for Agility](./PI_INSTALL.md)
 
-  Note: If you want to use Solcast, add the following to the *config.json* file:
+- Before starting Agility, we recommend that you run the tests that are provided in the Web Interface Configuration
+panels.
 
-```console
-  "solcast": {
-    "key": "--enter your API key here--",
-    "endpoint": "https://api.solcast.com.au/rooftop_sites/xxxxxxxxxx/forecasts?format=json"
-  }
-```
-  Edit in your Solcast key and your site-specific endpoint.
-
-Your *config.json* file should then look something like this:
-
-```console
-{
-  "solisCloud": {
-    "key": "xxxxxxxxxx",
-    "secret": "yyyyyyyyy",
-    "endpoint": "https://www.soliscloud.com:13333",
-    "customerId": "zzzzzzzzz",
-    "inverterSn": "99999999"
-  },
-  "octopus": {
-    "zone": "J",
-    "url1": "https://api.octopus.energy/v1/products/AGILE-23-12-06/electricity-tariffs/E-1R-AGILE-23-12-06-",
-    "url2": "/standard-unit-rates/"
-  },
-  "battery": {
-    "storage": 14,
-    "minimumLevel": 20,
-    "chargeLimit": 95,
-    "chargeCurrent": 50,
-    "dischargeCurrent": 50
-  },
-  "operation": {
-    "movingAveragePeriod": 14,
-    "alwaysUseSlotPrice": 10
-  },
-  "solcast": {
-    "key": "yyyyyyyyyyy",
-    "endpoint": "https://api.solcast.com.au/rooftop_sites/xxxxxxxxxx/forecasts?format=json"
-  }
-}
-```
-
-- Before starting Agility, run the following tests to make sure the key APIs are able to work correctly:
-
- (To be completed)
 
 
 

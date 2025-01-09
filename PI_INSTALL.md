@@ -29,112 +29,85 @@ cd ~
 
 ## Step 4
 
-Clone the *mg-showcase* Repository:
+Clone the *agility* Repository:
 
 ```console
-git clone https://github.com/robtweed/mg-showcase
+git clone https://github.com/robtweed/agility
 ```
 
-You'll now have a directory: *~/mg-showcase*
+You'll now have a directory: *~/agility*
 
 ## Step 5
 
 Switch to that directory, eg
 
 ```console
-cd mg-showcase
+cd agility
 ```
 
 ## Step 6 
 
-Build the *mg-showcase* Docker Container that we'll be using to provide the run-time environment for *Agility*:
+Run the prepare script which will ensure all command files can be executed
 
 ```console
-docker build -t mg-showcase -f dockerfiles/yottadb/Dockerfile --progress plain .
+source prepare.sh
+```
+
+## Step 7
+
+Build the *Agility* Docker Container
+
+Switch to the *docker* directory and run the *buildContainer* command:
+
+```console
+cd docker
+./buildContainer
 ```
 
 It may take a while - let it run to completion
 
-## Step 7
-
-Return to your home directory:
-
-```console
-cd ..
-```
-
 ## Step 8
 
-Clone the *Agility* Repository:
+If the container built successfully, you can now start it with the *runContainer* command:
 
 ```console
-git clone https://github.com/robtweed/agility
+./runContainer
 ```
 
-You'll now have a directory named *agility*: *~/agility*
+When you start the container for the first time, it will run a number of initialisation steps and
+then it will be ready for you to begin operating Agility
 
 ## Step 9
 
-Edit the file *config.json* that you'll find in the *~/agility/src* directory
-and add your SolisCloud credentials to the empty locations.
+Operating Agility
 
-Make sure your Octopus zone is correct - change it as appropriate.
+As far as possible, everything else you need to do works via a web interface.
 
-Also make sure you change the battery storage size to the correct value for your system.  The
-value is in kWh.
-
-To begin with you should be able to use the other values provided in the *config.json* file.
-
-Save your edited version of *config.json*.
-
-## Step 10
-
-Start the Docker container and map the *agility* directory into it.  Use the following command:
+Open a browser and point it at port 8080 on your Agility server, eg:
 
 ```console
-docker run -it --name agility --rm -p 8080:8080 -e TZ=Europe/London -v ~/agility/src:/opt/mgateway/mapped mg-showcase
+http://192.168.1.100:8080
 ```
 
-This ensures that:
+Before attempting to start Agility, you'll need to edit its initial default configuration.  It will refuse to start until 
+you have a complete set of configuration settings.  Use the Configuration menu options.
 
-- the time zone is correctly maintained within the container
-- port 8080 is available for Agility's web interface
-- the container is named *agility*, eg when you run to see the running container:
+When you have everything configured, you can try out Agility: select the *System Status* menu option and click the
+*Start* button.
 
-  - docker ps
+Use the *Activity Log* menu option to see what Agility is doing.
 
-The *Agility* environment is now set up and ready for use.  You'll normally leave the container running
-constantly on your computer: it shouldn't need to be stopped, but if it does stop for any reason, just
-restart it with the same *docker run* command above.
+## Step 9
 
-## Step 11 
+Modifying Agility's Behaviour
 
-- To start *Agility*:
+Pretty much everything that the web interface allows you to change will have an immediate effect on Agility's
+behaviour (though you might have to wait until its next cycle of activity to see the effect).  
 
-```console
-cd ~/agility/src   # if you're not already in this directory
-./agility_start
-```
+You shouldn't need to stop and restart Agility.
 
-- You can monitor *Agility*'s activity log at any time:
+If you do stop and restart Agility, it will simply carry on from before: no settings or data will be lost.
 
-```console  
-cd ~/agility/src    # if you're not already in this directory
-./agility_log
-```
 
-- To restart *Agility* for any reason:
 
-```console
-cd ~/agility/src    # if you're not already in this directory
-./agility_restart
-```
-
-- If *Agility* crashes for some unforseen reason, some of the information needed to investigate the
-reasons behind the crash will be in the log (see above to list it). 
-
-  Other useful information will be provided in the file:
-
-```console
-~/agility/src/agility.log
 
