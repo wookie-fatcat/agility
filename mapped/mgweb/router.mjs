@@ -142,6 +142,11 @@ router.get('/agility/config/:category', (Request, ctx) => {
   if (agility.config.$(category).exists) {
     data = agility.config.$(category).document;
   }
+  if (category === 'solcast') {
+    if (!data.endpoint) data.endpoint = '';
+    if (!data.key) data.key = '';
+  }
+
   return {
     payload: {
       data: data

@@ -22,10 +22,14 @@ export function load() {
         let _this = this;
         let timer;
         let pid;
-        this.on('selected', function() {
+        this.on('selected', async function() {
+          _this.cardText.rootElement.textContent = '';
           _this.cardText.rootElement.style.height = (window.innerHeight - 250) + 'px';
           _this.cardText.rootElement.style.overflowY = 'scroll';
           if (source && source.readyState === 1) {
+            if (pid) {
+              let json = await _this.context.request('/agility/closeSSE/' + pid);
+            }
             source.close();
           }
           if (timer) {
