@@ -135,7 +135,7 @@ let Agility = class {
   }
 
   disableDischarging() {
-    delete this.config.$(['operation', 'dischargingEnabled']);
+    this.config.$(['operation', 'dischargingEnabled']).delete();
   }
 
   get chargingEnabled() {
@@ -150,7 +150,7 @@ let Agility = class {
   }
 
   disableCharging() {
-    delete this.config.$(['operation', 'chargingEnabled']);
+    this.config.$(['operation', 'chargingEnabled']).delete();
   }
 
   get now() {

@@ -365,6 +365,18 @@ class Solis {
     return pcs.join(',');
   }
 
+  gridOnlyTimeString(currentSetting, fromTimeText, toTimeText) {
+    let pcs = currentSetting.split(',');
+    pcs[0] = 0;
+    pcs[1] = 0;
+    pcs[2] = '00:00-00:00';
+    pcs[3] = fromTimeText + '-' + toTimeText;
+    pcs[6] = '00:00-00:00';
+    pcs[10] = '00:00-00:00';
+    return pcs.join(',');
+  }
+
+
   resetTimeString(currentSetting) {
     let pcs = currentSetting.split(',');
     pcs[0] = 0;
@@ -479,6 +491,28 @@ class Solis {
     this.battery.unsetDischargeControlFlag();  // in case it had been set to trigger this discharge
     return {status: 'Inverter set to discharge between ' + fromD.timeText + ' and ' + toD.timeText};
   }
+
+  async inverterGridOnly(override) {
+    if (!override && !this.agility.chargingEnabled) {
+      this.logger.write('Charging logic is currently disabled');
+      return {status: 'Inverter Grid Only task ignored'};
+    }
+    // first get current inverter charge settings
+    let resp = await this.atReadAPI();
+    if (resp.error) {
+      return resp;
+    }
+    let chargeString = resp.data.msg;
+    let fromD = this.date.now();
+    let toD = this.date.at(fromD.slotEndTimeIndex);
+    chargeString = this.gridOnlyTimeString(chargeString, fromD.timeText, toD.timeText);
+    resp = await this.dischargeAPI(chargeString);
+    if (resp.error) {
+      return resp;
+    }
+    return {status: 'Inverter set to only use grid power between ' + fromD.timeText + ' and ' + toD.timeText};
+  }
+
 
   async inverterResetNow() {
     if (!this.agility.chargingEnabled) {

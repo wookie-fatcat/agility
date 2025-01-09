@@ -36,6 +36,40 @@ router.get('/agility/isRunning', (Request, ctx) => {
 
 });
 
+router.get('/agility/charging/isEnabled', (Request, ctx) => {
+
+  return {
+    payload: {
+      enabled: agility.chargingEnabled
+    }
+  };
+
+});
+
+router.get('/agility/charging/enable', (Request, ctx) => {
+
+  agility.enableCharging();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/charging/disable', (Request, ctx) => {
+
+  agility.disableCharging();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
 router.get('/agility/start', async (Request, ctx) => {
 
   if (agility.isAlreadyRunning) {
@@ -273,8 +307,9 @@ router.get('/agility/solis/charge/:time', async (Request, ctx) => {
         details: res.error
       }
     };
-
   }
+
+  console.log(res);
 
   return {
     payload: {
@@ -326,10 +361,6 @@ router.get('/agility/solcast/update', async (Request, ctx) => {
   };
 
 });
-
-
-
-
 
 router.get('/agility/closeSSE/:pid', async (Request, ctx) => {
 

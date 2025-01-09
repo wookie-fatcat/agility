@@ -47,8 +47,11 @@ class Actions {
       },
       shouldBatteryBeCharged: function() {
         let charge = this.battery.shouldBeCharged;
-        if (charge) {
+        if (charge === 'charge') {
           this.addTask('inverterCharge');
+        }
+        else if (charge === 'gridonly') {
+          this.addTask('inverterGridOnly');
         }
         else {
           this.addTask('shouldBatteryBeDischarged');
@@ -74,6 +77,9 @@ class Actions {
           override = true;
         }
         return await this.solis.inverterDischarge(override);
+      },
+      inverterGridOnly: async function() {
+        return await this.solis.inverterGridOnly();
       },
       inverterReset: async function() {
         return await this.solis.inverterReset();

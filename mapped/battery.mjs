@@ -116,7 +116,7 @@ class Battery {
       return +this.config.$('defaultPercentIncreasePerCharge').value;
     }
     else {
-      return 5;
+      return 6;
     }
   }
 
@@ -276,12 +276,12 @@ class Battery {
     if (this.octopus.priceNow <= 0) {
       this.logger.write('Slot price of ' + priceNow + ' is at or below zero');
       this.logger.write('Charge');
-      return true;
+      return 'charge';
     }
     if (this.octopus.priceNow <= alwaysUsePrice) {
       this.logger.write('Slot price of ' + priceNow + ' is at or below Always Use price of ' + alwaysUsePrice);
       this.logger.write('Charge');
-      return true;
+      return 'charge';
     }
     let noOfSlotsNeeded = this.noOfSlotsNeeded;
     if (typeof noOfSlotsNeeded === 'undefined') {
@@ -292,6 +292,7 @@ class Battery {
     if (noOfSlotsNeeded === 0) return false;
     this.logger.write('Check to see if current slot is one of the cheapest up to 16:00');
     let shouldCharge = this.octopus.useCurrentSlotOf(noOfSlotsNeeded);
+    if (shouldCharge) shouldCharge = 'charge';
     this.logger.write('Charge battery: ' + shouldCharge);
     return shouldCharge;
   }
