@@ -241,6 +241,74 @@ router.post('/agility/config/:category', (Request, ctx) => {
   }
 });
 
+router.get('/agility/soliscloud/test1', async (Request, ctx) => {
+
+  let res = await agility.solis.inverterDayAPI(0);
+  if (res.error) {
+    return {
+      payload: {
+        error: 'Unable to fetch your SolisCloud data',
+        details: res.error
+      }
+    };
+
+  }
+
+  return {
+    payload: {
+      ok: true,
+      example: res.data[0]
+    }
+  };
+
+});
+
+router.get('/agility/solis/charge/:time', async (Request, ctx) => {
+
+  let res = await agility.solis.inverterChargeTest(+Request.params.time);
+  if (res.error) {
+    return {
+      payload: {
+        error: 'Unable to set your inverter to charge',
+        details: res.error
+      }
+    };
+
+  }
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/octopus/agiletariff', async (Request, ctx) => {
+
+  let res = await agility.octopus.fetchTariff();
+  if (res.error) {
+    return {
+      payload: {
+        error: 'Unable to fetch the Octopus Agile Tariff',
+        details: res.error
+      }
+    };
+
+  }
+
+  return {
+    payload: {
+      ok: true,
+      example: res.results[0]
+    }
+  };
+
+});
+
+
+
+
 router.get('/agility/closeSSE/:pid', async (Request, ctx) => {
 
   let sseDoc = new agility.glsdb.node('agilitySSE.byPid');
@@ -257,8 +325,8 @@ router.get('/agility/closeSSE/:pid', async (Request, ctx) => {
 
 router.sse('/agility/sse', function(ws, ctx)  {
 
-  console.log('in sse handler');
-  console.log(ws);
+  //console.log('in sse handler');
+  //console.log(ws);
   ws.write('data:server_process:' + process.pid + '\r\n\r\n');
   
   let sseDoc = new agility.glsdb.node('agilitySSE.byPid');
@@ -269,7 +337,7 @@ router.sse('/agility/sse', function(ws, ctx)  {
   let now = agility.date.now();
 
   function displayNextLogRecords(lastKey) {
-    console.log('starting at ' + lastKey);
+    //console.log('starting at ' + lastKey);
     agility.logger.logDoc.$(now.dateIndex).forEachChildNode({from: lastKey + 1}, function(node) {
       if (node.key !== 'counter') {
         lastKey = +node.key;
@@ -280,13 +348,13 @@ router.sse('/agility/sse', function(ws, ctx)  {
   }
 
   lastKey = displayNextLogRecords(lastKey);
-  console.log('lastKey is now ' + lastKey);
+  //console.log('lastKey is now ' + lastKey);
 
   let fn = function() {
     //get any new records and display them...
-    console.log('SIGHUP!');
+    //console.log('SIGHUP!');
     lastKey = displayNextLogRecords(lastKey);
-    console.log('lastKey is now ' + lastKey);
+    //console.log('lastKey is now ' + lastKey);
   };
 
   process.on('SIGHUP', fn);

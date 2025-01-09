@@ -13,6 +13,24 @@ export function load() {
           <sbadmin-button color="green" text="Save Changes" golgi:ref="saveBtn" />
         </fieldset>
       </sbadmin-form>
+
+      <sbadmin-spacer />
+
+      <sbadmin-div golgi:ref="tests">
+        <sbadmin-card-text>Test your Octopus API Credentials Below:</sbadmin-card-text>
+
+        <sbadmin-form golgi:ref="testingform">
+          <fieldset>
+            <sbadmin-button-group>
+              <sbadmin-button color="blue" text="Fetch Agile Tariff" golgi:ref="fetchBtn" />
+              <sbadmin-button color="orange" text="Clear Results" golgi:ref="clearBtn" />
+            </sbadmin-button-group>
+            <sbadmin-card-text golgi:ref="testResults"></sbadmin-card-text>
+
+          </fieldset>
+        </sbadmin-form>
+      </sbadmin-div>
+
     </sbadmin-card-body>
   </sbadmin-card>
 
@@ -59,6 +77,25 @@ export function load() {
               _this.toast.display('Update was successful');
             }
           });
+
+          _this.fetchBtn.on('clicked', async () => {
+            let json = await _this.context.request('/agility/octopus/agiletariff');
+            if (json.error) {
+              _this.toast.headerTxt = 'Error';
+              _this.toast.display(json.error + '<br>Check that your credentials are correct');
+            }
+            else {
+              _this.toast.headerTxt = 'Success!';
+              _this.toast.display('Agility was able to fetch the Octopus Agile Tariff');
+              _this.testResults.rootElement.innerHTML = `<p>Here is a sample:</p><p>` + JSON.stringify(json.example) + `</p>`;
+            }
+
+          });
+
+          _this.clearBtn.on('clicked', async () => {
+            _this.testResults.rootElement.textContent = '';
+          });
+
         });
       }
     }

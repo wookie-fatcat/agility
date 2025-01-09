@@ -228,6 +228,13 @@ class Solis {
   }
 
   async inverterDayAPI(offset) {
+
+    if (!this.isConfigured) {
+      return {
+        error: 'SolisCloud credentials are incomplete'
+      };
+    }
+ 
     offset = offset || 0;
     let d = this.date.atMidnight(offset);
     let time = `${d.year}-${d.monthText}-${d.dayText}`;
@@ -404,6 +411,12 @@ class Solis {
 
   async inverterChargeTest(forMinutes) {
     // Set inverter to charge for specified time: five minutes by default
+
+    if (!this.isConfigured) {
+      return {
+        error: 'SolisCloud credentials are incomplete'
+      };
+    }
 
     forMinutes = forMinutes || 5;
     let forMs = forMinutes * 60000;
