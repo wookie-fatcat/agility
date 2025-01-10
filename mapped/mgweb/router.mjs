@@ -139,6 +139,14 @@ router.get('/agility/solcast/isenabled', (Request, ctx) => {
 
 router.get('/agility/solcast/enable', (Request, ctx) => {
 
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so unable to enable'
+      }
+    };
+  }
+
   agility.solcast.enable();
 
   return {
@@ -160,6 +168,49 @@ router.get('/agility/solcast/disable', (Request, ctx) => {
   };
 
 });
+
+router.get('/agility/clockSync/isEnabled', (Request, ctx) => {
+
+  return {
+    payload: {
+      enabled: agility.solis.keepInverterTimeSynchronised
+    }
+  };
+
+});
+
+router.get('/agility/clockSync/enable', (Request, ctx) => {
+
+  if (!agility.solis.isConfigured) {
+    return {
+      payload: {
+        error: 'Solis Configuration is incomplete, so unable to enable'
+      }
+    };
+  }
+
+  agility.solis.keepInverterTimeSynchronised = true;
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/clockSync/disable', (Request, ctx) => {
+
+  agility.solis.keepInverterTimeSynchronised = false;
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
 
 router.get('/agility/config/:category', (Request, ctx) => {
   let allowed = ['solisCloud', 'solcast', 'octopus', 'battery', 'operation'];

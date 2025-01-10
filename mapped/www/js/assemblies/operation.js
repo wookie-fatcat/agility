@@ -17,7 +17,10 @@ export function load() {
 
       <sbadmin-form golgi:ref="enableform">
         <fieldset>
-          <sbadmin-checkbox-group name="enableCharging" switch="true" value="yes" offValue="no" label="Enable Charging" title="Charging and Discharging:" golgi:ref="enableCharging" />
+          <sbadmin-checkbox-group name="enableCharging" switch="true" scale="1.8" value="yes" offValue="no" label=" : Enable Charging" title="Charging and Discharging:" golgi:ref="enableCharging" golgi:hook="charging" />
+          <sbadmin-spacer /> 
+          <sbadmin-checkbox-group name="enableClockSync" switch="true" scale="1.8" value="yes" offValue="no" label=" : Enable Synchronisation" title="Inverter Clock Synchronisation:" golgi:ref="enableClockSync" golgi:hook="clock" />
+
         </fieldset>
       </sbadmin-form>
 
@@ -30,6 +33,102 @@ export function load() {
   `;
 
   let hooks = {
+    'sbadmin-checkbox-group': {
+      charging: function() {
+        let _this = this;
+        this.on('cbReady', async function(cb) {
+          // see if charging is enabled
+          let contentPage = _this.getParentComponent('sbadmin-content-page');
+
+          let json = await _this.context.request('/agility/charging/isEnabled');
+          if (json.error) {
+            contentPage.toast.headerTxt = 'Error';
+            contentPage.toast.display(json.error);
+          }
+          if (json.enabled) {
+            cb.check();
+          }
+          else {
+            cb.uncheck();
+          }
+
+          cb.on('clicked', async function() {
+            let json;
+            if (cb.checked) {
+              json = await _this.context.request('/agility/charging/enable');
+              if (json.error) {
+                contentPage.toast.headerTxt = 'Error';
+                contentPage.toast.display(json.error);
+                cb.uncheck();
+              }
+              else {
+                contentPage.toast.headerTxt = 'Success!';
+                contentPage.toast.display('Agility will now charge your batteries');
+              }
+            }
+            else {
+              json = await _this.context.request('/agility/charging/disable');
+              if (json.error) {
+                contentPage.toast.headerTxt = 'Error';
+                contentPage.toast.display(json.error);
+              }
+              else {
+                contentPage.toast.headerTxt = 'Attention!';
+                contentPage.toast.display('Agility will no longer charge your batteries');
+              }
+            }
+          });
+        });
+      },
+      clock: function() {
+        let _this = this;
+        this.on('cbReady', async function(cb) {
+          // see if charging is enabled
+          let contentPage = _this.getParentComponent('sbadmin-content-page');
+
+          let json = await _this.context.request('/agility/clockSync/isEnabled');
+          if (json.error) {
+            contentPage.toast.headerTxt = 'Error';
+            contentPage.toast.display(json.error);
+          }
+          if (json.enabled) {
+            cb.check();
+          }
+          else {
+            cb.uncheck();
+          }
+
+          cb.on('clicked', async function() {
+            let json;
+            if (cb.checked) {
+              json = await _this.context.request('/agility/clockSync/enable');
+              if (json.error) {
+                contentPage.toast.headerTxt = 'Error';
+                contentPage.toast.display(json.error);
+                cb.uncheck();
+              }
+              else {
+                contentPage.toast.headerTxt = 'Success!';
+                contentPage.toast.display('Agility will now synchronise your inverter clock every midnight');
+              }
+            }
+            else {
+              json = await _this.context.request('/agility/clockSync/disable');
+              if (json.error) {
+                contentPage.toast.headerTxt = 'Error';
+                contentPage.toast.display(json.error);
+              }
+              else {
+                contentPage.toast.headerTxt = 'Attention!';
+                contentPage.toast.display('Agility will no longer synchronise your inverter clock');
+              }
+            }
+          });
+
+        });
+      }
+
+    },
     'sbadmin-content-page': {
       operation: function() {
         let _this = this;
@@ -45,27 +144,8 @@ export function load() {
             _this.toast.display(json.error);
           }
           else {
-            for (let name in json.data) {
-              if (name !== 'chargingEnabled') {
-                _this.form.fieldsByName.get(name).value = json.data[name];
-              }
-            }
-          }
-
-          // see if charging is enabled
-
-          json = await _this.context.request('/agility/charging/isEnabled');
-          if (json.error) {
-            _this.toast.headerTxt = 'Error';
-            _this.toast.display(json.error);
-          }
-          if (json.enabled) {
-            _this.enableCharging.cb.check();
-            chargingEnabled = true;
-          }
-          else {
-            _this.enableCharging.cb.uncheck();
-            chargingEnabled = false;
+            if (json.data.alwaysUseSlotPrice) _this.form.fieldsByName.get('alwaysUseSlotPrice').value = json.data.alwaysUseSlotPrice;
+            if (json.data.movingAveragePeriod) _this.form.fieldsByName.get('movingAveragePeriod').value = json.data.movingAveragePeriod;
           }
 
           _this.saveBtn.on('clicked', async () => {
@@ -86,36 +166,6 @@ export function load() {
             }
           });
 
-          _this.enableCharging.cb.on('clicked', async function() {
-            console.log(111111);
-            let json;
-            if (chargingEnabled && _this.enableCharging.cb.checked) return;
-            if (!chargingEnabled && !_this.enableCharging.cb.checked) return;
-            if (_this.enableCharging.cb.checked) {
-              json = await _this.context.request('/agility/charging/enable');
-              if (json.error) {
-                _this.toast.headerTxt = 'Error';
-                _this.toast.display(json.error);
-              }
-              else {
-                _this.toast.headerTxt = 'Success!';
-                _this.toast.display('Agility will now charge your batteries');
-                chargingEnabled = true;
-              }
-            }
-            else {
-              json = await _this.context.request('/agility/charging/disable');
-              if (json.error) {
-                _this.toast.headerTxt = 'Error';
-                _this.toast.display(json.error);
-              }
-              else {
-                _this.toast.headerTxt = 'Attention!';
-                _this.toast.display('Agility will no longer charge your batteries');
-                chargingEnabled = false;
-              }
-            }
-          });
         });
       }
     }
