@@ -37,7 +37,7 @@ class Battery {
     this.logger = agility.logger;
     this.date = agility.date;
     this.solis = agility.solis;
-    if (agility.useSolcast) this.solcast = agility.solcast;
+    this.solcast = agility.solcast;
     this.octopus = agility.octopus;
     this.control = agility.control;
     this.agility = agility;
@@ -180,7 +180,7 @@ class Battery {
     this.logger.write('Expected power use between ' + fromTimeText + ' and ' + toTimeText + ': ')
     this.logger.write(JSON.stringify(averageExpectedPower));
     let pv = averageExpectedPower.pv;
-    if (this.agility.useSolcast) {
+    if (this.solcast.isEnabled) {
       let spv = this.solcast.expectedPowerBetween(fromTimeText, toTimeText);
       if (spv > 0) pv = spv;
     }
