@@ -143,7 +143,7 @@ let Solcast = class {
       }
     });
 
-    else if (count > 1) {
+    if (count > 1) {
       let diff = ((totalA - totalP) / totalP) * 100;
       console.log('percent difference: ' + diff);
       this.adjustment = diff;
