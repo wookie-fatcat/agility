@@ -142,8 +142,8 @@ let Solcast = class {
         }
       }
     });
-    // ignore the first because it is likely to be incomplete
-    if (count > 1) {
+
+    else if (count > 1) {
       let diff = ((totalA - totalP) / totalP) * 100;
       console.log('percent difference: ' + diff);
       this.adjustment = diff;
@@ -270,6 +270,7 @@ let Solcast = class {
     this.predictions.forEachChildNode(function(dateNode) {
       let dateIndex = dateNode.key;
       let d = _this.date.at(dateIndex);
+      /*
       if (+dateIndex === +todayDateIndex && !_this.totals.$(dateIndex).exists) {
         let total = dateNode.lastChild.$('total').value;
         _this.totals.$(dateIndex).document = {
@@ -278,6 +279,7 @@ let Solcast = class {
           day: d.dayText
         }
       }
+      */
       if (dateIndex > todayDateIndex) {
         _this.totals.$(dateIndex).delete();
         let total = dateNode.lastChild.$('total').value;
