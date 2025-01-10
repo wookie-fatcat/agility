@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 January 2025
+ 10 January 2025
 
 */
 
@@ -142,7 +142,8 @@ let Solcast = class {
         }
       }
     });
-    if (count > 0) {
+    // ignore the first because it is likely to be incomplete
+    if (count > 1) {
       let diff = ((totalA - totalP) / totalP) * 100;
       console.log('percent difference: ' + diff);
       this.adjustment = diff;
