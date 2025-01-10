@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 January 2025
+ 10 January 2025
 
  */
 
@@ -57,7 +57,7 @@ class Battery {
   }
 
   get chargeLimit() {
-    if (this.config.$('chargeLimit').exists) return 95;
+    if (!this.config.$('chargeLimit').exists) return 95;
     return +this.config.$('chargeLimit').value;
   }
 
