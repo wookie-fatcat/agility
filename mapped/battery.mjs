@@ -318,13 +318,15 @@ class Battery {
     let count = 0;
     let chargeAction;
     this.logger.write('=============');
-    this.logger.write('Total battery storage power deficit: ' + powerDeficit.toFixed(2));
+    this.logger.write('Summary position:');
+    this.logger.write('Current battery level is ' + batteryLevel + '%');
+    this.logger.write('Total net battery storage power deficit: ' + powerDeficit.toFixed(2));
     this.logger.write('no of slots needed to currently fill battery: ' + noOfSlotsToFillBattery);
-    this.logger.write('no of slots needed to meet power deficit: ' + noOfSlotsNeeded);
+    this.logger.write('no of slots needed to meet net power deficit: ' + noOfSlotsNeeded);
     let increasePerCharge = this.percentIncreasePerCharge;
-    this.logger.write('Each charge will increase battery percentage by ' + increasePerCharge);
+    this.logger.write('Each charge will increase battery percentage by ' + increasePerCharge.toFixed(2));
     let powerAddedPerCharge =  this.powerFromPercentage(increasePerCharge);
-    this.logger.write('Which equates to ' + powerAddedPerCharge + 'kWh');
+    this.logger.write('Which equates to ' + powerAddedPerCharge.toFixed(2) + 'kWh');
     this.logger.write('=============');
 
     for (let slot of slots) {
@@ -345,7 +347,7 @@ class Battery {
         else {
           netPower = this.netPowerBetween(d.slotTimeText, slotEndTimeText, true);
         }
-        this.logger.write('net power until slot end at ' + slotEndTimeText + ': ' + netPower);
+        this.logger.write('Net power until slot end at ' + slotEndTimeText + ': ' + netPower.toFixed(2));
         remainingPowerNeeded = remainingPowerNeeded - netPower;
         this.logger.write('remainining power needed: ' + remainingPowerNeeded.toFixed(2));
       }

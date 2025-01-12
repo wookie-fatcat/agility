@@ -363,16 +363,19 @@ let Solcast = class {
     let dateIndex = fromD.dateIndex;
     let fromTimeIndex = fromD.slotTimeIndex;
     let todaysPredictions = this.predictions.$(dateIndex);
+    //this.logger.write('Solcast expectedPowerBetween: fromTimeText = ' + fromTimeText);
+    //this.logger.write('Solcast expectedPowerBetween: toTimeText = ' + toTimeText);
+    //this.logger.write('Solcast expectedPowerBetween: dateIndex = ' + dateIndex);
     let total = 0;
 
     if (!override && this.octopus.tomorrowsTariffsAvailable) {
       // get today's total estimated power from now until 23:30
 
-      this.logger.write('Tomorrows Octopus Triffs available');
+      this.logger.write('Tomorrows Octopus Tariffs available');
       this.logger.write('Get Solcast prediction from now until 23:30');
       this.logger.write('And also from midnight until 22:30 tomorrow');
 
-      if (todaysPredictions.exist) {
+      if (todaysPredictions.exists) {
         let pvAtStart = todaysPredictions.$([fromTimeIndex, 'total']).value;
         let pvAtEnd = todaysPredictions.lastChild.$('total').value;
         total = pvAtEnd - pvAtStart;
