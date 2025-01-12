@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 January 2025
+ 11 January 2025
 
  */
 
@@ -41,7 +41,8 @@ class Solis {
     let glsdb = agility.glsdb;
     this.data = new glsdb.node('solis');
     this.agility = agility;
-    this.battery = new Battery(this.agility);
+    this.battery = new Battery(agility);
+    this.chargeHistory = new glsdb.node('agilityChargeHistory');
   }
 
   get isConfigured() {
@@ -448,12 +449,31 @@ class Solis {
     return {status: 'Inverter successfully set to charge between ' + fromD.timeText + ' and ' + toD.timeText};
   }
 
+  startNewChargeHistoryRecord() {
+    let levelNow = this.batteryLevelNow;
+    if (levelNow) {
+      let d = this.date.now();
+      this.chargeHistory.$([d.slotTimeIndex, 'start']).value = levelNow;
+      this.chargeHistory.$([d.slotTimeIndex, 'startMinute']).value = d.minute;
+    }
+  }
+
+  endChargeHistoryRecord() {
+    let levelNow = this.batteryLevelNow;
+    if (levelNow) {
+      let d = this.date.now();
+      if (this.chargeHistory.$(d.previousSlotTimeIndex).exists) {
+        this.chargeHistory.$([d.previousSlotTimeIndex, 'end']).value = levelNow;
+      }
+    }
+  }
+
   async inverterCharge(override) {
     if (!override && !this.agility.chargingEnabled) {
       this.logger.write('Charging logic is currently disabled');
       return {status: 'Inverter Charge task ignored'};
     }
-    this.battery.startNewChargeHistoryRecord();
+    this.startNewChargeHistoryRecord();
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
@@ -468,6 +488,21 @@ class Solis {
       return resp;
     }
     return {status: 'Inverter set to charge between ' + fromD.timeText + ' and ' + toD.timeText};
+  }
+
+  async inverterChargeBetween(fromTimeText, toTimeText) {
+    // first get current inverter charge settings
+    let resp = await this.atReadAPI();
+    if (resp.error) {
+      return resp;
+    }
+    let chargeString = resp.data.msg;
+    chargeString = this.chargeTimeString(chargeString, fromTimeText, toTimeText);
+    resp = await this.chargeAPI(chargeString);
+    if (resp.error) {
+      return resp;
+    }
+    return {status: 'Inverter set to charge between ' + fromTimeText + ' and ' + toTimeText};
   }
 
   async inverterDischarge(override) {
@@ -492,6 +527,22 @@ class Solis {
     return {status: 'Inverter set to discharge between ' + fromD.timeText + ' and ' + toD.timeText};
   }
 
+  async inverterDischargeBetween(fromTimeText, toTimeText) {
+    // first get current inverter charge settings
+    let resp = await this.atReadAPI();
+    if (resp.error) {
+      return resp;
+    }
+    let chargeString = resp.data.msg;
+    chargeString = this.dischargeTimeString(chargeString, fromTimeText, toTimeText);
+    resp = await this.dischargeAPI(chargeString);
+    if (resp.error) {
+      return resp;
+    }
+    return {status: 'Inverter set to discharge between ' + fromTimeText + ' and ' + toTimeText};
+  }
+
+
   async inverterGridOnly(override) {
     if (!override && !this.agility.chargingEnabled) {
       this.logger.write('Charging logic is currently disabled');
@@ -513,9 +564,24 @@ class Solis {
     return {status: 'Inverter set to only use grid power between ' + fromD.timeText + ' and ' + toD.timeText};
   }
 
+  async inverterGridPowerBetween(fromTimeText, toTimeText) {
+    // first get current inverter charge settings
+    let resp = await this.atReadAPI();
+    if (resp.error) {
+      return resp;
+    }
+    let chargeString = resp.data.msg;
+    chargeString = this.gridOnlyTimeString(chargeString, fromTimeText, toTimeText);
+    resp = await this.dischargeAPI(chargeString);
 
-  async inverterResetNow() {
-    if (!this.agility.chargingEnabled) {
+    if (resp.error) {
+      return resp;
+    }
+    return {status: 'Inverter set to only use grid power between ' + fromTimeText + ' and ' + toTimeText};
+  }
+
+  async inverterResetNow(override) {
+    if (!override && !this.agility.chargingEnabled) {
       return {error: 'Charging logic is currently disabled, so no reset command sent'};
     }
     // first get current inverter charge settings
@@ -605,8 +671,9 @@ class Solis {
   }
 
   get batteryLevelNow() {
-    if (this.dataNow) {
-      return this.dataNow.batteryLevel;
+    let dataNow = this.dataNow;
+    if (dataNow) {
+      return dataNow.batteryLevel;
     }
     return;
   }

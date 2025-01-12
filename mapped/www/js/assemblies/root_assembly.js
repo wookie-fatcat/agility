@@ -18,6 +18,12 @@ export function load(ctx) {
 
     <sbadmin-sidebar-menu-item iconName="clipboard" text="Activity Log" contentPage="log" />
 
+    <sbadmin-sidebar-nested-menu iconName="user-check" text="Manual Control">
+      <sbadmin-sidebar-menu-item text="Inverter Charge" contentPage="inverterCharge" />
+      <sbadmin-sidebar-menu-item text="Inverter Discharge" contentPage="inverterDischarge" />
+      <sbadmin-sidebar-menu-item text="Inverter Grid Power Only" contentPage="inverterGridOnly" />
+    </sbadmin-sidebar-nested-menu>
+
     <sbadmin-sidebar-nested-menu iconName="settings" text="Configuration">
       <sbadmin-sidebar-menu-item text="SolisCloud" contentPage="solis" />
       <sbadmin-sidebar-menu-item text="Octopus" contentPage="octopus"/>

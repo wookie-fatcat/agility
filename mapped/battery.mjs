@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 10 January 2025
+ 12 January 2025
 
  */
 
@@ -120,23 +120,6 @@ class Battery {
     }
   }
 
-  startNewChargeHistoryRecord() {
-    let d = this.date.now();
-    if (this.levelNow) {
-      this.chargeHistory.$([d.slotTimeIndex, 'start']).value = this.levelNow;
-      this.chargeHistory.$([d.slotTimeIndex, 'startMinute']).value = d.minute;
-    }
-  }
-
-  endChargeHistoryRecord() {
-    let d = this.date.now();
-    if (this.levelNow) {
-      if (this.chargeHistory.$(d.previousSlotTimeIndex).exists) {
-        this.chargeHistory.$([d.previousSlotTimeIndex, 'end']).value = this.levelNow;
-      }
-    }
-  }
-
   get totalStorage() {
     return +this.config.$('storage').value;
   }
@@ -154,12 +137,12 @@ class Battery {
     this.config.$('minimumnLevel').value = value;
   }
 
-  netPowerBetween(fromTimeText, toTimeText) {
+  netPowerBetween(fromTimeText, toTimeText, override) {
 
     this.logger.write('Calculating expected power between ' + fromTimeText + ' and ' + toTimeText);
     let averageExpectedPower;
 
-    if (this.octopus.tomorrowsTariffsAvailable) {
+    if (!override && this.octopus.tomorrowsTariffsAvailable) {
       this.logger.write('Tomorrows octopus tariff available so get power till ' + toTimeText + ' tomorrow');
       // first get expected power from now until 23:30
       let power1 = this.solis.averagePowerBetween(fromTimeText, '23:30');
@@ -181,7 +164,7 @@ class Battery {
     this.logger.write(JSON.stringify(averageExpectedPower));
     let pv = averageExpectedPower.pv;
     if (this.solcast.isEnabled) {
-      let spv = this.solcast.expectedPowerBetween(fromTimeText, toTimeText);
+      let spv = this.solcast.expectedPowerBetween(fromTimeText, toTimeText, override);
       if (spv > 0) pv = spv;
     }
     let netPower = averageExpectedPower.load - pv;
@@ -208,17 +191,28 @@ class Battery {
 
   noOfSlotsToChargeBy(deficit) {
     let increasePerCharge = this.percentIncreasePerCharge;
-    console.log('Each charge will increase battery percentage by ' + increasePerCharge);
+    this.logger.write('Each charge will increase battery percentage by ' + increasePerCharge);
     let powerAddedPerCharge =  this.powerFromPercentage(increasePerCharge);
-    console.log('power added per charge: ' + powerAddedPerCharge.toFixed(2));
+    this.logger.write('power added per charge: ' + powerAddedPerCharge.toFixed(2));
     let noOfSlots = Math.round(deficit / powerAddedPerCharge);
-    console.log('no of slots needed for deficit of ' + deficit + ': ' + noOfSlots);
+    this.logger.write('no of slots needed for deficit of ' + deficit.toFixed(2) + ': ' + noOfSlots);
     return noOfSlots;
   }
 
-  get noOfSlotsNeeded() {
-    let powerNeeded = this.netPowerBetween(this.date.now().slotTimeText, '22:30');
-    this.logger.write('Net power needed between now and 22:30: ' + powerNeeded.toFixed(2));
+  getPowerDeficit(fromTimeText, toTimeText) {
+    let powerNeeded = this.netPowerBetween(fromTimeText, toTimeText);
+    let batteryLevel = this.levelNow;
+    if (!batteryLevel) return 0; // ******* to do
+    this.logger.write('Battery level is currently ' + batteryLevel + '%');
+    let availableBatteryPower = this.availablePowerFromPercentage(batteryLevel);
+    this.logger.write('which equates to ' + availableBatteryPower.toFixed(2) + ' kWh of power that can be provided by the battery');
+    let powerDeficit = powerNeeded - availableBatteryPower;
+    this.logger.write('Power deficit: ' + powerDeficit.toFixed(2) + ' kWh');
+    return powerDeficit;
+  }
+
+  noOfSlotsNeeded(powerDeficit) {
+    /*
     let batteryLevel = this.levelNow;
     if (!batteryLevel) return;
     this.logger.write('Battery level is currently ' + batteryLevel + '%');
@@ -226,12 +220,15 @@ class Battery {
     this.logger.write('which equates to ' + availableBatteryPower.toFixed(2) + ' kWh of power that can be provided by the battery');
     let powerDeficit = (powerNeeded - availableBatteryPower).toFixed(2);
     this.logger.write('Power deficit: ' + powerDeficit + ' kWh');
+    */
     if (powerDeficit <= 0) {
+      /*
       let d = this.date.now();
       this.control.$('powerSurplus').document = {
         surplus: -powerDeficit,
         timeIndex: d.slotTimeIndex
       };
+      */
       this.logger.write('Enough power in battery to meet requirements');
       return 0;
     }
@@ -248,7 +245,7 @@ class Battery {
 
   get shouldBeCharged() {
     // if previous slot charged battery,save the new battery level
-    this.endChargeHistoryRecord();
+    this.solis.endChargeHistoryRecord();
     //
     if (this.isDischargeControlFlagSet()) {
       this.logger.write('Manual Discharge control flag has been set');
@@ -283,18 +280,122 @@ class Battery {
       this.logger.write('Charge');
       return 'charge';
     }
-    let noOfSlotsNeeded = this.noOfSlotsNeeded;
+    let powerDeficit = this.getPowerDeficit(this.date.now().slotTimeText, '22:30');
+    this.logger.write('Net power needed between now and 22:30: ' + powerDeficit.toFixed(2));
+
+
+    let noOfSlotsNeeded = this.noOfSlotsNeeded(powerDeficit);
     if (typeof noOfSlotsNeeded === 'undefined') {
       this.logger.write('Unable to calculate battery power, probably due to comms issues');
       this.logger.write('Dont charge');
       return false;
     }
     if (noOfSlotsNeeded === 0) return false;
-    this.logger.write('Check to see if current slot is one of the cheapest up to 16:00');
-    let shouldCharge = this.octopus.useCurrentSlotOf(noOfSlotsNeeded);
-    if (shouldCharge) shouldCharge = 'charge';
-    this.logger.write('Charge battery: ' + shouldCharge);
-    return shouldCharge;
+
+    // how many charge slots remaining in battery?
+    this.logger.write('Determine whether to charge, use grid power or do nothing...');
+    this.logger.write('Current battery level is ' + batteryLevel);
+    this.logger.write('Percent left before full: ' + (100 - batteryLevel));
+    let shouldCharge;
+
+    let noOfSlotsToFillBattery = 0;
+    if (batteryLevel < 100) {
+      let powerNeededToFillBattery = this.powerFromPercentage(100 - batteryLevel);
+      this.logger.write('That equates to ' + powerNeededToFillBattery.toFixed(2) + ' kWh');
+      noOfSlotsToFillBattery = this.noOfSlotsToChargeBy(powerNeededToFillBattery);
+    }
+    else {
+      this.logger.write('Battery is already full');
+    }
+
+    // get array of slots in descending price order
+
+    this.octopus.sortSlots();
+    let slots = this.octopus.cheapestSlotArray;
+    let remainingPowerNeeded = +powerDeficit;
+
+    let currentSlotTimeIndex = this.date.now().slotTimeIndex;
+    let count = 0;
+    let chargeAction;
+    this.logger.write('=============');
+    this.logger.write('Total battery storage power deficit: ' + powerDeficit.toFixed(2));
+    this.logger.write('no of slots needed to currently fill battery: ' + noOfSlotsToFillBattery);
+    this.logger.write('no of slots needed to meet power deficit: ' + noOfSlotsNeeded);
+    let increasePerCharge = this.percentIncreasePerCharge;
+    this.logger.write('Each charge will increase battery percentage by ' + increasePerCharge);
+    let powerAddedPerCharge =  this.powerFromPercentage(increasePerCharge);
+    this.logger.write('Which equates to ' + powerAddedPerCharge + 'kWh');
+    this.logger.write('=============');
+
+    for (let slot of slots) {
+      count++;
+      let d = this.date.at(slot.timeIndex);
+      this.logger.write('slot ' + count + ': ' + d.slotTimeText + ': price: ' + slot.price);
+
+      if (count <= noOfSlotsToFillBattery) {
+        remainingPowerNeeded = remainingPowerNeeded - powerAddedPerCharge;
+        this.logger.write('remainining power needed after battery charge: ' + remainingPowerNeeded.toFixed(2));
+      }
+      else {
+        let slotEndTimeText = this.date.at(d.slotEndTimeIndex).timeText;
+        let netPower;
+        if (d.slotTimeText === '23:30') {
+          netPower = 0;
+        }
+        else {
+          netPower = this.netPowerBetween(d.slotTimeText, slotEndTimeText, true);
+        }
+        this.logger.write('net power until slot end at ' + slotEndTimeText + ': ' + netPower);
+        remainingPowerNeeded = remainingPowerNeeded - netPower;
+        this.logger.write('remainining power needed: ' + remainingPowerNeeded.toFixed(2));
+      }
+
+      if (count === 1 && noOfSlotsNeeded === 1 && +currentSlotTimeIndex === +slot.timeIndex) {
+        // use this slot if it's the first and only 1 charge slot needed
+        this.logger.write('Only 1 slot needed and this current one is the cheapest available, so use it')
+        chargeAction = 'charge';
+        break;
+      }
+
+      if (remainingPowerNeeded <= 0) {
+        this.logger.write('Power deficit would be accounted for by previous cheaper slots: take no action');
+        chargeAction = false;
+        break;
+      }
+
+      if (+currentSlotTimeIndex === +slot.timeIndex) {
+        if (count <= noOfSlotsToFillBattery) {
+          chargeAction = 'charge';
+          this.logger.write('use this slot to charge battery, even if generating a surplus from PV');
+          break;
+        }
+        this.logger.write('Slot is not to be used to charge battery');
+        /*
+        if (netPower <= 0) {
+          // this slot will generate a surplus or use zero power, so take no action
+          chargeAction = false;
+
+          this.logger.write('And this slot will generate a surplus or use zero power, so take no action');
+          break;
+        }
+        */
+        // use this slot for grid only power
+        this.logger.write('But use grid power only during this slot');
+        chargeAction = 'gridonly';
+        break;
+      }
+
+      if (count === noOfSlotsNeeded) {
+        this.logger.write('Reached limit of ' + noOfSlotsNeeded + ' slots');
+        this.logger.write('Let this slot draw power from battery');
+        chargeAction = false;
+        break;
+      }      
+
+      this.logger.write('********');
+
+    }
+    return chargeAction;
   }
 
   get shouldBeDischarged() {
@@ -333,7 +434,10 @@ class Battery {
 
     // calculate net power needed between now and earliest charging slot
 
-    let noOfSlotsNeeded = this.noOfSlotsNeeded;
+    let powerNeeded = this.netPowerBetween(this.date.now().slotTimeText, '22:30');
+    this.logger.write('Net power needed between now and 22:30: ' + powerNeeded.toFixed(2));
+
+    let noOfSlotsNeeded = this.noOfSlotsNeeded(powerNeeded);
     if (typeof noOfSlotsNeeded === 'undefined') {
       this.logger.write('Unable to calculate battery level, probably due to comms issues');
       return false; 
@@ -343,7 +447,7 @@ class Battery {
     let earlyD = this.date.at(earliestSlotTimeIndex);
     this.logger.write('earliest charging slot is at ' + earlyD.timeText);
     let power = this.solis.averagePowerBetweenTimeIndices(d.timeIndex, earliestSlotTimeIndex);
-    let powerNeeded = +power.load;
+    powerNeeded = +power.load;
     this.logger.write('Power needed from now until earliest charge slot: ' + powerNeeded.toFixed(2));
 
     // compare with power in battery

@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 10 January 2025
+ 12 January 2025
 
 */
 
@@ -44,7 +44,7 @@ let Solcast = class {
     this.agility = agility;
     this.octopus = agility.octopus;
     this.use = true;
-    this.updateTimes = ['02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '18:00', '22:00'];
+    this.updateTimes = ['02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '18:00', '21:00', '23:00'];
   }
 
   get isConfigured() {
@@ -358,14 +358,14 @@ let Solcast = class {
     return total.toFixed(4);
   }
 
-  expectedPowerBetween(fromTimeText, toTimeText) {
+  expectedPowerBetween(fromTimeText, toTimeText, override) {
     let fromD = this.date.atTime(fromTimeText);
     let dateIndex = fromD.dateIndex;
     let fromTimeIndex = fromD.slotTimeIndex;
     let todaysPredictions = this.predictions.$(dateIndex);
     let total = 0;
 
-    if (this.octopus.tomorrowsTariffsAvailable) {
+    if (!override && this.octopus.tomorrowsTariffsAvailable) {
       // get today's total estimated power from now until 23:30
 
       this.logger.write('Tomorrows Octopus Triffs available');
@@ -392,8 +392,8 @@ let Solcast = class {
       this.logger.write('Total prediction: ' + total.toFixed(2));
     }
     else {
-      // get today's total estimated power from now until 22:30
-      this.logger.write('Get Solcast prediction from now until 22:30 today');
+      // get today's total estimated power from now until end time
+      this.logger.write('Get Solcast prediction from now until ' + toTimeText + ' today');
       let pvAtStart = +todaysPredictions.$([fromTimeIndex, 'total']).value;
       console.log('Solcast predictions from now until 22:30');
       console.log('fromTimeIndex: ' + fromTimeIndex + '; pvAtStart: ' + pvAtStart);

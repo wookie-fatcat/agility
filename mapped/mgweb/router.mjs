@@ -370,6 +370,175 @@ router.get('/agility/solis/charge/:time', async (Request, ctx) => {
 
 });
 
+router.post('/agility/solis/inverterCharge', async (Request, ctx) => {
+  let body = Request.body;
+  let fromTime = body.fromTime;
+  let toTime = body.toTime;
+
+  if (!fromTime || fromTime === '') {
+    return {
+      payload: {
+        error: 'From Time not defined or empty'
+      }
+    };
+  }
+
+  if (!fromTime.includes(':')) {
+    return {
+      payload: {
+        error: 'From time is invalid'
+      }
+    };
+  }
+
+  if (!toTime || toTime === '') {
+    return {
+      payload: {
+        error: 'To Time not defined or empty'
+      }
+    };
+  }
+
+  if (!toTime.includes(':')) {
+    return {
+      payload: {
+        error: 'To time is invalid'
+      }
+    };
+  }
+
+  let status = await agility.solis.inverterChargeBetween(fromTime, toTime);
+
+  return {
+    payload: status
+  };
+
+});
+
+router.post('/agility/solis/inverterDischarge', async (Request, ctx) => {
+  let body = Request.body;
+  let fromTime = body.fromTime;
+  let toTime = body.toTime;
+
+  if (!fromTime || fromTime === '') {
+    return {
+      payload: {
+        error: 'From Time not defined or empty'
+      }
+    };
+  }
+
+  if (!fromTime.includes(':')) {
+    return {
+      payload: {
+        error: 'From time is invalid'
+      }
+    };
+  }
+
+  if (!toTime || toTime === '') {
+    return {
+      payload: {
+        error: 'To Time not defined or empty'
+      }
+    };
+  }
+
+  if (!toTime.includes(':')) {
+    return {
+      payload: {
+        error: 'To time is invalid'
+      }
+    };
+  }
+
+  let status = await agility.solis.inverterDischargeBetween(fromTime, toTime);
+
+  return {
+    payload: status
+  };
+
+});
+
+router.post('/agility/solis/inverterGridPower', async (Request, ctx) => {
+  let body = Request.body;
+  let fromTime = body.fromTime;
+  let toTime = body.toTime;
+
+  if (!fromTime || fromTime === '') {
+    return {
+      payload: {
+        error: 'From Time not defined or empty'
+      }
+    };
+  }
+
+  if (!fromTime.includes(':')) {
+    return {
+      payload: {
+        error: 'From time is invalid'
+      }
+    };
+  }
+
+  if (!toTime || toTime === '') {
+    return {
+      payload: {
+        error: 'To Time not defined or empty'
+      }
+    };
+  }
+
+  if (!toTime.includes(':')) {
+    return {
+      payload: {
+        error: 'To time is invalid'
+      }
+    };
+  }
+
+  let status = await agility.solis.inverterGridPowerBetween(fromTime, toTime);
+
+  return {
+    payload: status
+  };
+
+});
+
+router.get('/agility/solis/inverterChargeNow', async (Request, ctx) => {
+  let d = agility.date.now();
+  let toTimeText = agility.date.at(d.slotEndTimeIndex).timeText;
+  let status = await agility.solis.inverterChargeBetween(d.timeText, toTimeText);
+  return {
+    payload: status
+  };
+});
+
+router.get('/agility/solis/inverterDischargeNow', async (Request, ctx) => {
+  let d = agility.date.now();
+  let toTimeText = agility.date.at(d.slotEndTimeIndex).timeText;
+  let status = await agility.solis.inverterDischargeBetween(d.timeText, toTimeText);
+  return {
+    payload: status
+  };
+});
+
+router.get('/agility/solis/inverterGridPowerNow', async (Request, ctx) => {
+  let d = agility.date.now();
+  let toTimeText = agility.date.at(d.slotEndTimeIndex).timeText;
+  let status = await agility.solis.inverterGridPowerBetween(d.timeText, toTimeText);
+  return {
+    payload: status
+  };
+});
+
+router.get('/agility/solis/resetInverter', async (Request, ctx) => {
+  let status = await agility.solis.inverterResetNow(true);
+  return {
+    payload: status
+  };
+});
+
 router.get('/agility/octopus/agiletariff', async (Request, ctx) => {
 
   let res = await agility.octopus.fetchTariff();
