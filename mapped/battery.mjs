@@ -334,6 +334,21 @@ class Battery {
       let d = this.date.at(slot.timeIndex);
       this.logger.write('slot ' + count + ': ' + d.slotTimeText + ': price: ' + slot.price);
 
+      // if battery level is at or below the minimum, nothing to do
+
+      if (count > noOfSlotsToFillBattery && batteryLevel <= this.minimumLevel) {
+        chargeAction = false;
+        this.logger.write('Battery is at or below its minumum level, so no action (will use grid power)');
+        break;
+      }
+
+      if (count === 1 && noOfSlotsNeeded === 1 && +currentSlotTimeIndex === +slot.timeIndex) {
+        // use this slot if it's the first and only 1 charge slot needed
+        this.logger.write('Only 1 slot needed and this current one is the cheapest available, so use it')
+        chargeAction = 'charge';
+        break;
+      }
+
       if (count <= noOfSlotsToFillBattery) {
         remainingPowerNeeded = remainingPowerNeeded - powerAddedPerCharge;
         this.logger.write('remainining power needed after battery charge: ' + remainingPowerNeeded.toFixed(2));
@@ -352,13 +367,6 @@ class Battery {
         this.logger.write('remainining power needed: ' + remainingPowerNeeded.toFixed(2));
       }
 
-      if (count === 1 && noOfSlotsNeeded === 1 && +currentSlotTimeIndex === +slot.timeIndex) {
-        // use this slot if it's the first and only 1 charge slot needed
-        this.logger.write('Only 1 slot needed and this current one is the cheapest available, so use it')
-        chargeAction = 'charge';
-        break;
-      }
-
       if (remainingPowerNeeded <= 0) {
         this.logger.write('Power deficit would be accounted for by previous cheaper slots: take no action');
         chargeAction = false;
@@ -366,12 +374,16 @@ class Battery {
       }
 
       if (+currentSlotTimeIndex === +slot.timeIndex) {
+
+        // slot is the current one,so:
+
         if (count <= noOfSlotsToFillBattery) {
           chargeAction = 'charge';
           this.logger.write('use this slot to charge battery, even if generating a surplus from PV');
           break;
         }
         this.logger.write('Slot is not to be used to charge battery');
+
         /*
         if (netPower <= 0) {
           // this slot will generate a surplus or use zero power, so take no action

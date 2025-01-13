@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 12 January 2025
+ 13 January 2025
 
 */
 
@@ -169,7 +169,22 @@ let Solcast = class {
         authorization: 'Bearer ' + this.key
       }
     };
-    let res = await fetch(this.url, options);
+    let res;
+    try {
+      res = await fetch(this.url, options);
+    }
+    catch(err) {
+      return {
+        error: 'Request for Solcast Data failed',
+        status: res.status,
+        statusText: res.statusText
+      };
+    }
+    if (res.status !== 200) {
+      return {
+        error: 'Solcast returned status code ' + res.status
+      };
+    }
     try {
       let data = await res.json();
       return data;
@@ -244,6 +259,10 @@ let Solcast = class {
 
   persist(data) {
     if (!data) return false;
+    if (typeof data !== 'object') {
+      if (typeof data === 'string') this.logger.write('Error fetching Solcast update: ' + data);
+      return false;
+    }
     this.predictions.delete();
     let totals = {};
     for (let record of data.forecasts) {
@@ -327,7 +346,7 @@ let Solcast = class {
     if (this.octopus.tomorrowsTariffsAvailable) {
       // get today's total estimated power from now until 23:30
 
-      if (todaysPredictions.exist) {
+      if (todaysPredictions.exists) {
         let pvAtStart = todaysPredictions.$([timeIndex, 'total']).value;
         let pvAtEnd = todaysPredictions.lastChild.$('total').value;
         total = pvAtEnd - pvAtStart;
