@@ -716,9 +716,16 @@ router.get('/agility/solis/resetInverter', async (Request, ctx) => {
 });
 
 router.get('/agility/solis/profile', (Request, ctx) => {
+  let res = agility.solis.profile;
+  if (res.error) {
+    return {
+      payload: res
+    };
+  }
+
   return {
     payload: {
-      profile: agility.solis.profile
+      profile: res
     }
   };
 });
@@ -786,7 +793,7 @@ router.get('/agility/log/activity/:lastKey', (Request, ctx) => {
   });
 
   // prevent browser fetch loop if no log info yet
-  if (lastKey === 0) lastKey = '';
+  if (+lastKey === 0) lastKey = '';
 
   return {
     payload: {
@@ -833,13 +840,22 @@ router.sse('/agility/sse', function(ws, ctx)  {
   
   let sseDoc = new agility.glsdb.node('agilitySSE.byPid');
   sseDoc.$(process.pid).value = Date.now();
-  //let lastKey = 0;
+  let lastKey = 0;
   let timeout;
 
   let now = agility.date.now();
-  let lastKey = +agility.logger.logDoc.$(now.dateIndex).lastChild.previousSibling.key;
-  console.log('lastKey = ' + lastKey);
- 
+  let logDoc = agility.logger.logDoc.$(now.dateIndex);
+  if (logDoc.exists) {
+    let lastRec = logDoc.lastChild;
+    if (lastRec && lastRec.exists) {
+      let prevRec = lastRec.previousSibling;
+      if (prevRec && prevRec.exists) {
+        lastKey = +prevRec.key;
+        console.log('lastKey = ' + lastKey);
+      }
+    }
+  } 
+
   function displayNextLogRecords(lastKey) {
     console.log('starting at ' + lastKey);
     agility.logger.logDoc.$(now.dateIndex).forEachChildNode({from: lastKey + 1}, function(node) {

@@ -68,8 +68,12 @@ export function load() {
               addRow('Adjusted predicted PV', json.solcast.adjustedPrediction.toFixed(2) + ' kWh');
             }
             addSpan('Battery Status:', 'table-info center-text');
-            addRow('Level Now', json.battery.level + '%');
-            addRow('Available Power', json.battery.availablePower.toFixed(2) + ' kWh');
+            let level = 0;
+            if (json.battery.level) level = json.battery.level;
+            addRow('Level Now', level + '%');
+            let availablePower = 0;
+            if (json.battery.availablePower) availablePower = json.battery.availablePower.toFixed(2);
+            addRow('Available Power', availablePower + ' kWh');
             addRow('Level Increase per Charge Slot', json.battery.increasePerCharge.toFixed(2) + '%');
             addRow('which equates to', json.battery.powerAddedPerCharge.toFixed(2) + ' kWh');
             addRow('Slots needed to fully charge battery from current level', json.battery.noOfSlotsToFillBattery);

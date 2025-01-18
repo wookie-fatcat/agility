@@ -19,6 +19,14 @@ Ensure you have *git* installed.  If not, type the following in Terminal
 sudo apt install git
 ```
 
+You'll also need *dos2unix* installed.  If you don't already have it installed:
+
+```console
+sudo apt install dos2unix
+```
+
+
+
 ## Step 3
 
 Make sure you're in your home directory, eg:

@@ -1,6 +1,7 @@
 export function load() {
   let gx=`
 <sbadmin-content-page golgi:hook="solcast">
+  <sbadmin-toast golgi:ref="toast" />
   <sbadmin-spacer />
   <sbadmin-card bgColor="white" textColor="dark" widthStyle="60%" position="center">
     <sbadmin-card-header text="Solcast Prediction Adjustment" />
@@ -27,8 +28,6 @@ export function load() {
 
     </sbadmin-card-body>
   </sbadmin-card>
-
-  <sbadmin-toast golgi:ref="toast" />
 
 </sbadmin-content-page>
   `;
@@ -69,7 +68,7 @@ export function load() {
           json = await _this.context.request('/agility/solcast/adjustment');
           if (json.error) {
             _this.toast.headerTxt = 'Error';
-            -this.toast.display(json.error);
+            _this.toast.display(json.error);
           }
           if (typeof json.adjustment !== 'undefined') {
             _this.adjustment.value = json.adjustment;
@@ -125,8 +124,10 @@ export function load() {
 
           let json = await _this.context.request('/agility/solcast/isAutoAdjustEnabled');
           if (json.error) {
-            contentPage.toast.headerTxt = 'Error';
-            contentPage.toast.display(json.error);
+            setTimeout(function() {
+              contentPage.toast.headerTxt = 'Error';
+              contentPage.toast.display(json.error);
+            }, 2000);
           }
           if (json.enabled) {
             cb.check();

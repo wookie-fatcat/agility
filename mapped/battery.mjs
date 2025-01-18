@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 17 January 2025
+ 18 January 2025
 
  */
 
@@ -393,8 +393,13 @@ class Battery {
       let powerNeededToFillBattery = this.powerFromPercentage(100 - batteryLevel);
       noOfSlotsToFillBattery = this.noOfSlotsToChargeBy(powerNeededToFillBattery, false);
     }
-
-    let deficit = solis.load -batteryPower - pv;
+    let deficit;
+    if (typeof batteryPower === 'undefined') {
+      deficit = 0;
+    }
+    else {
+      deficit = solis.load - batteryPower - pv;
+    }
     let chargeSlots = 0;
     if (deficit > 0) chargeSlots = this.noOfSlotsToChargeBy(deficit, false);
     let increasePerCharge = this.percentIncreasePerCharge;

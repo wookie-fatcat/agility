@@ -1,11 +1,12 @@
 (async () => {
   async function go() {
-    const {golgi} = await import('https://cdn.jsdelivr.net/gh/robtweed/golgi/src/golgi.min.js');
+    const {golgi} = await import(window.location.origin + '/js/golgi.min.js');
 
     let context = {
       assemblyPath: window.location.origin + '/js/assemblies/',
       componentPaths: {
-        sbadmin: 'https://robtweed.github.io/golgi-sbadmin/components/'
+        //sbadmin: 'https://robtweed.github.io/golgi-sbadmin/components/'
+        sbadmin: window.location.origin + '/js/components/sbadmin/'
       },
       Chart: Chart,
       request: async (url, method, body) => {

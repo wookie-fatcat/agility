@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 17 January 2025
+ 18 January 2025
 
 */
 
@@ -169,11 +169,21 @@ let Octopus = class {
   }
 
   get lastSlot() {
-    return this.byTime.lastChild.lastChild.document;
+    if (this.byTime.exists) {
+      let lc = this.byTime.lastChild;
+      if (lc && lc.exists) {
+        let lc2 = lc.lastChild;
+        if (lc2 && lc2.exists) {
+          return lc2.document;
+        }
+      }
+    }
+    return;
   }
 
   get tomorrowsTariffsAvailable() {
-    if (+this.date.now().dateIndex < +this.lastSlot.dateIndex) return true;
+    let lastSlot = this.lastSlot;
+    if (lastSlot && +this.date.now().dateIndex < +lastSlot.dateIndex) return true;
     return false;
   }
 
@@ -209,6 +219,10 @@ let Octopus = class {
         day: day,
         price: price
       };
+    }
+
+    if (!this.byTime.exists) {
+      return;
     }
 
     if (this.tomorrowsTariffsAvailable) {

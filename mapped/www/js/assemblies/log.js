@@ -45,6 +45,7 @@ export function load() {
                 _this.cardText.rootElement.appendChild(pre);
                 _this.cardText.rootElement.scrollTop = _this.cardText.rootElement.scrollHeight;
               }
+              //stop = true;
               if (lastKey === '') stop = true;
             }
           }

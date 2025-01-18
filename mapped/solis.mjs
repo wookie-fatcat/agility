@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 17 January 2025
+ 18 January 2025
 
  */
 
@@ -724,7 +724,27 @@ class Solis {
     let offset = 0;
     let count = 0;
     let _this = this;
-    let startDateIndex = this.data.lastChild.previousSibling.key;
+    if (!this.data.exists) {
+      return {
+        load: 0,
+        pv: 0
+      };
+    }
+    let lc = this.data.lastChild;
+    let key;
+    if (lc && lc.exists) {
+      let ps = lc.previousSibling;
+      if (ps && ps.exists) {
+        key = ps.key
+      }
+    }
+    if (!key) {
+      return {
+        load: 0,
+        pv: 0
+      };
+    }
+    let startDateIndex = key;
     this.data.forEachChildNode({direction: 'reverse', from: startDateIndex}, function(dateNode) {
       offset--;
       count++;
@@ -792,41 +812,50 @@ class Solis {
     let offset = 0;
     let count = 0;
     let _this = this;
-    let startDateIndex = this.data.lastChild.previousSibling.key;
-    let d = this.date.at(startDateIndex);
-    let slots = [];
-    let totals = [];
-    for (let i = 0; i < 47; i++) {
-      slots.push(0);
-      totals.push(0);
+    let lc = this.data.lastChild;
+    if (lc && lc.exists) {
+      let ps = lc.previousSibling;
+      if (ps && ps.exists) {
+        let startDateIndex = ps.key;
+        let d = this.date.at(startDateIndex);
+        let slots = [];
+        let totals = [];
+        for (let i = 0; i < 47; i++) {
+          slots.push(0);
+          totals.push(0);
+        }
+        this.data.forEachChildNode({direction: 'reverse', from: startDateIndex}, function(dateNode) {
+          count++;
+          let dateIndex = +dateNode.key;
+          let d = _this.date.at(dateIndex);
+          let timeIndex = dateIndex;
+          for (let i = 0; i < 47; i++) {
+            timeIndex += 1800000;
+            let timeText = _this.date.at(timeIndex).timeText;
+            let power = _this.powerAt(dateIndex, timeIndex);
+            slots[i] = power; 
+          }
+          //console.log(slots);
+          let sum = 0;
+          for (let i = 0; i < 47; i++) {
+            let value = slots[i] + 0;
+            slots[i] = +(value - sum).toFixed(2);
+            sum = value;
+          }
+          //console.log(slots);
+          for (let i = 0; i < 47; i++) {
+            totals[i] += slots[i]
+          }
+        });
+        for (let i = 0; i < 47; i++) {
+          totals[i] = +(totals[i] / count).toFixed(2);
+        }
+        return totals;
+      }
     }
-    this.data.forEachChildNode({direction: 'reverse', from: startDateIndex}, function(dateNode) {
-      count++;
-      let dateIndex = +dateNode.key;
-      let d = _this.date.at(dateIndex);
-      let timeIndex = dateIndex;
-      for (let i = 0; i < 47; i++) {
-        timeIndex += 1800000;
-        let timeText = _this.date.at(timeIndex).timeText;
-        let power = _this.powerAt(dateIndex, timeIndex);
-        slots[i] = power; 
-      }
-      //console.log(slots);
-      let sum = 0;
-      for (let i = 0; i < 47; i++) {
-        let value = slots[i] + 0;
-        slots[i] = +(value - sum).toFixed(2);
-        sum = value;
-      }
-      //console.log(slots);
-      for (let i = 0; i < 47; i++) {
-        totals[i] += slots[i]
-      }
-    });
-    for (let i = 0; i < 47; i++) {
-      totals[i] = +(totals[i] / count).toFixed(2);
-    }
-    return totals;
+    return {
+      error: 'No historical Solis Data is available yet'
+    };
   }
 
   async restore() {
