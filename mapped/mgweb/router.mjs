@@ -169,6 +169,142 @@ router.get('/agility/solcast/disable', (Request, ctx) => {
 
 });
 
+router.get('/agility/solcast/isAutoAdjustEnabled', (Request, ctx) => {
+
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so request ignored'
+      }
+    };
+  }
+
+  return {
+    payload: {
+      enabled: agility.solcast.isAutoAdjustEnabled
+    }
+  };
+
+});
+
+router.get('/agility/solcast/enableAutoAdjust', (Request, ctx) => {
+
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so request ignored'
+      }
+    };
+  }
+
+  agility.solcast.enableAutoAdjust();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/solcast/disableAutoAdjust', (Request, ctx) => {
+
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so request ignored'
+      }
+    };
+  }
+
+  agility.solcast.disableAutoAdjust();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/solcast/adjustment', (Request, ctx) => {
+
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so request ignored'
+      }
+    };
+  }
+
+  return {
+    payload: {
+      adjustment: agility.solcast.adjustment
+    }
+  };
+
+});
+
+router.post('/agility/solcast/adjustment', (Request, ctx) => {
+
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so request ignored'
+      }
+    };
+  }
+
+  let body = Request.body;
+
+  if (!body) {
+    return {
+      payload: {
+        error: 'Missing body'
+      }
+    };
+  }
+
+  let adjustment = body.adjustment;
+  if (!adjustment || adjustment === '') {
+    return {
+      payload: {
+        error: 'Missing or empty adjustment value'
+      }
+    };
+  }
+
+  agility.solcast.adjustment = +adjustment;
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/solcast/predictionHistory', (Request, ctx) => {
+
+  if (!agility.solcast.isConfigured) {
+    return {
+      payload: {
+        error: 'Solcast Configuration is incomplete, so request ignored'
+      }
+    };
+  }
+
+  let data = agility.solcast.predictionHistory;
+
+  return {
+    payload: {
+      data: data
+    }
+  };
+
+});
+
+
 router.get('/agility/clockSync/isEnabled', (Request, ctx) => {
 
   return {
@@ -532,12 +668,61 @@ router.get('/agility/solis/inverterGridPowerNow', async (Request, ctx) => {
   };
 });
 
+router.get('/agility/octopus/cheapestSlotsNow', (Request, ctx) => {
+
+  let slots = agility.battery.availableSlotsByPrice(false).slots;
+
+  let fromTimeText = agility.date.now().slotTimeText;
+
+  let slotData = [];
+  for (let slot of slots) {
+    let d = agility.date.at(slot.timeIndex);
+    let date = d.dayText + '/' + d.monthText;
+    let time = d.timeText;
+    slotData.push({
+      date: date,
+      time: time,
+      price: slot.price
+    });
+  }
+
+  return {
+    payload: {
+      slots: slotData,
+      slotFrom: fromTimeText,
+      untilTomorrow: agility.octopus.tomorrowsTariffsAvailable
+    }
+  };
+
+});
+
+router.get('/agility/positionNow', async (Request, ctx) => {
+
+  let obj = agility.battery.availableSlotsByPrice(false);
+
+  let positionNow = agility.battery.shouldUseSlotToCharge(obj.positionNow, obj.slots, false);
+
+  return {
+    payload: positionNow
+  };
+});
+
+
 router.get('/agility/solis/resetInverter', async (Request, ctx) => {
   let status = await agility.solis.inverterResetNow(true);
   return {
     payload: status
   };
 });
+
+router.get('/agility/solis/profile', (Request, ctx) => {
+  return {
+    payload: {
+      profile: agility.solis.profile
+    }
+  };
+});
+
 
 router.get('/agility/octopus/agiletariff', async (Request, ctx) => {
 
@@ -582,6 +767,50 @@ router.get('/agility/solcast/update', async (Request, ctx) => {
 
 });
 
+router.get('/agility/log/activity/:lastKey', (Request, ctx) => {
+
+  let now = agility.date.now();
+  let lastKey = Request.params.lastKey;
+  let log = [];
+  let count = 0;
+  agility.logger.logDoc.$(now.dateIndex).forEachChildNode({from: +lastKey + 1}, function(node) {
+    count++;
+    if (count > 1000) return false;
+    if (node.key !== 'counter') {
+      lastKey = +node.key;
+      log.push(agility.logger.displayFormat(now.dateIndex, node.key));
+    }
+    else {
+      lastKey = '';
+    }
+  });
+
+  // prevent browser fetch loop if no log info yet
+  if (lastKey === 0) lastKey = '';
+
+  return {
+    payload: {
+      log: log,
+      lastKey: lastKey
+    }
+  };
+
+});
+
+router.get('/agility/nginx/reload', (Request, ctx) => {
+
+  setTimeout(function() {
+    agility.exec('/opt/agility/nginx reload');
+  }, 1000);
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+});
+
+
 router.get('/agility/closeSSE/:pid', async (Request, ctx) => {
 
   let sseDoc = new agility.glsdb.node('agilitySSE.byPid');
@@ -604,13 +833,15 @@ router.sse('/agility/sse', function(ws, ctx)  {
   
   let sseDoc = new agility.glsdb.node('agilitySSE.byPid');
   sseDoc.$(process.pid).value = Date.now();
-  let lastKey = 0;
+  //let lastKey = 0;
   let timeout;
 
   let now = agility.date.now();
-
+  let lastKey = +agility.logger.logDoc.$(now.dateIndex).lastChild.previousSibling.key;
+  console.log('lastKey = ' + lastKey);
+ 
   function displayNextLogRecords(lastKey) {
-    //console.log('starting at ' + lastKey);
+    console.log('starting at ' + lastKey);
     agility.logger.logDoc.$(now.dateIndex).forEachChildNode({from: lastKey + 1}, function(node) {
       if (node.key !== 'counter') {
         lastKey = +node.key;
@@ -621,13 +852,14 @@ router.sse('/agility/sse', function(ws, ctx)  {
   }
 
   lastKey = displayNextLogRecords(lastKey);
-  //console.log('lastKey is now ' + lastKey);
+  console.log('lastKey is now ' + lastKey);
+ 
 
   let fn = function() {
     //get any new records and display them...
-    //console.log('SIGHUP!');
+    console.log('SIGHUP!');
     lastKey = displayNextLogRecords(lastKey);
-    //console.log('lastKey is now ' + lastKey);
+    console.log('lastKey is now ' + lastKey);
   };
 
   process.on('SIGHUP', fn);

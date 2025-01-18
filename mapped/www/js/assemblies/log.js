@@ -26,6 +26,31 @@ export function load() {
           _this.cardText.rootElement.textContent = '';
           _this.cardText.rootElement.style.height = (window.innerHeight - 250) + 'px';
           _this.cardText.rootElement.style.overflowY = 'scroll';
+
+          let lastKey = '0';
+          let stop = false;
+
+          do {
+            let json = await _this.context.request('/agility/log/activity/' + lastKey);
+            if (json.error) {
+              _this.toast.headerTxt = 'Error';
+              _this.toast.display(json.error);
+              let stop = true
+            }
+            else {
+              lastKey = json.lastKey;
+              for (let record of json.log) {
+                let pre = document.createElement('pre');
+                pre.textContent = record;
+                _this.cardText.rootElement.appendChild(pre);
+                _this.cardText.rootElement.scrollTop = _this.cardText.rootElement.scrollHeight;
+              }
+              if (lastKey === '') stop = true;
+            }
+          }
+          while (!stop);
+
+          
           if (source && source.readyState === 1) {
             if (pid) {
               let json = await _this.context.request('/agility/closeSSE/' + pid);

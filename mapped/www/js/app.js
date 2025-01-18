@@ -7,6 +7,7 @@
       componentPaths: {
         sbadmin: 'https://robtweed.github.io/golgi-sbadmin/components/'
       },
+      Chart: Chart,
       request: async (url, method, body) => {
         url = window.location.origin + url;
         method = method || 'GET';

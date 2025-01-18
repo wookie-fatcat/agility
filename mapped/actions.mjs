@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 January 2025
+ 18 January 2025
 
  */
 
@@ -87,6 +87,26 @@ class Actions {
       updateInverterTime: async function() {
         return await this.solis.updateInverterTime();
       },
+      deleteTodaysAlwaysUsePrice: function() {
+        this.deleteTodaysAlwaysUsePrice();
+        return {status: 'Todays always use price reset'};
+      },
+      checkForUpdates: async function() {
+        let update = false;
+        let json = await this.getLatestVersionNo();
+        if (json.error) {
+          return {status: 'Unable to check for updates'};
+        }
+        let latestVersion = json.version;
+        if (+latestVersion > +this.myCurrentVersion) update = true;
+        if (update) {
+          return {status: 'System should be updated to version ' + latestVersion};
+        }
+        else {
+          return {status: 'You are currently running the latest version: ' + latestVersion};
+        }
+      },
+
       backup: function() {
         let ignore = ['agilitySSE'];
         this.backup.now(ignore, 'agility.bak');

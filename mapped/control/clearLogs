@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "" > /opt/agility/mapped/logs/agility.log
+echo "" > /opt/agility/mapped/mgweb/mgweb.log
+echo "" > /opt/agility/mapped/mgweb/mgweb_server.log

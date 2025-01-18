@@ -5,6 +5,7 @@ sudo chmod +x docker/runContainer
 sudo chmod +x docker/stopContainer
 dos2unix mapped/control/*
 sudo chmod +x mapped/control/log
+sudo chmod +x mapped/control/clearLogs
 sudo chmod +x mapped/control/restore
 sudo chmod +x mapped/control/restart
 sudo chmod +x mapped/control/start

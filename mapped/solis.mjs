@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 11 January 2025
+ 17 January 2025
 
  */
 
@@ -682,7 +682,8 @@ class Solis {
     return this.data.properties;
   }
 
-  averagePowerBetweenTimeIndices(fromTimeIndex, toTimeIndex) {
+  averagePowerBetweenTimeIndices(fromTimeIndex, toTimeIndex, log) {
+    if (typeof log === 'undefined') log = true;
     let fromD = this.date.at(fromTimeIndex);
     let fromTimeText = fromD.timeText;
     let fromDateIndex = fromD.dateIndex;
@@ -692,19 +693,21 @@ class Solis {
     let power;
     if (fromDateIndex === toDateIndex) {
       power = this.averagePowerBetween(fromTimeText, toTimeText);
-      this.logger.write('Power between ' + fromTimeText + ' and ' + toTimeText + ':');
-      this.logger.write(JSON.stringify(power));
+      if (log) this.logger.write('Power between ' + fromTimeText + ' and ' + toTimeText + ':');
+      if (log) this.logger.write(JSON.stringify(power));
     }
     else {
       // split across two days
       let power1 = this.averagePowerBetween(fromTimeText, '23:30');
-      this.logger.write('Power between ' + fromTimeText + ' and 22:30:');
-      this.logger.write(JSON.stringify(power1));
-
+      if (log) {
+        this.logger.write('Power between ' + fromTimeText + ' and 22:30:');
+        this.logger.write(JSON.stringify(power1));
+      }
       let power2 = this.averagePowerBetween('00:00', toTimeText);
-      this.logger.write('Power between 00:00 and ' + toTimeText + ':');
-      this.logger.write(JSON.stringify(power2));
-
+      if (log) {
+        this.logger.write('Power between 00:00 and ' + toTimeText + ':');
+        this.logger.write(JSON.stringify(power2));
+      }
       power = {
         load: power1.load + power2.load,
         pv: power1.pv + power2.pv
@@ -747,6 +750,83 @@ class Solis {
       load: aveLoad,
       pv: avePV
     };
+  }
+
+  powerAt(dateIndex, timeIndex) {
+    let dateNode = this.data.$(dateIndex);
+    if (!dateNode.exists) return;
+    let timeNode = dateNode.$(timeIndex);
+    if (timeNode.exists) {
+      return timeNode.$('houseLoadNow').value;
+    }
+    let nodeBefore = dateNode.childBefore(timeIndex);
+    let beforeIndex;
+    if (nodeBefore) beforeIndex = +nodeBefore.key;
+    let nodeAfter = dateNode.childAfter(timeIndex);
+    let afterIndex;
+    if (nodeAfter) afterIndex = +nodeAfter.key;
+    if (!beforeIndex) {
+      timeIndex = afterIndex;
+    }
+    else if (!afterIndex) {
+      timeIndex = beforeIndex;
+    }
+    else {
+      let diff1 = timeIndex - beforeIndex;
+      let diff2 = afterIndex - timeIndex;
+      if (diff1 < diff2) {
+        timeIndex = beforeIndex;
+      }
+      else if (diff1 > diff2) {
+        timeIndex = afterIndex;
+      }
+      else {
+        timeIndex = beforeIndex;
+      }
+    }
+    timeNode = dateNode.$(timeIndex);
+    return timeNode.$('houseLoadTotal').value;
+  }
+
+  get profile() {
+    let offset = 0;
+    let count = 0;
+    let _this = this;
+    let startDateIndex = this.data.lastChild.previousSibling.key;
+    let d = this.date.at(startDateIndex);
+    let slots = [];
+    let totals = [];
+    for (let i = 0; i < 47; i++) {
+      slots.push(0);
+      totals.push(0);
+    }
+    this.data.forEachChildNode({direction: 'reverse', from: startDateIndex}, function(dateNode) {
+      count++;
+      let dateIndex = +dateNode.key;
+      let d = _this.date.at(dateIndex);
+      let timeIndex = dateIndex;
+      for (let i = 0; i < 47; i++) {
+        timeIndex += 1800000;
+        let timeText = _this.date.at(timeIndex).timeText;
+        let power = _this.powerAt(dateIndex, timeIndex);
+        slots[i] = power; 
+      }
+      //console.log(slots);
+      let sum = 0;
+      for (let i = 0; i < 47; i++) {
+        let value = slots[i] + 0;
+        slots[i] = +(value - sum).toFixed(2);
+        sum = value;
+      }
+      //console.log(slots);
+      for (let i = 0; i < 47; i++) {
+        totals[i] += slots[i]
+      }
+    });
+    for (let i = 0; i < 47; i++) {
+      totals[i] = +(totals[i] / count).toFixed(2);
+    }
+    return totals;
   }
 
   async restore() {

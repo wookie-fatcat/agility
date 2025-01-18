@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 13 January 2025
+ 17 January 2025
 
 */
 
@@ -119,7 +119,26 @@ let Solcast = class {
     this.config.$('adjustment').value = value;
   }
 
+  get isAutoAdjustEnabled() {
+    if (!this.config.$('autoAdjust').exists) {
+      return false;
+    }
+    return this.config.$('autoAdjust').value;
+  }
+
+  enableAutoAdjust() {
+    this.config.$('autoAdjust').value = 'true';
+  }
+
+  disableAutoAdjust() {
+    this.config.$('autoAdjust').delete();
+  }
+
+
   calculateAdjustment() {
+
+    if (!this.isAutoAdjustEnabled) return;
+
     //compare historical solcast original totals with solis historical actual totals
     // and calculate average percentage difference to apply
     // then reset into configuration document
@@ -148,6 +167,30 @@ let Solcast = class {
       console.log('percent difference: ' + diff);
       this.adjustment = diff;
     }
+  }
+
+  get predictionHistory() {
+    let _this = this;
+    let history = [];
+    let todayDateIndex = this.date.now().dateIndex;
+    this.totals.forEachChildNode(function(dateNode) {
+      if (dateNode.key < todayDateIndex) {
+        let data = dateNode.document;
+        let date = data.day + '/' + data.month;
+        let prediction = data.total;
+        let lastSolisRecord = _this.solis.$(dateNode.key).lastChild;
+        let actualPV = lastSolisRecord.$('pvOutputTotal').value;
+        console.log('dateIndex: ' + dateNode.key);
+        console.log('prediction: ' + prediction);
+        console.log('actual: ' + actualPV);
+        history.push({
+          date: date,
+          prediction: prediction,
+          actual: actualPV
+        });
+      }
+    });
+    return history;
   }
 
   async request() {
@@ -377,7 +420,12 @@ let Solcast = class {
     return total.toFixed(4);
   }
 
-  expectedPowerBetween(fromTimeText, toTimeText, override) {
+  expectedPowerBetween(fromTimeText, toTimeText, override, adjust, log) {
+    if (typeof adjust === 'undefined') adjust = true;
+    if (typeof log === 'undefined') log = true;
+    // override for now
+    log = false;
+    //
     let fromD = this.date.atTime(fromTimeText);
     let dateIndex = fromD.dateIndex;
     let fromTimeIndex = fromD.slotTimeIndex;
@@ -390,18 +438,19 @@ let Solcast = class {
     if (!override && this.octopus.tomorrowsTariffsAvailable) {
       // get today's total estimated power from now until 23:30
 
-      this.logger.write('Tomorrows Octopus Tariffs available');
-      this.logger.write('Get Solcast prediction from now until 23:30');
-      this.logger.write('And also from midnight until 22:30 tomorrow');
-
+      if (log) {
+        this.logger.write('Tomorrows Octopus Tariffs available');
+        this.logger.write('Get Solcast prediction from now until 23:30');
+        this.logger.write('And also from midnight until 22:30 tomorrow');
+      }
       if (todaysPredictions.exists) {
         let pvAtStart = todaysPredictions.$([fromTimeIndex, 'total']).value;
         let pvAtEnd = todaysPredictions.lastChild.$('total').value;
         total = pvAtEnd - pvAtStart;
-        this.logger.write('Prediction today: ' + total.toFixed(2));
+        if (log) this.logger.write('Prediction today: ' + total.toFixed(2));
       }
       else {
-        this.logger.write('Solcast predictions for today are not yet available');
+        if (log) this.logger.write('Solcast predictions for today are not yet available');
       }
 
       //  and add tomorrow's total estimated power from midnight until specified time
@@ -409,25 +458,28 @@ let Solcast = class {
       let tomorrowDateIndex = this.octopus.lastSlot.dateIndex;
       let d = this.date.atTime(toTimeText, tomorrowDateIndex);
       let pv = +this.predictions.$([tomorrowDateIndex, d.timeIndex, 'total']).value;
-      this.logger.write('Prediction tomorrow: ' + pv.toFixed(2));
+      if (log) this.logger.write('Prediction tomorrow: ' + pv.toFixed(2));
       total += pv;
-      this.logger.write('Total prediction: ' + total.toFixed(2));
+      if (log) this.logger.write('Total prediction: ' + total.toFixed(2));
     }
     else {
       // get today's total estimated power from now until end time
-      this.logger.write('Get Solcast prediction from now until ' + toTimeText + ' today');
+      if (log) this.logger.write('Get Solcast prediction from ' + fromTimeText + ' until ' + toTimeText + ' today');
       let pvAtStart = +todaysPredictions.$([fromTimeIndex, 'total']).value;
-      console.log('Solcast predictions from now until 22:30');
+      console.log('Solcast predictions from ' + fromTimeText + ' until ' + toTimeText + ' today');
       console.log('fromTimeIndex: ' + fromTimeIndex + '; pvAtStart: ' + pvAtStart);
       let d = this.date.atTime(toTimeText);
       let pvAtEnd = +todaysPredictions.$([d.slotTimeIndex, 'total']).value;
       console.log('d.slotTimeIndex: ' + d.slotTimeIndex + '; pvAtEnd: ' + pvAtEnd);
       total = pvAtEnd - pvAtStart;
-      this.logger.write('Prediction today: ' + total.toFixed(2));
+      if (log) this.logger.write('Prediction: ' + total.toFixed(2));
     }
     // apply adjustment
-    total = total + ((total * this.adjustment) / 100);
-    this.logger.write('Prediction after adjustment: ' + total.toFixed(2));
+    if (adjust) {
+      console.log('applyimng adjustment');
+      total = total + ((total * this.adjustment) / 100);
+      if (log) this.logger.write('Prediction after adjustment: ' + total.toFixed(2));
+    }
     return total.toFixed(4);
   }
 
@@ -458,7 +510,9 @@ let Solcast = class {
       }
     });
     this.logger.write('Solcast data cleared down to most recent ' + noOfDaysToKeep + ' days');
-    this.calculateAdjustment();
+    if (this.isAutoAdjustEnabled) {
+      this.calculateAdjustment();
+    }
   }
 
 };

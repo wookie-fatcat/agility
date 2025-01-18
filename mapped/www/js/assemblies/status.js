@@ -11,6 +11,13 @@ export function load() {
           <sbadmin-button color="green" text="Start Agility" golgi:ref="startBtn" />
           <sbadmin-button color="red" text="Stop Agility" golgi:ref="stopBtn" />
         </fieldset>
+
+        <hr />
+        <sbadmin-card-text>NGINX should be reloaded if you have updated Agility</sbadmin-card-text>
+        <fieldset>
+          <sbadmin-button color="blue" size="small" text="Reload NGINX WebServer" golgi:ref="nginxBtn" />
+        </fieldset>
+
       </sbadmin-form>
     </sbadmin-card-body>
   </sbadmin-card>
@@ -107,6 +114,11 @@ export function load() {
               }
               while (!stopped)
             }
+          });
+          _this.nginxBtn.on('clicked', async () => {
+            let json = await _this.context.request('/agility/nginx/reload');
+            _this.toast.headerTxt = 'Warning!';
+            _this.toast.display('NGINX instructed to reload');
           });
         });
       }

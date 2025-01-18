@@ -25,11 +25,11 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 1 January 2025
+ 17 January 2025
 
 */
 
-// https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-J/standard-unit-rates/
+// https://api.octopus.energy/v1/products/AGILE-23-12-06/electricity-tariffs/E-1R-AGILE-23-12-06-J/standard-unit-rates/
 
 let Octopus = class {
 
@@ -236,13 +236,16 @@ let Octopus = class {
 
   get cheapestSlotArray() {
     let arr = [];
+    let _this = this;
     this.byPrice.forEachChildNode(function(priceNode) {
       priceNode.forEachChildNode(function(dateNode) {
         let dateIndex = dateNode.key;
         dateNode.forEachChildNode(function(timeNode) {
+          let timeText = _this.date.at(timeNode.key).timeText;
           arr.push({
             dateIndex: dateIndex,
             timeIndex: timeNode.key,
+            timeText: timeText,
             price: timeNode.$('price').value
           });
         });

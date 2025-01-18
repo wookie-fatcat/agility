@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 January 2025
+ 18 January 2025
 
  */
 
@@ -48,7 +48,6 @@ let Agility = class {
     let listeners = new Map();
 
     this.name = 'Agility';
-    this.version = '1.1';
     this.glsdb = glsdb;
     this.todayIndex = this.getDateIndex(0);
     this.logger = new Logger(this);
@@ -173,6 +172,25 @@ let Agility = class {
     this.config.$(['operation', 'alwaysUseSlotPrice']).value = value;
   }
 
+  get isTodaysAlwaysUsePriceSet() {
+    if (this.config.$(['operation', 'todaysAlwaysUseSlotPrice']).exists) return true;
+    return false;
+  }
+
+  get todaysAlwaysUsePrice() {
+    let node = this.config.$(['operation', 'todaysAlwaysUseSlotPrice']);
+    if (!node.exists) return;
+    return +node.value;
+  }
+
+  set todaysAlwaysUsePrice(value) {
+    this.config.$(['operation', 'todaysAlwaysUseSlotPrice']).value = value;
+  }
+
+  deleteTodaysAlwaysUsePrice() {
+    this.config.$(['operation', 'todaysAlwaysUseSlotPrice']).delete();
+  }
+
   get movingAveragePeriod() {
     return +this.config.$(['operation', 'movingAveragePeriod']).value;
   }
@@ -259,7 +277,15 @@ let Agility = class {
         // started a new day
         this.addTask('cleardownInfo');
         this.addTask('updateYesterdaysSolisData');
+      }
+      if (now.slotTimeText === '02:00') {
         this.addTask('updateInverterTime');
+      }
+      if (now.slotTimeText === '03:00') {
+        this.addTask('checkForUpdates');
+      }
+      if (now.slotTimeText === '16:00') {
+        this.addTask('deleteTodaysAlwaysUsePrice');
       }
     }
     if (now.minute === 15 || now.minute === 45) {
@@ -451,6 +477,57 @@ let Agility = class {
       // config couldn't be set up
       return false;
     }
+  }
+
+  async getLatestVersionNo() {
+    let url = 'https://cdn.jsdelivr.net/gh/robtweed/agility/mapped/version.json';
+    let options = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json;charset=UTF-8'
+      }
+    };
+    let json;
+    try {
+      let res = await fetch(url, options);
+      if (res.status !== 200) {
+        let error = 'Attempt to fetch version file from Agility repository failed: status: ' + res.status;
+        this.logger.write(error);
+        return {
+          error: error
+        }
+      }
+      json = await res.json();
+    }
+    catch(err) {
+      let error = 'Attempt to fetch version file from Agility repository failed';
+      this.logger.write(error);
+      return {
+        error: error,
+        err: err
+      };
+    }
+    return json;
+  }
+
+  get myCurrentVersion() {
+    let filepath = '/opt/agility/mapped/version.json';
+    try {
+      let res = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' });
+      let json = JSON.parse(res);
+      return json.version;
+    }
+    catch(err) {
+      return;
+    }
+  }
+
+  async isUpdateAvailable() {
+    let json = await this.getLatestVersionNo();
+    if (json.error) return false;
+    let latestVersion = +json.version;
+    if (latestVersion > +this.myCurrentVersion) return true;
+    return false;
   }
 
   resetData() {
