@@ -1,8 +1,7 @@
 # Agility: Automated Optimisation of the Octopus Agile Tariff on Solis Solar Systems
 
-## NOTE: UNDER DEVELOPMENT AND NOT YET READY FOR USE
+## NOTE: UNDER TESTING. FEEL FREE TO TRY IT OUT
 
-Feel free to read the documentation so far though!
 
 ## What is Agility?
 
