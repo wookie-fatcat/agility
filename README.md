@@ -29,6 +29,15 @@ Ideally though, we'd recommend running it on either:
 - a Linux virtual machine running on a Windows or Mac computer on your home network
 - an external cloud-based Linux virtual server to which you have full access
 
+## Getting Started
+
+First, read the [Checklist](./CHECKLIST.md) document to ensure you have everything needed to use and run Agility.
+
+If all is OK, follow the [instructions for installing on a Raspberry Pi](./PI_INSTALL.md).
+
+If you are trying to install Agility on another technology or platform, modify the instructions appropriately.
+
+
 ## The Octopus Agile Tariff
 
 Agility is designed to automatically optimise use of the Octopus Agile electricity tariff.  This is a 
@@ -140,7 +149,9 @@ but I'm under no obligation to fix or troubleshoot issues that you come across o
 Users of Agility are encouraged to join and use the following Facebook Groups to discuss its use and
 for help with any issues:
 
-  [Octopus Energy Automations Unofficial (Batteries / Solar / Home Assistant)](https://www.facebook.com/groups/octopusenergyautomations/)
+  [Octopus Energy Automations Unofficial (Batteries / Solar / Home Assistant)](https://www.facebook.com/groups/octopusenergyautomations/)   
+<br />
+
   [Solis Solar Inverter Owners Group](https://www.facebook.com/groups/288045168816481/)
 
 I'll be monitoring these Facebook Groups from time to time and will assist whenever practical.
