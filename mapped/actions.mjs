@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 January 2025
+ 24 January 2025
 
  */
 
@@ -89,6 +89,7 @@ class Actions {
       },
       deleteTodaysAlwaysUsePrice: function() {
         this.deleteTodaysAlwaysUsePrice();
+        this.unsetChargingStartedFlag();
         return {status: 'Todays always use price reset'};
       },
       checkForUpdates: async function() {

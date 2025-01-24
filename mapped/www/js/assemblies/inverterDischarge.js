@@ -13,7 +13,7 @@ export function load() {
           <br />
           <sbadmin-input type="time" cls="w-40" name="toTime" label="Until : " />
           <br />
-          <sbadmin-button color="green" size="small" text="Charge" golgi:ref="chargeBtn" golgi:hook="dischargeBetween" />
+          <sbadmin-button color="green" size="small" text="Discharge" golgi:ref="chargeBtn" golgi:hook="dischargeBetween" />
           <hr />
 
           <sbadmin-card-text>Discharge Inverter from now until the end of the current slot</sbadmin-card-text>

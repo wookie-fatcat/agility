@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 January 2025
+ 24 January 2025
 
  */
 
@@ -208,6 +208,19 @@ let Agility = class {
     this.control.$('lastSlotHandled').value = timeText;
   }
 
+  get chargingHasStarted() {
+    let node = this.control.$('chargingStarted');
+    if (!node.exists) return false;
+    return node.value;
+  }
+
+  setChargingStartedFlag() {
+    this.control.$('chargingStarted').value = true;
+  }
+
+  unsetChargingStartedFlag() {
+    this.control.$('chargingStarted').delete();
+  }
 
   addTask(task) {
     this.tasks.$(task).value = true;

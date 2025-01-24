@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 January 2025
+ 19 January 2025
 
  */
 
@@ -43,6 +43,7 @@ class Solis {
     this.agility = agility;
     this.battery = new Battery(agility);
     this.chargeHistory = new glsdb.node('agilityChargeHistory');
+    this.octopusAgile = new glsdb.node('octopusAgile.byTime');
   }
 
   get isConfigured() {
@@ -123,6 +124,57 @@ class Solis {
 
   set dischargeCurrent(value) {
     return this.agility.config.$(['battery', 'dischargeCurrent']).value;
+  }
+
+  get availableDataDates() {
+    let arr = [];
+    let _this = this;
+    this.data.forEachChildNode({direction: 'reverse'}, function(dateNode) {
+      let dateIndex = +dateNode.key;
+      let d = _this.date.at(dateIndex);
+      arr.push({
+        dateIndex: dateIndex,
+        date: d.dayText + '/' + d.monthText + '/' + d.year
+      });
+    });
+    return arr;
+  }
+
+  getHistory(dateIndex) {
+    let dateNode = this.data.$(dateIndex);
+    if (!dateNode.exists) {
+      return false;
+    }
+    let history = [];
+    let timeIndex = +dateIndex;
+    let sum = {
+      houseLoadTotal: 0,
+      gridExportTotal: 0,
+      gridImportTotal: 0,
+      pvOutputTotal: 0
+
+    };
+    let now = this.date.now();
+    for (let i = 0; i < 47; i++) {
+      timeIndex += 1800000;
+      if (timeIndex > now.timeIndex) break;
+      let timeText = this.date.at(timeIndex).timeText;
+      let data = this.powerAt(dateIndex, timeIndex);
+      data.time = timeText;
+      let agileNode = this.octopusAgile.$([dateIndex, timeIndex]);
+      let price = 'not available';
+      if (agileNode.exists) {
+        price = agileNode.$('price').value;
+      }
+      data.price = price;
+      for (let name in sum) {
+        let value = data[name] + 0;
+        data[name] = +(value - sum[name]).toFixed(2);
+        sum[name] = value;
+      }
+      history.push(data);
+    }
+    return history;
   }
 
   md5(data) {
@@ -777,7 +829,13 @@ class Solis {
     if (!dateNode.exists) return;
     let timeNode = dateNode.$(timeIndex);
     if (timeNode.exists) {
-      return timeNode.$('houseLoadNow').value;
+      return {
+        batteryLevel: timeNode.$('batteryLevel').value,
+        houseLoadTotal: timeNode.$('houseLoadTotal').value,
+        gridExportTotal: timeNode.$('gridExportTotal').value,
+        gridimportTotal: timeNode.$('gridimportTotal').value,
+        pvOutputTotal: timeNode.$('pvOutputTotal').value
+      }
     }
     let nodeBefore = dateNode.childBefore(timeIndex);
     let beforeIndex;
@@ -805,7 +863,13 @@ class Solis {
       }
     }
     timeNode = dateNode.$(timeIndex);
-    return timeNode.$('houseLoadTotal').value;
+    return {
+      batteryLevel: timeNode.$('batteryLevel').value,
+      houseLoadTotal: timeNode.$('houseLoadTotal').value,
+      gridExportTotal: timeNode.$('gridExportTotal').value,
+      gridImportTotal: timeNode.$('gridImportTotal').value,
+      pvOutputTotal: timeNode.$('pvOutputTotal').value
+    };
   }
 
   get profile() {
@@ -832,7 +896,7 @@ class Solis {
           for (let i = 0; i < 47; i++) {
             timeIndex += 1800000;
             let timeText = _this.date.at(timeIndex).timeText;
-            let power = _this.powerAt(dateIndex, timeIndex);
+            let power = _this.powerAt(dateIndex, timeIndex).houseLoadTotal;
             slots[i] = power; 
           }
           //console.log(slots);

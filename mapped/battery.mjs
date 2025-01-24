@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 January 2025
+ 24 January 2025
 
  */
 
@@ -43,6 +43,7 @@ class Battery {
     this.agility = agility;
     let glsdb = agility.glsdb;
     this.chargeHistory = new glsdb.node('agilityChargeHistory');
+    this.chargeDecisionHistory = new glsdb.node('agilityChargeDecisionHistory');
     this.noOfChargeRecordsToKeep = 100;
   }
 
@@ -135,6 +136,11 @@ class Battery {
 
   set minimumLevel(value) {
     this.config.$('minimumnLevel').value = value;
+  }
+
+  updateChargeDecisionHistory(positionNow) {
+    let now = this.date.now();
+    this.chargeDecisionHistory.$([now.dateIndex, now.slotTimeIndex]).document = positionNow;
   }
 
   netPowerBetween(fromTimeText, toTimeText, override, log) {
@@ -235,20 +241,24 @@ class Battery {
     // if previous slot charged battery,save the new battery level
     this.solis.endChargeHistoryRecord();
     //
-    if (this.isDischargeControlFlagSet()) {
-      this.logger.write('Manual Discharge control flag has been set');
-      return false;
-    }
-
     let obj = this.availableSlotsByPrice(true);
 
     let slots = obj.slots;
     let positionNow = obj.positionNow;
 
+    if (this.isDischargeControlFlagSet()) {
+      let reason = 'Manual Discharge control flag has been set';
+      this.logger.write(reason);
+      positionNow.chargingDecision.reason = reason; 
+      this.updateChargeDecisionHistory(positionNow);
+      return false;
+    }
+
     // dont charge, reason specified
     if (!positionNow.chargingDecision.charge && positionNow.chargingDecision.reason !== '') {
       this.logger.write('Charging status: ' + positionNow.chargingDecision.charge);
       this.logger.write(positionNow.chargingDecision.reason);
+      this.updateChargeDecisionHistory(positionNow);
       return positionNow.chargingDecision.charge;
     }
 
@@ -256,6 +266,7 @@ class Battery {
     if (positionNow.chargingDecision.charge) {
       this.logger.write('Charging status: ' + positionNow.chargingDecision.charge);
       this.logger.write(positionNow.chargingDecision.reason);
+      this.updateChargeDecisionHistory(positionNow);
       return positionNow.chargingDecision.charge;
     }
 
@@ -267,8 +278,12 @@ class Battery {
     this.logger.write('=============');
 
     positionNow = this.shouldUseSlotToCharge(positionNow, slots, true);
+    if (positionNow.chargingDecision.charge === 'charge') {
+      this.agility.setChargingStartedFlag();
+    }
     this.logger.write('Charging status: ' + positionNow.chargingDecision.charge);
     this.logger.write(positionNow.chargingDecision.reason);
+    this.updateChargeDecisionHistory(positionNow);
     return positionNow.chargingDecision.charge;
   }
 
@@ -494,8 +509,9 @@ class Battery {
     // after 6:30pm, provided tomorrows tariffs are available,
     // set today's always use price based on slots needed to fill battery from current level
     let now = this.date.now().timeIndex;
-    let at7 = this.date.atTime('18:30').timeIndex;
-    if (positionNow.untilTomorrow && now > at7 && !this.agility.isTodaysAlwaysUsePriceSet) {
+    //let at7 = this.date.atTime('18:30').timeIndex;
+    //if (positionNow.untilTomorrow && now > at7 && !this.agility.isTodaysAlwaysUsePriceSet) {
+    if (positionNow.untilTomorrow && !this.agility.chargingHasStarted) {
       let index = positionNow.battery.noOfSlotsToFillBattery - 1;
       this.agility.todaysAlwaysUsePrice = slots[index].price;
     }
@@ -600,6 +616,16 @@ class Battery {
       }
     });
     this.logger.write('Battery charge history cleared down to most recent ' + this.noOfChargeRecordsToKeep + ' records');
+
+    let noOfDaysToKeep = this.agility.movingAveragePeriod;
+    count = 0;
+    this.chargeDecisionHistory.forEachChildNode({direction: 'reverse'}, function(dateNode) {
+      count++;
+      if (count > noOfDaysToKeep) {
+        dateNode.delete();
+      }
+    });
+    this.logger.write('Charge Decision History cleared down to most recent ' + noOfDaysToKeep + ' days');
   }
 
 };

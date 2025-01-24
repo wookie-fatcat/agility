@@ -13,8 +13,7 @@ router.get('/agility/helloworld', (Request, ctx) => {
   return {
     payload: {
       hello: 'Hello from Agility!',
-      name: agility.name,
-      version: agility.version
+      name: agility.name
     }
   };
 
@@ -726,6 +725,34 @@ router.get('/agility/solis/profile', (Request, ctx) => {
   return {
     payload: {
       profile: res
+    }
+  };
+});
+
+router.get('/agility/solis/data/availableDates', (Request, ctx) => {
+
+  return {
+    payload: {
+      dates: agility.solis.availableDataDates
+    }
+  };
+});
+
+router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
+
+  let dateIndex = Request.params.dateIndex;
+  let history = agility.solis.getHistory(dateIndex);
+  if (!history) {
+    return {
+      payload: {
+        error: 'No history records for the specified date'
+      }
+    };
+  }
+
+  return {
+    payload: {
+      history: history
     }
   };
 });

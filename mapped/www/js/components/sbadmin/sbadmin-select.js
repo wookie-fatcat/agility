@@ -124,6 +124,7 @@ label-hidden {
     }
 
     set options(optsArr) {
+      this.removeOptions();
       let _this = this;
       optsArr.forEach(function(opt) {
         let el = document.createElement('option');
@@ -159,6 +160,12 @@ label-hidden {
         option[0].setAttribute('selected', true);
       });
       this.form.emit('changed', this);
+    }
+
+    removeOptions() {
+      while (this.select.options && this.select.options.length > 0) {
+        this.select.remove(0);
+      }
     }
 
     getOptionByValue(value) {
