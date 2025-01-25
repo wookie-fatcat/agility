@@ -44,11 +44,13 @@ document.addEventListener('touchend', function (event) {
             let prices = [];
             let gridImports = [];
             let pvs = [];
+            let load = [];
             for (let record of json.history) {
               labels.push(record.time);
               batteryLevels.push(record.batteryLevel);
               gridImports.push(record.gridImportTotal);
               pvs.push(record.pvOutputTotal);
+              load.push(record.houseLoadTotal);
               prices.push(record.price);
             }
 
@@ -78,6 +80,14 @@ document.addEventListener('touchend', function (event) {
                   fill: true,
                   borderColor: 'green',
                   stepped: 'after',
+                  yAxisID: 'gridImports'
+                },
+                {
+                  label: 'Load (kWh)',
+                  data: load,
+                  fill: false,
+                  tension: 0.2,
+                  borderColor: 'rgba(10, 10, 90, 0.1)',
                   yAxisID: 'gridImports'
                 },
                 {
@@ -158,7 +168,7 @@ document.addEventListener('touchend', function (event) {
                     position: 'right',
                     title: {
                       display: true,
-                      text: 'Grid Import (kWh)'
+                      text: 'Load / Grid Import (kWh)'
                     }
                   },
                   pv: {
