@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 January 2025
+ 25 January 2025
 
  */
 
@@ -141,6 +141,15 @@ class Battery {
   updateChargeDecisionHistory(positionNow) {
     let now = this.date.now();
     this.chargeDecisionHistory.$([now.dateIndex, now.slotTimeIndex]).document = positionNow;
+  }
+
+  getChargeDecisionHistory(dateIndex) {
+    let history = {};
+    this.chargeDecisionHistory.$(dateIndex).forEachChildNode(function(timeNode) {
+      let slot = timeNode.$('slot').value;
+      history[slot] = timeNode.document;
+    });
+    return history;
   }
 
   netPowerBetween(fromTimeText, toTimeText, override, log) {
@@ -512,7 +521,9 @@ class Battery {
     //let at7 = this.date.atTime('18:30').timeIndex;
     //if (positionNow.untilTomorrow && now > at7 && !this.agility.isTodaysAlwaysUsePriceSet) {
     if (positionNow.untilTomorrow && !this.agility.chargingHasStarted) {
-      let index = positionNow.battery.noOfSlotsToFillBattery - 1;
+      let noOfSlots = positionNow.battery.noOfSlotsToFillBattery;
+      if (positionNow.chargeSlotsNeeded < noOfSlots) noOfSlots = positionNow.chargeSlotsNeeded;
+      let index = noOfSlots - 1;
       this.agility.todaysAlwaysUsePrice = slots[index].price;
     }
 

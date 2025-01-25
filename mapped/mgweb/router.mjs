@@ -742,6 +742,8 @@ router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
 
   let dateIndex = Request.params.dateIndex;
   let history = agility.solis.getHistory(dateIndex);
+  let chargeDecisionHistory = agility.battery.getChargeDecisionHistory(dateIndex);
+
   if (!history) {
     return {
       payload: {
@@ -752,7 +754,8 @@ router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
 
   return {
     payload: {
-      history: history
+      history: history,
+      chargeDecisionHistory: chargeDecisionHistory
     }
   };
 });

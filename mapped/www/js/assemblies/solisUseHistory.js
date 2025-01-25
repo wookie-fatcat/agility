@@ -11,6 +11,8 @@ export function load() {
 
       <canvas golgi:ref="useHistoryChart" />
 
+      <sbadmin-modal golgi:ref="modal" />
+
     </sbadmin-card-body>
   </sbadmin-card>
 
@@ -23,6 +25,12 @@ export function load() {
     'sbadmin-content-page': {
       history: function() {
         let _this = this;
+
+document.addEventListener('touchend', function (event) {
+  if (event.target && event.target.tagName.toLowerCase() !== "canvas") {
+    CHART_INSTANCE.canvas.dispatchEvent(new Event('mouseout'));
+  }
+});
 
         this.fetchHistory = async function(dateIndex) {
           let json = await _this.context.request('/agility/solis/data/history/' + dateIndex);
@@ -87,6 +95,42 @@ export function load() {
               type: 'line',
               data: data,
               options: {
+                interaction: {
+                  intersect: false,
+                  mode: 'index',
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      afterBody:  function(tooltipItems) {
+                        let slot = tooltipItems[0].label;
+                        let decision = json.chargeDecisionHistory[slot];
+                        let lines = [];
+                        let until = 'until 22:30 today: ';
+                        if (decision.untilTomorrow) until = 'until 22:30 tomorrow: ';
+                        let load = +decision.solis.load;
+                        lines.push('Expected load ' + until + load.toFixed(2) + ' kWh');
+                        let pv = +decision.solis.pv;
+                        if (decision.solcast) pv = +decision.solcast.adjustedPrediction;
+                        lines.push('Predicted PV ' + until + pv.toFixed(2) + ' kWh');
+                        let deficit = +decision.deficit;
+                        if (deficit < 0) {
+                          deficit = 0 - deficit;
+                          lines.push('Power surplus ' + until + deficit.toFixed(2) + ' kWh');
+                        }
+                        else {
+                          lines.push('Power deficit ' + until + deficit.toFixed(2) + ' kWh');
+                        }
+                        if (decision.chargingDecision.charge) {
+                          if (decision.chargingDecision.charge === 'charge') lines.push('Charging from Grid');
+                          if (decision.chargingDecision.charge === 'gridonly') lines.push('Using Grid Power but not charging');
+                        }
+                        lines.push(decision.chargingDecision.reason);
+                        return lines;
+                      }
+                    }
+                  }
+                },
                 scales: {
                   battery: {
                     type: 'linear',
