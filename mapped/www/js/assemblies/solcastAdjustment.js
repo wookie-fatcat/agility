@@ -61,7 +61,7 @@ export function load() {
               totals[2] += record.actual;
               totals[3] = (((totals[2] - totals[1]) / totals[1]) * 100).toFixed(1) + '%';
             }
-            table.body.push([{value: totals[0]}, {value: totals[1].toFixed(2)}, {value: totals[2]}, {value: totals[3]}]);
+            table.body.push([{value: totals[0]}, {value: totals[1].toFixed(2)}, {value: totals[2].toFixed(2)}, {value: totals[3]}]);
             _this.table.render(table);
           }
 

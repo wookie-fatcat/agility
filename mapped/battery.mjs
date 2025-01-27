@@ -523,8 +523,10 @@ class Battery {
     if (positionNow.untilTomorrow && !this.agility.chargingHasStarted) {
       let noOfSlots = positionNow.battery.noOfSlotsToFillBattery;
       if (positionNow.chargeSlotsNeeded < noOfSlots) noOfSlots = positionNow.chargeSlotsNeeded;
-      let index = noOfSlots - 1;
-      this.agility.todaysAlwaysUsePrice = slots[index].price;
+      if (noOfSlots > 0) {
+        let index = noOfSlots - 1;
+        this.agility.todaysAlwaysUsePrice = slots[index].price;
+      }
     }
 
     if (this.agility.isTodaysAlwaysUsePriceSet && positionNow.octopus.priceNow <= this.agility.todaysAlwaysUsePrice) {

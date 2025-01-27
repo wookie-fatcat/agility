@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 17 January 2025
+ 27 January 2025
 
 */
 
@@ -151,12 +151,13 @@ let Solcast = class {
       let dateIndex = dateNode.key;
       let d = _this.date.at(dateIndex);
       if (d.dateIndex < _this.date.now().dateIndex) {
-        count++;
-        if (_this.solis.$(dateIndex).exists) {
+        let solisRecord = _this.solis.$(dateIndex);
+        if (solisRecord.exists) {
+          count++;
           let predictedTotal = dateNode.$('total').value;
           totalP += predictedTotal;
-          let actualTotal = _this.solis.$(dateIndex).lastChild.$('pvOutputTotal').value;
-          console.log(d.dayText + '/' + d.monthText + ': predicted: ' + predictedTotal + '; actual: ' + actualTotal);
+          let actualTotal = solisRecord.lastChild.$('pvOutputTotal').value;
+          //console.log(d.dayText + '/' + d.monthText + ': predicted: ' + predictedTotal + '; actual: ' + actualTotal);
           totalA += actualTotal;
         }
       }
@@ -164,7 +165,7 @@ let Solcast = class {
 
     if (count > 1) {
       let diff = ((totalA - totalP) / totalP) * 100;
-      console.log('percent difference: ' + diff);
+      //console.log('percent difference: ' + diff);
       this.adjustment = diff;
     }
   }
@@ -175,19 +176,22 @@ let Solcast = class {
     let todayDateIndex = this.date.now().dateIndex;
     this.totals.forEachChildNode(function(dateNode) {
       if (dateNode.key < todayDateIndex) {
-        let data = dateNode.document;
-        let date = data.day + '/' + data.month;
-        let prediction = data.total;
-        let lastSolisRecord = _this.solis.$(dateNode.key).lastChild;
-        let actualPV = lastSolisRecord.$('pvOutputTotal').value;
-        console.log('dateIndex: ' + dateNode.key);
-        console.log('prediction: ' + prediction);
-        console.log('actual: ' + actualPV);
-        history.push({
-          date: date,
-          prediction: prediction,
-          actual: actualPV
-        });
+        let solisRecord = _this.solis.$(dateNode.key);
+        if (solisRecord.exists) {
+          let data = dateNode.document;
+          let date = data.day + '/' + data.month;
+          let prediction = data.total;
+          let lastSolisRecord = solisRecord.lastChild;
+          let actualPV = lastSolisRecord.$('pvOutputTotal').value;
+          //console.log('dateIndex: ' + dateNode.key);
+          //console.log('prediction: ' + prediction);
+          //console.log('actual: ' + actualPV);
+          history.push({
+            date: date,
+            prediction: prediction,
+            actual: actualPV
+          });
+        }
       }
     });
     return history;
@@ -499,13 +503,13 @@ let Solcast = class {
 
 
   cleardown() {
+    // this.predictions always only contains latest data and up to 2 days ahead
     let noOfDaysToKeep = this.agility.movingAveragePeriod;
     let count = 0;
     let _this = this;
-    this.predictions.forEachChildNode({direction: 'reverse'}, function(dateNode) {
+    this.totals.forEachChildNode({direction: 'reverse'}, function(dateNode) {
       count++;
       if (count > noOfDaysToKeep) {
-        _this.totals.$(dateNode.key).delete();
         dateNode.delete();
       }
     });
