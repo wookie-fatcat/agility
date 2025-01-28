@@ -11,6 +11,24 @@ Ensure you have Docker installed on your Raspberry Pi.  Here's some useful instr
 
 - https://pimylifeup.com/raspberry-pi-docker/
 
+The steps that follow assume that you've configured Docker so that it doesn't require use of the *sudo*
+command.  This is normally achieved by running the following command:
+
+```console
+sudo usermod -aG docker $USER
+```
+
+**NOTE**: You **must** log out and log in again after running this command, or start a new terminal session in 
+order for this to take effect.
+
+Check that it's worked by running a *docker* command such as:
+
+```console
+docker ps
+```
+
+If this runs without reporting an error, then you're good to proceed.
+
 ## Step 2
 
 Ensure you have *git* installed.  If not, type the following in Terminal
