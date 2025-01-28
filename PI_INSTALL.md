@@ -5,6 +5,8 @@
 You must be running a [64-bit version of Linux](https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os-64-bit) 
 on your Raspberry Pi
 
+You will need to use an SD card that is **at least 16Gb in size**.  A 32Gb one is recommended.
+
 ## Step 1
 
 Ensure you have Docker installed on your Raspberry Pi.  Here's some useful instructions:
