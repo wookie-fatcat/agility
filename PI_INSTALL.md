@@ -30,7 +30,7 @@ Check that it's worked by running a *docker* command such as:
 docker ps
 ```
 
-If this runs without reporting an error, then you're good to proceed.
+If this runs without reporting a permissions error, then you're good to proceed.
 
 ## Step 2
 
