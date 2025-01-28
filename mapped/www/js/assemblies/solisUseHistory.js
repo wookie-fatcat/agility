@@ -71,7 +71,7 @@ document.addEventListener('touchend', function (event) {
                   data: prices,
                   fill: false,
                   borderColor: 'blue',
-                  stepped: 'middle',
+                  stepped: 'before',
                   yAxisID: 'price'
                 },
                 {
