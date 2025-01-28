@@ -21,6 +21,9 @@ sudo usermod -aG docker $USER
 **NOTE**: You **must** log out and log in again after running this command, or start a new terminal session in 
 order for this to take effect.
 
+**NOTE 2**: If you're using Raspberry Pi Desktop, you **must** completely log out from the Desktop and log back in. Simply closing 
+and re-opening a terminal window will not be sufficient.
+
 Check that it's worked by running a *docker* command such as:
 
 ```console
