@@ -222,6 +222,20 @@ let Agility = class {
     this.control.$('chargingStarted').delete();
   }
 
+  set updateAvailable(version) {
+    this.control.$('updateVersion').value = version;
+  }
+
+  get updateAvailable() {
+    let node = this.control.$('updateVersion');
+    if (!node.exists) return false;
+    return +this.control.$('updateVersion').value;
+  }
+
+  removeUpdateAvailable() {
+    this.control.$('updateVersion').delete();
+  }
+
   addTask(task) {
     this.tasks.$(task).value = true;
   }

@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 January 2025
+ 30 January 2025
 
  */
 
@@ -101,9 +101,11 @@ class Actions {
         let latestVersion = json.version;
         if (+latestVersion > +this.myCurrentVersion) update = true;
         if (update) {
+          this.updateAvailable = latestVersion;
           return {status: 'System should be updated to version ' + latestVersion};
         }
         else {
+          this.removeUpdateAvailable();
           return {status: 'You are currently running the latest version: ' + latestVersion};
         }
       },

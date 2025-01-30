@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 January 2025
+ 30 January 2025
 
  */
 
@@ -65,7 +65,7 @@ let Backup = class {
     }
   }
 
-  async restore(filename) {
+  async restore(filename, globalName) {
     filename = filename || 'backup.txt';
     let glsdb = this.glsdb;
 
@@ -96,7 +96,14 @@ let Backup = class {
             }
             if (subcount === 2) subscripts = JSON.parse(line);
             if (subcount === 3) {
-              doc.$(subscripts).value = line;
+              if (line.startsWith('.')) {
+                if (!Number.isNaN(Number.parseFloat(line))) {
+                  line = '0' + line;
+                }
+              }
+              if (!globalName || globalName === name) {
+                doc.$(subscripts).value = line;
+              }
               subcount = 0;
             }
           }
