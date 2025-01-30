@@ -1,1 +1,1 @@
-docker run -it --name agility --rm -p 8080:8080 -e TZ=Europe/London -v ~/agility/mapped:/opt/agility/mapped agility
+docker run -dt --name agility --restart always -p 8080:8080 -e TZ=Europe/London -v ~/agility/mapped:/opt/agility/mapped agility
