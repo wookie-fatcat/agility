@@ -86,7 +86,21 @@ source prepare.sh
 
 ## Step 7
 
-Build the *Agility* Docker Container
+You now have a choice.  
+
+### Pull the Pre-Built Container
+
+If you're using a Raspberry Pi (or any other ARM64-based Linux system),
+you can pull a pre-built Docker Container:
+
+```console
+docker pull rtweed/agility-arm64
+```
+
+### Build the Container
+
+Alternatively, you can build the *Agility* Docker Container. You'll need to do this if you are
+using an Intel-based or AMD64 system.  To build the Container:
 
 Switch to the *docker* directory and run the *buildContainer* command:
 
@@ -97,12 +111,21 @@ cd docker
 
 It may take a while - let it run to completion
 
+
 ## Step 8
 
 If the container built successfully, you can now start it with the *runContainer* command:
 
+- If you pulled the pre-built Container in the previous step:
+
 ```console
 ./runContainer
+```
+
+- If you built the Container in the previous step:
+
+```console
+./runContainer agility
 ```
 
 When you start the container for the first time, it will run a number of initialisation steps and

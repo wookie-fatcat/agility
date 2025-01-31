@@ -1,1 +1,4 @@
-docker run -dt --name agility --restart always -p 8080:8080 -e TZ=Europe/London -v ~/agility/mapped:/opt/agility/mapped agility
+CONTAINER="${1:-agility}"
+PORT="${2:-8080}"
+
+docker run -dt --name agility --restart always -p "$PORT":8080 -e TZ=Europe/London -v ~/agility/mapped:/opt/agility/mapped "$CONTAINER"
