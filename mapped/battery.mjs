@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 1 February 2025
+ 2 February 2025
 
  */
 
@@ -255,13 +255,13 @@ class Battery {
 
       let firstPVTime = this.solcast.firstProductionTime;
       if (firstPVTime) {
-        this.logger.write('firstPVTime object:');
-        this.logger.write(firstPVTime);
+        //this.logger.write('firstPVTime object:');
+        //this.logger.write(firstPVTime);
         let firstPVTimeIndex = firstPVTime.timeIndex + 3600000;
         let firstPVTimeText = this.date.at(firstPVTimeIndex).timeText;
         let firstPVTimeToday = this.date.atTime(firstPVTimeText);
-        this.logger.write('now: ' + now.timeIndex + '; ' + now.hour);
-        this.logger.write('firstPVTimeToday: ' + firstPVTimeToday.timeIndex);
+        //this.logger.write('now: ' + now.timeIndex + '; ' + now.hour);
+        //this.logger.write('firstPVTimeToday: ' + firstPVTimeToday.timeIndex);
         if (now.hour > 18 || now.timeIndex < firstPVTimeToday.timeIndex) {
           this.logger.write('Current time is earlier than first PV production today');
           this.logger.write('Get power balance position from now to first PV time: ' + firstPVTimeText);
@@ -270,9 +270,9 @@ class Battery {
           if (firstPVPositionNow.chargeSlotsNeeded > 0) {
             this.octopus.sortSlots(firstPVTimeText);
             let slots = this.octopus.cheapestSlotArray;
-            this.logger.write('slots');
-            this.logger.write(slots);
-            firstPVPositionNow = this.shouldUseSlotToCharge(firstPVPositionNow, slots, true);
+            //this.logger.write('slots');
+            //this.logger.write(slots);
+            firstPVPositionNow = this.shouldUseSlotToCharge(firstPVPositionNow, slots, true, false);
             this.logger.write('Assessment up to time of first PV Production: ' + firstPVTimeText);
             this.logger.write(firstPVPositionNow);
             return firstPVPositionNow.chargingDecision;
@@ -580,7 +580,8 @@ class Battery {
     };
   }
 
-  shouldUseSlotToCharge(positionNow, slots, log) {
+  shouldUseSlotToCharge(positionNow, slots, log, setAlwaysUsePrice) {
+    if (typeof setAlwaysUsePrice === 'undefined') setAlwaysUsePrice = true;
     let remainingPowerNeeded = positionNow.deficit;
 
     // after 6:30pm, provided tomorrows tariffs are available,
@@ -588,7 +589,7 @@ class Battery {
     let now = this.date.now().timeIndex;
     let cutoff = this.date.atTime('20:30').timeIndex;
     //if (positionNow.untilTomorrow && now > at7 && !this.agility.isTodaysAlwaysUsePriceSet) {
-    if (positionNow.untilTomorrow && now < cutoff && !this.agility.chargingHasStarted) {
+    if (setAlwaysUsePrice && positionNow.untilTomorrow && now < cutoff && !this.agility.chargingHasStarted) {
       let noOfSlots = positionNow.battery.noOfSlotsToFillBattery;
       if (positionNow.chargeSlotsNeeded < noOfSlots) noOfSlots = positionNow.chargeSlotsNeeded;
       if (noOfSlots > 0) {
