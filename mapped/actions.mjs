@@ -121,6 +121,7 @@ class Actions {
         this.solis.cleardown();
         this.logger.cleardown(this.movingAveragePeriod);
         this.battery.cleardownChargeHistory();
+        this.exec('/opt/agility/mapped/control/clearLogs');
         return {status: 'Cleardown completed'};
       }
     }

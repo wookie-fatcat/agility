@@ -5,7 +5,6 @@
     let context = {
       assemblyPath: window.location.origin + '/js/assemblies/',
       componentPaths: {
-        //sbadmin: 'https://robtweed.github.io/golgi-sbadmin/components/'
         sbadmin: window.location.origin + '/js/components/sbadmin/'
       },
       Chart: Chart,
@@ -37,17 +36,15 @@
     golgi.logging = true;
     let rootComponent = await golgi.renderAssembly('root_assembly', 'body', context);
 
-    /*
     // pre-load components that are needed later while things are quiet...
 
     setTimeout(async function() {
-      let arr = ['sbadmin-content-page', 'sbadmin-spacer', 'sbadmin-card', 'sbadmin-card-header', 'sbadmin-card-body', 'sbadmin-card-text', 'sbadmin-form', 'sbadmin-input', 'sbadmin-textarea', 'sbadmin-button', 'sbadmin-modal', 'sbadmin-table', 'sbadmin-toast'];
+      let arr = ['sbadmin-select', 'sbadmin-modal', 'sbadmin-table'];
       for (let name of arr) {
         let _module = await import(context.componentPaths.sbadmin + name + '.js');
         _module.load();
       }
     }, 500);
-    */
 
   }
 

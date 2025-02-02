@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-
+cp /opt/agility/mapped/logs/agility.log /opt/agility/mapped/logs/agility.log.bak
 echo "" > /opt/agility/mapped/logs/agility.log
+cp /opt/agility/mapped/mgweb/mgweb.log /opt/agility/mapped/mgweb/mgweb.log.bak
 echo "" > /opt/agility/mapped/mgweb/mgweb.log
+cp /opt/agility/mapped/mgweb/mgweb_server.log /opt/agility/mapped/mgweb/mgweb_server.log.bak
 echo "" > /opt/agility/mapped/mgweb/mgweb_server.log

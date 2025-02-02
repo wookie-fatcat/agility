@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 27 January 2025
+ 1 February 2025
 
 */
 
@@ -364,13 +364,13 @@ let Solcast = class {
     return this.predictions.$([now.dateIndex, now.slotTimeIndex, 'kwh']).value;
   }
 
-  firstProductionTime() {
+  get firstProductionTime() {
     let d = this.date.atMidnight(1); 
     // use tomorrow's data to ensure we have a full set of data
     let dateIndex = d.dateIndex;
     let timeIndex;
     this.predictions.$(dateIndex).forEachChildNode(function(timeNode) {
-      if (timeNode.$('pv').value > 0) {
+      if (+timeNode.$('kwh').value > 0) {
         timeIndex = timeNode.key;
         return false;
       }
@@ -504,7 +504,7 @@ let Solcast = class {
 
   cleardown() {
     // this.predictions always only contains latest data and up to 2 days ahead
-    let noOfDaysToKeep = this.agility.movingAveragePeriod;
+    let noOfDaysToKeep = this.agility.movingAveragePeriod + 2; // allows for an extra 2 days ahead of predictions
     let count = 0;
     let _this = this;
     this.totals.forEachChildNode({direction: 'reverse'}, function(dateNode) {

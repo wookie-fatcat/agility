@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 January 2025
+ 1 February 2025
 
  */
 
@@ -246,6 +246,56 @@ class Battery {
     return noOfSlots;
   }
 
+  preProductionChargeCheck(positionNow) {
+    let now = this.date.now();
+    if (now.hour > 15 && now.hour < 19) return false;
+
+    if (!positionNow.chargingDecision.charge && this.solcast.isEnabled) {
+      this.logger.write('No charge - is this before time of first PV production?');
+
+      let firstPVTime = this.solcast.firstProductionTime;
+      if (firstPVTime) {
+        this.logger.write('firstPVTime object:');
+        this.logger.write(firstPVTime);
+        let firstPVTimeIndex = firstPVTime.timeIndex + 3600000;
+        let firstPVTimeText = this.date.at(firstPVTimeIndex).timeText;
+        let firstPVTimeToday = this.date.atTime(firstPVTimeText);
+        this.logger.write('now: ' + now.timeIndex + '; ' + now.hour);
+        this.logger.write('firstPVTimeToday: ' + firstPVTimeToday.timeIndex);
+        if (now.hour > 18 || now.timeIndex < firstPVTimeToday.timeIndex) {
+          this.logger.write('Current time is earlier than first PV production today');
+          this.logger.write('Get power balance position from now to first PV time: ' + firstPVTimeText);
+          let firstPVPositionNow = this.positionNow(false, firstPVTimeText);
+          this.logger.write(firstPVPositionNow);
+          if (firstPVPositionNow.chargeSlotsNeeded > 0) {
+            this.octopus.sortSlots(firstPVTimeText);
+            let slots = this.octopus.cheapestSlotArray;
+            this.logger.write('slots');
+            this.logger.write(slots);
+            firstPVPositionNow = this.shouldUseSlotToCharge(firstPVPositionNow, slots, true);
+            this.logger.write('Assessment up to time of first PV Production: ' + firstPVTimeText);
+            this.logger.write(firstPVPositionNow);
+            return firstPVPositionNow.chargingDecision;
+          }
+          else {
+            this.logger.write('Power surplus, so no charging needed');
+            return false;
+          }
+        }
+        else {
+          this.logger.write('Current time is later than first PV production today');
+          return false;
+        }
+      }
+      else {
+        return false;
+      }
+    }
+    else {
+      return false;
+    }
+  }
+
   get shouldBeCharged() {
     // if previous slot charged battery,save the new battery level
     this.solis.endChargeHistoryRecord();
@@ -265,6 +315,14 @@ class Battery {
 
     // dont charge, reason specified
     if (!positionNow.chargingDecision.charge && positionNow.chargingDecision.reason !== '') {
+
+      // do a pre-production test before committing to a no-charge
+
+      let result = this.preProductionChargeCheck(positionNow);
+      if (result && result.charge) {
+        positionNow.chargingDecision = result;
+      }
+
       this.logger.write('Charging status: ' + positionNow.chargingDecision.charge);
       this.logger.write(positionNow.chargingDecision.reason);
       this.updateChargeDecisionHistory(positionNow);
@@ -290,6 +348,16 @@ class Battery {
     if (positionNow.chargingDecision.charge === 'charge') {
       this.agility.setChargingStartedFlag();
     }
+
+    // if not charging set and time is before time of first production (+1 hour)
+    //  then reasess positionNow based on time of first production
+    //  in order to prevent running down battery level overnight
+
+    let result = this.preProductionChargeCheck(positionNow);
+    if (result && result.charge) {
+      positionNow.chargingDecision = result;
+    }
+
     this.logger.write('Charging status: ' + positionNow.chargingDecision.charge);
     this.logger.write(positionNow.chargingDecision.reason);
     this.updateChargeDecisionHistory(positionNow);
@@ -372,12 +440,12 @@ class Battery {
     return false;
   }
 
-  positionNow(log) {
+  positionNow(log, toTimeText) {
     if (typeof log === 'undefined') log = true;
+    toTimeText = toTimeText || '22:30';
     let d = this.date.now();
     let fromTimeText = d.slotTimeText;
     let slotEndTimeText = this.date.at(d.slotEndTimeIndex).timeText;
-    let toTimeText = '22:30';
     let isPeakTime = false;
     if (d.hour > 15 && d.hour < 19) isPeakTime = true;
     let solis;
@@ -518,9 +586,9 @@ class Battery {
     // after 6:30pm, provided tomorrows tariffs are available,
     // set today's always use price based on slots needed to fill battery from current level
     let now = this.date.now().timeIndex;
-    //let at7 = this.date.atTime('18:30').timeIndex;
+    let cutoff = this.date.atTime('20:30').timeIndex;
     //if (positionNow.untilTomorrow && now > at7 && !this.agility.isTodaysAlwaysUsePriceSet) {
-    if (positionNow.untilTomorrow && !this.agility.chargingHasStarted) {
+    if (positionNow.untilTomorrow && now < cutoff && !this.agility.chargingHasStarted) {
       let noOfSlots = positionNow.battery.noOfSlotsToFillBattery;
       if (positionNow.chargeSlotsNeeded < noOfSlots) noOfSlots = positionNow.chargeSlotsNeeded;
       if (noOfSlots > 0) {

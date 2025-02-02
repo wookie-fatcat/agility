@@ -40,6 +40,9 @@ export function load(ctx) {
       </sbadmin-sidebar-sub-menu>
       <sbadmin-sidebar-menu-item text="Operation" contentPage="operation"/>
     </sbadmin-sidebar-nested-menu>
+
+    <sbadmin-sidebar-menu-item iconName="file-plus" text="Update" contentPage="update" />
+
   </sbadmin-sidebar-menu>
 
 

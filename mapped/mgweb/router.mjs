@@ -847,6 +847,29 @@ router.get('/agility/nginx/reload', (Request, ctx) => {
   };
 });
 
+router.get('/agility/update', (Request, ctx) => {
+
+  agility.update();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/isUpdateAvailable', async (Request, ctx) => {
+
+  let updateAvailable = await agility.isUpdateAvailable();
+
+  return {
+    payload: {
+      updateAvailable: updateAvailable
+    }
+  };
+
+});
 
 router.get('/agility/closeSSE/:pid', async (Request, ctx) => {
 

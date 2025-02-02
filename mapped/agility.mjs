@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 January 2025
+ 2 February 2025
 
  */
 
@@ -308,9 +308,6 @@ let Agility = class {
       if (now.slotTimeText === '02:00') {
         this.addTask('updateInverterTime');
       }
-      if (now.slotTimeText === '03:00') {
-        this.addTask('checkForUpdates');
-      }
       if (now.slotTimeText === '16:00') {
         this.addTask('deleteTodaysAlwaysUsePrice');
       }
@@ -553,7 +550,13 @@ let Agility = class {
     let json = await this.getLatestVersionNo();
     if (json.error) return false;
     let latestVersion = +json.version;
-    if (latestVersion > +this.myCurrentVersion) return true;
+    let currentVersion = +this.myCurrentVersion;
+    if (latestVersion > currentVersion) {
+      return {
+        latestVersion: latestVersion,
+        currentVersion: currentVersion
+      };
+    }
     return false;
   }
 
@@ -565,6 +568,64 @@ let Agility = class {
     if (this.solcast.isEnabled) this.solcast.document.delete();
     this.logger.loggerDoc.delete(); 
     this.logger.write('Agility Data has been deleted');
+  }
+
+  update() {
+    let copyDir = '/opt/copy';
+    if (fs.existsSync(copyDir)) {
+      fs.rmSync(copyDir, { 
+        recursive: true
+      }); 
+    }
+    fs.mkdirSync(copyDir);
+    this.exec('git clone https://github.com/robtweed/agility ' + copyDir);
+    let fileArr = fs.readdirSync(copyDir + '/mapped');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.mjs') || filename === 'version.json') {
+        fs.copyFileSync(copyDir + '/mapped/' + filename, '/opt/agility/mapped/' + filename);
+      }
+    }
+
+    fileArr = fs.readdirSync(copyDir + '/mapped/www');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.html') || filename.endsWith('.ico')) {
+        fs.copyFileSync(copyDir + '/mapped/www/' + filename, '/opt/agility/mapped/www/' + filename);
+      }
+    }
+
+    fileArr = fs.readdirSync(copyDir + '/mapped/www/js');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.js')) {
+        fs.copyFileSync(copyDir + '/mapped/www/js/' + filename, '/opt/agility/mapped/www/js/' + filename);
+      }
+    }
+
+    fileArr = fs.readdirSync(copyDir + '/mapped/www/js/components/sbadmin');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.js')) {
+        fs.copyFileSync(copyDir + '/mapped/www/js/components/sbadmin/' + filename, '/opt/agility/mapped/www/js/components/sbadmin/' + filename);
+      }
+    }
+
+    fileArr = fs.readdirSync(copyDir + '/mapped/www/js/assemblies');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.js')) {
+        fs.copyFileSync(copyDir + '/mapped/www/js/assemblies/' + filename, '/opt/agility/mapped/www/js/assemblies/' + filename);
+      }
+    }
+
+    fileArr = fs.readdirSync(copyDir + '/mapped/mgweb');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.mjs')) {
+        fs.copyFileSync(copyDir + '/mapped/mgweb/' + filename, '/opt/agility/mapped/mgweb/' + filename);
+      }
+    }
+
+    fs.rmSync(copyDir, { 
+      recursive: true
+    });
+
+    this.exec('/opt/agility/nginx reload');
   }
 }
 
