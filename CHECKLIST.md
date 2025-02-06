@@ -1,8 +1,10 @@
 # Checklist of Things To Do/Check Before Starting Agility
 
-- You must reside in the UK
+- You must reside in the UK (excluding N Ireland where, unfortunately, Octopus is not a supplier)
 
 - Your Inverter must be a Solis Hybrid Inverter with attached battery storage
+
+  - additionally, currently your inverter must use an S3-Wifi Data Logger.
 
   - charging and discharging your batteries must be controlled by the Solis Inverter.  Check with 
 your installer if in doubt
