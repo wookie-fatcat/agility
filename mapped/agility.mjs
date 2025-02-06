@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 5 February 2025
+ 6 February 2025
 
  */
 
@@ -513,7 +513,8 @@ let Agility = class {
   }
 
   async getLatestVersionNo() {
-    let url = 'https://cdn.jsdelivr.net/gh/robtweed/agility/mapped/version.json';
+    //let url = 'https://cdn.jsdelivr.net/gh/robtweed/agility/mapped/version.json';
+    let url = 'https://raw.githubusercontent.com/robtweed/agility/refs/heads/master/mapped/version.json';
     let options = {
       method: 'GET',
       headers: {
