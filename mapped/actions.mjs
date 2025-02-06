@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 January 2025
+ 4 February 2025
 
  */
 
@@ -121,7 +121,8 @@ class Actions {
         this.solis.cleardown();
         this.logger.cleardown(this.movingAveragePeriod);
         this.battery.cleardownChargeHistory();
-        this.exec('/opt/agility/mapped/control/clearLogs');
+        this.clearLogs();
+        //this.exec('/opt/agility/mapped/control/clearLogs');
         return {status: 'Cleardown completed'};
       }
     }

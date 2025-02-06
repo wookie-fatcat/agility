@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 2 February 2025
+ 5 February 2025
 
  */
 
@@ -234,6 +234,15 @@ let Agility = class {
 
   removeUpdateAvailable() {
     this.control.$('updateVersion').delete();
+  }
+
+  clearLogs() {
+    fs.copyFileSync('/opt/agility/mapped/logs/agility.log', '/opt/agility/mapped/logs/agility.log.bak');
+    fs.truncateSync('/opt/agility/mapped/logs/agility.log');
+    fs.copyFileSync('/opt/agility/mapped/mgweb/mgweb.log', '/opt/agility/mapped/mgweb/mgweb.log.bak');
+    fs.truncateSync('/opt/agility/mapped/mgweb/mgweb.log');
+    fs.copyFileSync('/opt/agility/mapped/mgweb/mgweb_server.log', '/opt/agility/mapped/mgweb/mgweb_server.log.bak');
+    fs.truncateSync('/opt/agility/mapped/mgweb/mgweb_server.log');
   }
 
   addTask(task) {

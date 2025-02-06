@@ -7,6 +7,12 @@ export function load() {
     <sbadmin-card-body>
       <sbadmin-form golgi:ref="form">
         <fieldset>
+          <sbadmin-card-text>If you know your Octopus Key, Agility can auto-generate your URL details</sbadmin-card-text>
+          <sbadmin-card-text>using your Octopus Account Id and your API Key</sbadmin-card-text>
+          <sbadmin-input type="text" name="accountId" label="Account Id:" placeholder="Your Octopus Account Id" />
+          <sbadmin-input type="text" name="username" label="API Key:" placeholder="Your Octopus API Key" />
+          <sbadmin-button color="cyan" text="Create URL Fields" golgi:ref="genBtn" />
+          <hr />
           <sbadmin-input type="text" name="zone" label="Your DNO Zone:" placeholder="A-P" />
           <sbadmin-input type="text" name="url1" label="Octopus Agile Price URL (part 1):" placeholder="URL string preceding the DNO zone" />
           <sbadmin-input type="text" name="url2" label="Octopus Agile Price URL (part 2):" placeholder="URL string following the DNO zone" />
@@ -77,6 +83,27 @@ export function load() {
               _this.toast.display('Update was successful');
             }
           });
+
+          _this.genBtn.on('clicked', async () => {
+            let body = {
+              accountId: _this.form.fieldsByName.get('accountId').value,
+              key: _this.form.fieldsByName.get('username').value
+            }
+            let json = await _this.context.request('/agility/octopus/urlfields', 'POST', body);
+            if (json.error) {
+              _this.toast.headerTxt = 'Error';
+              _this.toast.display(json.error);
+            }
+            else {
+              _this.toast.headerTxt = 'Success!';
+              _this.toast.display('Agility was able to fetch your Agile Tariff URL Details');
+
+              _this.form.fieldsByName.get('zone').value = json.dnoCode;
+              _this.form.fieldsByName.get('url1').value = json.url1;
+              _this.form.fieldsByName.get('url2').value = json.url2;
+            }
+          });
+
 
           _this.fetchBtn.on('clicked', async () => {
             let json = await _this.context.request('/agility/octopus/agiletariff');

@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 January 2025
+ 5 February 2025
 
 */
 
@@ -70,6 +70,27 @@ let Octopus = class {
     return this.config.$('username').value;
   }
 
+  set username(value) {
+    this.config.$('username').value = value;
+  }
+
+  get key() {
+    return this.config.$('username').value;
+  }
+
+  set key(value) {
+    this.config.$('username').value = value;
+  }
+
+  get accountId() {
+    return this.config.$('accountId').value;
+  }
+
+  set accountId(value) {
+    this.config.$('accountId').value = value;
+  }
+
+
   async request(url, username) {
     let options = {
       method: 'GET',
@@ -86,7 +107,10 @@ let Octopus = class {
       return json;
     }
     catch(err) {
-      return {error: 'API Request failed'};
+      return {
+        error: 'API Request failed',
+        err: err
+      };
     }
   }
 
@@ -98,6 +122,83 @@ let Octopus = class {
       let url = this.url1 + this.zone + this.url2;
       return await this.request(url, this.username);
     }
+  }
+
+  async generateUrlFields(accountId, key) {
+    let url = 'https://api.octopus.energy/v1/accounts/' + accountId;
+    let json = await this.request(url, key);
+    if (json.error) {
+      return json;
+    }
+    if (!json.properties) {
+      return {
+        error: 'Octopus did not return usable information for your account',
+        json: json
+      };
+    }
+    let now = this.date.now();
+    let error;
+    let stop = false;
+    let results = {};
+    for (let property of json.properties) {
+      if (stop) break;
+      if (property.moved_out_at === null) {
+        for (let point of property.electricity_meter_points) {
+          if (stop) break;
+          if (!point.is_export) {
+            for (let agreement of point.agreements) {
+              let from = this.date.at(agreement.valid_from);
+              if (from.timeIndex < now.timeIndex) {
+                let to = this.date.at(agreement.valid_to);
+                if (to.timeIndex > now.timeIndex) {
+                  // what was the Agile product code at the from date?
+                  let url = 'https://api.octopus.energy/v1/products/?available_at=' + agreement.valid_from + '&is_green=true';
+                  let json = await this.request(url, key);
+                  //console.log(json);
+                  if (json.error) {
+                    error = json;
+                    stop = true;
+                    break;
+                  }
+                  if (!json.results) {
+                    error = {
+                      error: 'Octopus did not return your tariff results',
+                      json: json
+                    };
+                    stop = true;
+                    break;
+                  }
+                  if (json.results) {
+                    for (let tariff of json.results) {
+                      if (tariff.direction === 'IMPORT' && tariff.brand === 'OCTOPUS_ENERGY' && tariff.code.includes('AGILE')) {
+                        let product = tariff.code;
+                        let dnoCode = agreement.tariff_code.slice(-1);
+                        let url1 = 'https://api.octopus.energy/v1/products/' + product + '/electricity-tariffs/' + agreement.tariff_code.slice(0, -1);
+                        let url2 = '/standard-unit-rates/';
+                        results = {
+                          dnoCode: dnoCode,
+                          url1: url1,
+                          url2: url2
+                        };
+                        stop = true;
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (error) {
+      return error;
+    }
+    if (!results.dnoCode) {
+      return {error: 'Unable to auto-generate URL fields'};
+    }
+    return results;
   }
 
   get isBefore4() {

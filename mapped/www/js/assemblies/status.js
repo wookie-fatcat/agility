@@ -38,9 +38,19 @@ export function load() {
         let _this = this;
         this.on('selected', async function() {
 
+          let root = _this.getParentComponent('sbadmin-root');
+          let json = await _this.context.request('/agility/version');
+          if (json.error) {
+            _this.toast.headerTxt = 'Error';
+            _this.toast.display(json.error);
+          }
+          else {
+            root.brand.text = 'Agility v' + json.version;
+          }
+
           _this.startBtn.hide();
           _this.stopBtn.hide();
-          let json = await _this.context.request('/agility/isRunning');
+          json = await _this.context.request('/agility/isRunning');
           if (json.isRunning) {
             _this.cardText.rootElement.textContent = 'Agility is Running';
             _this.startBtn.hide();

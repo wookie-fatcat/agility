@@ -83,7 +83,8 @@ router.get('/agility/start', async (Request, ctx) => {
   }
 
   console.log('Agility requested to start');
-  agility.exec('/opt/agility/mapped/control/start');
+  //agility.exec('/opt/agility/mapped/control/start');
+  agility.exec('nohup /root/.bun/bin/bun /opt/agility/mapped/start.mjs >> /opt/agility/mapped/logs/agility.log 2>&1 &');
   await sleep(2000);
 
   if (!agility.isAlreadyRunning) {
@@ -124,6 +125,17 @@ router.get('/agility/stop', async (Request, ctx) => {
   };
 
 });
+
+router.get('/agility/version', (Request, ctx) => {
+
+  return {
+    payload: {
+      version: agility.myCurrentVersion
+    }
+  };
+
+});
+
 
 router.get('/agility/solcast/isenabled', (Request, ctx) => {
 
@@ -691,6 +703,20 @@ router.get('/agility/octopus/cheapestSlotsNow', (Request, ctx) => {
       slotFrom: fromTimeText,
       untilTomorrow: agility.octopus.tomorrowsTariffsAvailable
     }
+  };
+
+});
+
+router.post('/agility/octopus/urlfields', async (Request, ctx) => {
+
+  let body = Request.body;
+  let results = await agility.octopus.generateUrlFields(body.accountId, body.key);
+  if (!results.error) {
+    agility.octopus.accountId = body.accountId;
+    agility.octopus.key = body.key;
+  }
+  return {
+    payload: results
   };
 
 });

@@ -5,7 +5,7 @@ export function load(ctx) {
 
   <span golgi:appendTo="topbarTarget">
     <sbadmin-sidebar-toggle />
-    <sbadmin-brand text="Agility" />
+    <sbadmin-brand text="Agility" golgi:ref="brand" />
   </span>
 
   <sbadmin-footer-text golgi:appendTo="footerTarget">
@@ -50,10 +50,5 @@ export function load(ctx) {
 </sbadmin-root>
   `;
 
-  let hooks = {
-    'sbadmin-sidebar-menu-item': {
-    }
-  };
-
-  return {gx, hooks};
+  return {gx};
 };
