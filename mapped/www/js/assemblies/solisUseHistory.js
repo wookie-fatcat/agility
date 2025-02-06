@@ -43,12 +43,14 @@ document.addEventListener('touchend', function (event) {
             let batteryLevels = [];
             let prices = [];
             let gridImports = [];
+            let gridExports = [];
             let pvs = [];
             let load = [];
             for (let record of json.history) {
               labels.push(record.time);
               batteryLevels.push(record.batteryLevel);
               gridImports.push(record.gridImportTotal);
+              gridExports.push(record.gridExportTotal);
               pvs.push(record.pvOutputTotal);
               load.push(record.houseLoadTotal);
               prices.push(record.price);
@@ -59,7 +61,7 @@ document.addEventListener('touchend', function (event) {
               labels: labels,
               datasets: [
                 {
-                  label: 'Battery Level (%)',
+                  label: 'Battery',
                   data: batteryLevels,
                   fill: false,
                   borderColor: 'red',
@@ -67,36 +69,48 @@ document.addEventListener('touchend', function (event) {
                   yAxisID: 'battery'
                 },
                 {
-                  label: 'Price (p)',
+                  label: 'Price',
                   data: prices,
-                  fill: false,
+                  fill: {
+                	target: 'origin',
+                	above: 'rgba(0, 0, 0, 0.0)',   // Area will be clear
+                	below: 'rgba(240, 80, 248, 0.6)'    // And Octopus pink below the origin
+              		},
                   borderColor: 'blue',
                   stepped: 'before',
                   yAxisID: 'price'
                 },
                 {
-                  label: 'Grid Import (kWh)',
+                  label: 'Grid Import',
                   data: gridImports,
                   fill: true,
                   borderColor: 'green',
                   stepped: 'after',
-                  yAxisID: 'gridImports'
+                  yAxisID: 'power'
                 },
                 {
-                  label: 'Load (kWh)',
+                  label: 'Load',
                   data: load,
                   fill: false,
                   tension: 0.2,
-                  borderColor: 'rgba(10, 10, 90, 0.1)',
-                  yAxisID: 'gridImports'
+                  borderColor: 'rgba(10, 10, 90, 0.3)',
+                  yAxisID: 'power'
                 },
                 {
-                  label: 'PV Output (kWh)',
+                  label: 'Solar',
                   data: pvs,
                   fill: false,
                   borderColor: 'orange',
                   tension: 0.2,
-                  yAxisID: 'pv'
+                  yAxisID: 'power'
+                },
+                {
+                  label: 'Grid Export',
+                  data: gridExports,
+                  fill: true,
+                  borderColor: 'orange',
+                  backgroundColor: 'yellow',
+                  yAxisID: 'power'
                 }
               ]
             };
@@ -142,6 +156,15 @@ document.addEventListener('touchend', function (event) {
                   }
                 },
                 scales: {
+                  price: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                      display: true,
+                      text: 'Price (ex-VAT) (p)'
+                    }
+                  },
                   battery: {
                     type: 'linear',
                     display: true,
@@ -150,36 +173,17 @@ document.addEventListener('touchend', function (event) {
                     max: 100,
                     title: {
                       display: true,
-                      text: 'Battery (%)'
+                      text: 'Battery Level (%)'
                     }
                   },
-                  price: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    title: {
-                      display: true,
-                      text: 'Price (p)'
-                    }
-                  },
-                  gridImports: {
+                  power: {
                     type: 'linear',
                     display: true,
                     position: 'right',
-                    title: {
-                      display: true,
-                      text: 'Load / Grid Import (kWh)'
-                    }
-                  },
-                  pv: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    max: 3,
                     min: 0,
                     title: {
                       display: true,
-                      text: 'PV Output (kWh)'
+                      text: 'Load / Grid / PV (kWh)'
                     }
                   }
                 }
