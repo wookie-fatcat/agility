@@ -159,7 +159,7 @@ Updates to the Agility software will be made available from time to time via thi
 
 It's worth checking here occasionally for updates.
 
-An update procedure for Agility will be added in due course.
+A quick and simple automated update mechanism is included in Agility's web-based user interface.
 
 ----
 
