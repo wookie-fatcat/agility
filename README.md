@@ -1,8 +1,5 @@
 # Agility: Automated Optimisation of the Octopus Agile Tariff on Solis Solar Systems
 
-## NOTE: UNDER TESTING. FEEL FREE TO TRY IT OUT
-
-
 ## What is Agility?
 
 Agility is a software application that can be run on pretty much any computer, including a Raspberry Pi.
