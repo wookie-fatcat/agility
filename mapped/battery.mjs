@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 2 February 2025
+ 7 February 2025
 
  */
 
@@ -596,6 +596,10 @@ class Battery {
         let index = noOfSlots - 1;
         this.agility.todaysAlwaysUsePrice = slots[index].price;
       }
+      else {
+        // in case things have changed and no slots needed any more
+        this.agility.deleteTodaysAlwaysUsePrice();
+      }
     }
 
     if (this.agility.isTodaysAlwaysUsePriceSet && positionNow.octopus.priceNow <= this.agility.todaysAlwaysUsePrice) {
@@ -642,7 +646,7 @@ class Battery {
         }
         else {
           let slotEndTimeIndex = this.date.at(slot.timeIndex).slotEndTimeIndex;
-           let slotEndText = this.date.at(slotEndTimeIndex).timeText;
+          let slotEndText = this.date.at(slotEndTimeIndex).timeText;
           netPower = this.netPowerBetween(slot.timeText, slotEndText, true, false);
           console.log('netPower: ' + slot.timeText + ' to ' + slotEndText + ' = ' + netPower);
         }
@@ -650,12 +654,6 @@ class Battery {
         remainingPowerNeeded = remainingPowerNeeded - netPower;
         if (log) this.logger.write('remainining power needed: ' + remainingPowerNeeded.toFixed(2));
         console.log('remaining power: ' + remainingPowerNeeded);
-      }
-
-      if (remainingPowerNeeded <= 0) {
-        positionNow.chargingDecision.charge = false;
-        positionNow.chargingDecision.reason = 'Power deficit would be accounted for by previous cheaper slots: take no action';
-        break;
       }
 
       if (positionNow.slot === slot.timeText) {
@@ -673,6 +671,12 @@ class Battery {
 
         positionNow.chargingDecision.charge = 'gridonly';
         positionNow.chargingDecision.reason = 'Non-priority slot. Matches current time slot. Use grid power only';
+        break;
+      }
+
+      if (remainingPowerNeeded <= 0) {
+        positionNow.chargingDecision.charge = false;
+        positionNow.chargingDecision.reason = 'Power deficit would be accounted for by previous cheaper slots: take no action';
         break;
       }
 

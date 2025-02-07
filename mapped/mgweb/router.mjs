@@ -432,13 +432,21 @@ router.post('/agility/config/:category', (Request, ctx) => {
     }
     if (category === 'battery') {
       value = +value;
-      if (!Number.isInteger(value)) {
-        error = name + ' must be a numeric (integer) value';
-        break;
+      if (name === 'storage') {
+        if (!Number.isFinite(value)) {
+          error = name + ' must be a numeric value';
+          break;
+        }
       }
-      if (value < 0 || value > 100) {
-        error = name + ' must be between 0 and 100';
-        break;
+      else {
+        if (!Number.isInteger(value)) {
+          error = name + ' must be a numeric (integer) value';
+          break;
+        }
+        if (value < 0 || value > 100) {
+          error = name + ' must be between 0 and 100';
+          break;
+        }
       }
     }
     if (category === 'operation') {
@@ -851,10 +859,17 @@ router.get('/agility/log/activity/:lastKey', (Request, ctx) => {
   // prevent browser fetch loop if no log info yet
   if (+lastKey === 0) lastKey = '';
 
+  let lastRecordKey = 0;
+  let lc = agility.logger.logDoc.$(now.dateIndex).lastChild;
+  if (lc) {
+    lc = lc.previousSibling;
+    if (lc) lastRecordKey = lc.key;
+  }
   return {
     payload: {
       log: log,
-      lastKey: lastKey
+      lastKey: lastKey,
+      lastRecordKey: lastRecordKey
     }
   };
 

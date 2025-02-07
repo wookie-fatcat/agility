@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if [ -d "/tmp/agility" ]; then
+  rm -rf /tmp/agility
+fi
+
+mkdir /tmp/agility
+git clone https://github.com/robtweed/agility /tmp/agility
+
+cp -r /tmp/agility/docker/* .
+rm -rf /tmp/agility
+
+
