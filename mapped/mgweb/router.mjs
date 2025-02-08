@@ -733,7 +733,7 @@ router.get('/agility/positionNow', async (Request, ctx) => {
 
   let obj = agility.battery.availableSlotsByPrice(false);
 
-  let positionNow = agility.battery.shouldUseSlotToCharge(obj.positionNow, obj.slots, false);
+  let positionNow = agility.battery.shouldUseSlotToCharge(obj.positionNow, obj.slots, false, false);
 
   return {
     payload: positionNow
