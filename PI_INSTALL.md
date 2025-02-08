@@ -119,6 +119,7 @@ If the container built successfully, you can now start it with the *runContainer
 - If you pulled the pre-built Container in the previous step:
 
 ```console
+cd docker
 ./runContainer
 ```
 
