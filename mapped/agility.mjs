@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 6 February 2025
+ 8 February 2025
 
  */
 
@@ -138,7 +138,7 @@ let Agility = class {
   }
 
   get chargingEnabled() {
-    // disabled by default
+    // enabled by default in config.json
     let chargeConfig = this.config.$(['operation', 'chargingEnabled']);
     if (!chargeConfig.exists) return false;
     return chargeConfig.value;

@@ -19,6 +19,7 @@
   },
   "operation": {
     "movingAveragePeriod": 14,
-    "alwaysUseSlotPrice": 10
+    "alwaysUseSlotPrice": 10,
+    "chargingEnabled": true
   }
 }
