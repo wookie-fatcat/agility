@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 10 February 2025
+ 11 February 2025
 
 */
 
@@ -106,6 +106,11 @@ let Octopus = class {
     setTimeout(async function() {
       await _this.getLatestTariffTable(-1);
     }, 100);
+    if (this.date.now().hour > 15) {
+      setTimeout(async function() {
+        await _this.getLatestTariffTable();
+      }, 300);
+    }
     return true;
   }
 
