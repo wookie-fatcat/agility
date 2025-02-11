@@ -101,11 +101,21 @@ let Octopus = class {
   enableCustomTariff() {
     if (!this.customTariff.exists) return false;
     this.config.$('customTariffEnabled').value = true;
+    this.tariffs.delete();
+    let _this = this;
+    setTimeout(async function() {
+      await _this.getLatestTariffTable(-1);
+    }, 100);
     return true;
   }
 
   disableCustomTariff() {
     this.config.$('customTariffEnabled').delete();
+    this.tariffs.delete();
+    let _this = this;
+    setTimeout(async function() {
+      await _this.getLatestTariffTable();
+    }, 100);
   }
 
   async request(url, username) {
