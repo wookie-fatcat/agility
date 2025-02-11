@@ -291,6 +291,10 @@ label-hidden {
       if (typeof state.step !== 'undefined') {
         this.input.setAttribute('step', state.step);
       }
+      if (state.width) {
+        this.input.style = 'width: ' + state.width + ';';
+      }
+
 
     }
 

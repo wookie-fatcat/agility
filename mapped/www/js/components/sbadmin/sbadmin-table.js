@@ -294,7 +294,7 @@ th {
         return th;
       }
 
-      function addCell(row, value, span, cls) {
+      function addCell(row, value, span, cls, isInput, id) {
         let td = document.createElement('td');
         if (cls) {
           let pcs = cls.split(' ');
@@ -303,7 +303,16 @@ th {
           }
         }
         if (span) td.setAttribute('colspan', span);
-        if (typeof value !== 'undefined') td.textContent = value;
+        if (!isInput) {
+          if (typeof value !== 'undefined') td.textContent = value;
+        }
+        else {
+          let input = document.createElement('input');
+          input.setAttribute('type', 'text');
+          input.value = value;
+          if (id) input.id = id;
+          td.appendChild(input);
+        }
         row.appendChild(td);
         return td;
       }
@@ -329,7 +338,7 @@ th {
           row.shift();
         }
         for (let cell of row) {
-          addCell(tr, cell.value, cell.span, cell.cls);
+          addCell(tr, cell.value, cell.span, cell.cls, cell.isInput, cell.id);
         }
       }
     }

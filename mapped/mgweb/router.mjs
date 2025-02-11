@@ -817,6 +817,95 @@ router.get('/agility/octopus/agiletariff', async (Request, ctx) => {
 
 });
 
+router.get('/agility/octopus/customAgileTariff', (Request, ctx) => {
+
+  let tariffArray = agility.octopus.generateCustomAgileTariff();
+
+  return {
+    payload: {
+      results: tariffArray
+    }
+  };
+
+});
+
+
+router.get('/agility/octopus/customTariff', (Request, ctx) => {
+
+  return {
+    payload: {
+      prices: agility.octopus.getCustomTariff()
+    }
+  };
+
+});
+
+
+router.post('/agility/octopus/customTariff', (Request, ctx) => {
+
+  let body = Request.body;
+
+  if (!body || !body.prices) {
+    return {
+      payload: {
+        error: 'Missing or empty price table'
+      }
+    };
+  }
+
+  agility.octopus.saveCustomTariff(body.prices);
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/octopus/isCustomTariffEnabled', (Request, ctx) => {
+
+  return {
+    payload: {
+     enabled: agility.octopus.customTariffEnabled
+    }
+  };
+
+});
+
+router.get('/agility/octopus/enableCustomTariff', (Request, ctx) => {
+
+  let ok = agility.octopus.enableCustomTariff();
+
+  if (!ok) {
+    return {
+      payload: {
+        error: 'You have not saved a Custom Tariff'
+      }
+    };
+
+  }
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/octopus/disableCustomTariff', (Request, ctx) => {
+
+  agility.octopus.disableCustomTariff();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
 router.get('/agility/solcast/update', async (Request, ctx) => {
 
   let res = await agility.solcast.request();

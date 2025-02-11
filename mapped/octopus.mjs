@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 5 February 2025
+ 10 February 2025
 
 */
 
@@ -39,6 +39,7 @@ let Octopus = class {
     this.tariffs = new glsdb.node('octopusAgile');
     this.byTime = this.tariffs.$('byTime');
     this.byPrice = this.tariffs.$('byPrice');
+    this.customTariff = new glsdb.node('customTariff');
     this.date = agility.date;
     this.agility = agility;
     this.logger = agility.logger;
@@ -46,6 +47,7 @@ let Octopus = class {
 
   get isConfigured() {
     if (!this.config.exists) return false;
+    if (this.customTariffEnabled) return true;
     let data = this.config.document;
     if (!data.url1) return false;
     if (!data.url2) return false;
@@ -90,6 +92,21 @@ let Octopus = class {
     this.config.$('accountId').value = value;
   }
 
+  get customTariffEnabled() {
+    let node = this.config.$('customTariffEnabled');
+    if (!node.exists) return false;
+    return node.value;
+  }
+
+  enableCustomTariff() {
+    if (!this.customTariff.exists) return false;
+    this.config.$('customTariffEnabled').value = true;
+    return true;
+  }
+
+  disableCustomTariff() {
+    this.config.$('customTariffEnabled').delete();
+  }
 
   async request(url, username) {
     let options = {
@@ -114,7 +131,16 @@ let Octopus = class {
     }
   }
 
-  async fetchTariff() {
+  async fetchTariff(offset) {
+    if (this.customTariffEnabled) {
+      offset = offset || 0;
+      let json = {
+        results: this.generateCustomAgileTariff(offset)
+      };
+      console.log(json);
+      return json;
+    }
+
     if (!this.config.exists) {
       return {error: 'Agility has not been configured to access Octopus Tariffs'};
     }
@@ -213,21 +239,22 @@ let Octopus = class {
     return this.date.atMidnight(1).timeIndex;
   }
 
-  async getLatestTariffTable() {
+  async getLatestTariffTable(offset) {
+    offset = offset || 0;
     let json;
     if (this.isBefore4) {
       // has tariff already been saved for today?
       if (!this.byTime.$(this.dateIndexNow).exists) {
-        json = await this.fetchTariff();
+        json = await this.fetchTariff(offset);
       }
     }
     else {
       // has tariff already been saved for today?
       if (!this.byTime.$(this.dateIndexNow).exists) {
-        json = await this.fetchTariff();
+        json = await this.fetchTariff(offset);
       }
       else if (!this.byTime.$(this.dateIndexTomorrow).exists) {
-        json = await this.fetchTariff();
+        json = await this.fetchTariff(offset);
       }
     }
     if (json) {
@@ -235,7 +262,6 @@ let Octopus = class {
         return json;
       }
       if (!json.results || !Array.isArray(json.results)) {
-        console.log(666666);
         return {error: 'No results returned from Octopus'};
       }
       for (let slot of json.results) {
@@ -477,6 +503,63 @@ let Octopus = class {
       }
     }
     return false;
+  }
+
+  getCustomTariff() {
+    let prices = [];
+    if (this.customTariff.exists) {
+      this.customTariff.forEachChildNode(function(hrNode) {
+        prices.push(hrNode.document);
+      });
+    }
+    return prices;
+  }
+
+  saveCustomTariff(pricesArr) {
+    this.customTariff.delete();
+    for (let record of pricesArr) {
+      this.customTariff.$(record.hour).document = record;
+    }
+  }
+
+  generateCustomAgileTariff(offset) {
+    offset = offset || 0;
+    let _this = this;
+    function createData(timeText, offset, price) {
+      let d = _this.date.atTime(timeText, offset);
+      let from = d.year + '-' + d.monthText + '-' + d.dayText + 'T' + d.timeText + ':00Z';
+      let d2 = _this.date.at(d.slotEndTimeIndex);
+      let to = d2.year + '-' + d2.monthText + '-' + d2.dayText + 'T' + d2.timeText + ':00Z';
+
+      return {
+        value_inc_vat: price,
+        valid_from: from,
+        valid_to: to
+      };
+    }
+
+    let arr = [];
+    let hour = 23;
+    let hrText = hour.toString();
+    let price = this.customTariff.$([hour, 'price']).value;
+    let time = hour + ':00';
+    let timeIndex = this.date.atMidnight(offset).timeIndex;
+    arr.push(createData(time, timeIndex, price));
+    time = hour + ':30';
+    arr.push(createData(time, timeIndex, price));
+
+    timeIndex = this.date.atMidnight(offset + 1).timeIndex;
+    for (let hour = 0; hour < 23; hour++) {
+      let hrText = hour.toString();
+      if (hour < 10) hrText = '0' + hrText;
+      let price = this.customTariff.$([hour, 'price']).value;
+      let time = hrText + ':00';
+      arr.push(createData(time, timeIndex, price));
+      time = hrText + ':30';
+      arr.push(createData(time, timeIndex, price));
+    }
+
+    return arr;
   }
 
   cleardown() {

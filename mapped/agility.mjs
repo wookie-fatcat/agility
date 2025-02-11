@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 February 2025
+ 10 February 2025
 
  */
 
@@ -384,6 +384,7 @@ let Agility = class {
 
   initialise() {
     let ok = true;
+    let _this = this;
     if (!this.config.exists) {
       this.logger.write('No Configuration defined for Agility: Attempt to load from config.json');
       let ok = this.loadConfig();
@@ -425,6 +426,10 @@ let Agility = class {
       this.logger.write('No historical SolisCloud Data exists, so loading it now');
       this.solis.restore();
     }
+    setTimeout(async function() {
+      await _this.octopus.getLatestTariffTable(-1);
+    }, 100);
+
     return ok;
   }
 
