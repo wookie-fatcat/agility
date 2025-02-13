@@ -142,7 +142,18 @@ let Solcast = class {
     //compare historical solcast original totals with solis historical actual totals
     // and calculate average percentage difference to apply
     // then reset into configuration document
-    
+   
+/*  Sample code for TRIMMEAN FUNCTION  
+    function getTrimmedMean(data, trimAmount) {
+    var trimCount = Math.floor(trimAmount*data.length);
+    var trimData = data.sort().slice(trimCount, data.length-trimCount);
+    return trimData.reduce((a, b) => a + b ,0)/trimData.length;
+  }  
+
+  var trimVideoStats = getTrimmedMean(videoStats, 0.4);
+  return trimVideoStats;   */
+
+  
     let count = 0;
     let totalP = 0;
     let totalA = 0;
