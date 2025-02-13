@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 7 February 2025
+ 11 February 2025
 
  */
 
@@ -582,6 +582,7 @@ class Battery {
 
   shouldUseSlotToCharge(positionNow, slots, log, setAlwaysUsePrice) {
     if (typeof setAlwaysUsePrice === 'undefined') setAlwaysUsePrice = true;
+    if (this.octopus.customTariffEnabled) setAlwaysUsePrice = false;
     let remainingPowerNeeded = positionNow.deficit;
 
     // after 6:30pm, provided tomorrows tariffs are available,
