@@ -42,10 +42,10 @@ export function load() {
           else {
             let until;
             if (json.untilTomorrow) {
-              until = '22:30 tomorrow';
+              until = positionNow.calculationCutoffTime + ' tomorrow';
             }
             else {
-              until = '22:30 today';
+              until = positionNow.calculationCutoffTime + ' today';
             }
             _this.heading.text = 'Available Agile slots from current slot (' + json.slotFrom + ') until ' + until;
 

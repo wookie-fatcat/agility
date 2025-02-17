@@ -278,6 +278,7 @@ th {
       this.head.innerHTML = '';
       this.body.innerHTML = '';
       this.head.style = "display: ''";
+      let _this = this;
 
       function addRow(parent) {
         let tr = document.createElement('tr');
@@ -294,7 +295,7 @@ th {
         return th;
       }
 
-      function addCell(row, value, span, cls, isInput, id) {
+      function addCell(row, value, span, cls, isInput, id, type) {
         let td = document.createElement('td');
         if (cls) {
           let pcs = cls.split(' ');
@@ -308,7 +309,9 @@ th {
         }
         else {
           let input = document.createElement('input');
-          input.setAttribute('type', 'text');
+          type = type || 'text'
+          input.setAttribute('type', type);
+          input.setAttribute('name', _this.name + '-' + type);
           input.value = value;
           if (id) input.id = id;
           td.appendChild(input);
@@ -338,7 +341,7 @@ th {
           row.shift();
         }
         for (let cell of row) {
-          addCell(tr, cell.value, cell.span, cell.cls, cell.isInput, cell.id);
+          addCell(tr, cell.value, cell.span, cell.cls, cell.isInput, cell.id, cell.type);
         }
       }
     }

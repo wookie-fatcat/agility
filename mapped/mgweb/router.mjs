@@ -833,9 +833,7 @@ router.get('/agility/octopus/customAgileTariff', (Request, ctx) => {
 router.get('/agility/octopus/customTariff', (Request, ctx) => {
 
   return {
-    payload: {
-      prices: agility.octopus.getCustomTariff()
-    }
+    payload: agility.octopus.getCustomTariff()
   };
 
 });
@@ -854,6 +852,9 @@ router.post('/agility/octopus/customTariff', (Request, ctx) => {
   }
 
   agility.octopus.saveCustomTariff(body.prices);
+  if (body.cutoff) {
+    agility.octopus.calculationCutoffTime = body.cutoff + ':00';
+  }
 
   return {
     payload: {
@@ -905,6 +906,41 @@ router.get('/agility/octopus/disableCustomTariff', (Request, ctx) => {
   };
 
 });
+
+router.get('/agility/isPeakExportEnabled', (Request, ctx) => {
+
+  return {
+    payload: {
+     enabled: agility.peakExportEnabled
+    }
+  };
+
+});
+
+router.get('/agility/enablePeakExport', (Request, ctx) => {
+
+  let ok = agility.enablePeakExport();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/disablePeakExport', (Request, ctx) => {
+
+  agility.disablePeakExport();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
 
 router.get('/agility/solcast/update', async (Request, ctx) => {
 

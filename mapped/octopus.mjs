@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 11 February 2025
+ 14 February 2025
 
 */
 
@@ -36,6 +36,7 @@ let Octopus = class {
   constructor(agility) {
     let glsdb = agility.glsdb;
     this.config = agility.config.$('octopus');
+    this.operation = agility.config.$('operation');
     this.tariffs = new glsdb.node('octopusAgile');
     this.byTime = this.tariffs.$('byTime');
     this.byPrice = this.tariffs.$('byPrice');
@@ -104,13 +105,15 @@ let Octopus = class {
     this.tariffs.delete();
     let _this = this;
     setTimeout(async function() {
-      await _this.getLatestTariffTable(-1);
+      await _this.getLatestTariffTable();
     }, 100);
+    /*
     if (this.date.now().hour > 15) {
       setTimeout(async function() {
         await _this.getLatestTariffTable();
       }, 300);
     }
+    */
     return true;
   }
 
@@ -121,6 +124,16 @@ let Octopus = class {
     setTimeout(async function() {
       await _this.getLatestTariffTable();
     }, 100);
+  }
+
+  get calculationCutoffTime() {
+    let node = this.operation.$('calculationCutoffTime');
+    if (!node.exists) return '22:30';
+    return node.value;
+  }
+
+  set calculationCutoffTime(value) {
+    this.operation.$('calculationCutoffTime').value = value;
   }
 
   async request(url, username) {
@@ -152,7 +165,6 @@ let Octopus = class {
       let json = {
         results: this.generateCustomAgileTariff(offset)
       };
-      console.log(json);
       return json;
     }
 
@@ -251,7 +263,12 @@ let Octopus = class {
   }
 
   get dateIndexTomorrow() {
-    return this.date.atMidnight(1).timeIndex;
+    if (this.customTariffEnabled) {
+      return this.date.atMidnight(2).timeIndex;
+    }
+    else {
+      return this.date.atMidnight(1).timeIndex;
+    }
   }
 
   async getLatestTariffTable(offset) {
@@ -279,6 +296,7 @@ let Octopus = class {
       if (!json.results || !Array.isArray(json.results)) {
         return {error: 'No results returned from Octopus'};
       }
+      console.log(json);
       for (let slot of json.results) {
         let slotTime = this.date.at(slot.valid_from);
         let dateIndex = slotTime.dateIndex;
@@ -373,9 +391,12 @@ let Octopus = class {
       this.byTime.$(dateIndex).forEachChildNode({from: timeIndex}, function(timeNode) {
         addToSortIndex(timeNode);
       });
-      let toTimeIndex = this.date.atTime(to, this.lastSlot.dateIndex).timeIndex;
+      let tomorrow = this.date.atMidnight(1);
+      //let toTimeIndex = this.date.atTime(to, this.lastSlot.dateIndex).timeIndex;
+      let toTimeIndex = this.date.atTime(to, tomorrow.dateIndex).timeIndex;
       console.log('toTimeIndex: ' + toTimeIndex);
-      this.byTime.$(this.lastSlot.dateIndex).forEachChildNode({to: toTimeIndex}, function(timeNode) {
+      //this.byTime.$(this.lastSlot.dateIndex).forEachChildNode({to: toTimeIndex}, function(timeNode) {
+      this.byTime.$(tomorrow.dateIndex).forEachChildNode({to: toTimeIndex}, function(timeNode) {
         addToSortIndex(timeNode);
       });
     }
@@ -527,7 +548,10 @@ let Octopus = class {
         prices.push(hrNode.document);
       });
     }
-    return prices;
+    return {
+      prices: prices,
+      cutoff: this.calculationCutoffTime
+    };
   }
 
   saveCustomTariff(pricesArr) {
@@ -553,18 +577,16 @@ let Octopus = class {
       };
     }
 
-    let arr = [];
-    let hour = 23;
-    let hrText = hour.toString();
-    let price = this.customTariff.$([hour, 'price']).value;
-    let time = hour + ':00';
-    let timeIndex = this.date.atMidnight(offset).timeIndex;
-    arr.push(createData(time, timeIndex, price));
-    time = hour + ':30';
-    arr.push(createData(time, timeIndex, price));
+    let cutoffTime = this.calculationCutoffTime;
+    let cutoffHour = cutoffTime.split(':')[0];
 
-    timeIndex = this.date.atMidnight(offset + 1).timeIndex;
-    for (let hour = 0; hour < 23; hour++) {
+    let now = this.date.now();
+    let arr = [];
+
+    // tariffs for now until midnight tonight
+
+    let timeIndex = this.date.atMidnight(offset).timeIndex;
+    for (let hour = now.hour; hour < 24; hour++) {
       let hrText = hour.toString();
       if (hour < 10) hrText = '0' + hrText;
       let price = this.customTariff.$([hour, 'price']).value;
@@ -573,6 +595,35 @@ let Octopus = class {
       time = hrText + ':30';
       arr.push(createData(time, timeIndex, price));
     }
+
+    // tariffs for all tomorrow
+
+    timeIndex = this.date.atMidnight(offset + 1).timeIndex;
+    for (let hour = 0; hour < 24; hour++) {
+      let hrText = hour.toString();
+      if (hour < 10) hrText = '0' + hrText;
+      let price = this.customTariff.$([hour, 'price']).value;
+      let time = hrText + ':00';
+      arr.push(createData(time, timeIndex, price));
+      time = hrText + ':30';
+      arr.push(createData(time, timeIndex, price));
+    }
+
+
+    // tariffs until cutoff time next day
+
+    timeIndex = this.date.atMidnight(offset + 2).timeIndex;
+    for (let hour = 0; hour < cutoffHour; hour++) {
+      let hrText = hour.toString();
+      if (hour < 10) hrText = '0' + hrText;
+      let price = this.customTariff.$([hour, 'price']).value;
+      let time = hrText + ':00';
+      arr.push(createData(time, timeIndex, price));
+      time = hrText + ':30';
+      arr.push(createData(time, timeIndex, price));
+    }
+
+    this.logger.write('Custom tariff update generated');
 
     return arr;
   }

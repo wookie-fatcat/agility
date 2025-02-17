@@ -19,6 +19,10 @@ export function load() {
         <sbadmin-button color="green" size="small" text="Save Tariff" golgi:ref="saveBtn" golgi:hook="saveTariff" />
         <sbadmin-spacer /> 
         <sbadmin-checkbox-group name="enableCustomTariff" switch="true" scale="1.8" value="yes" offValue="no" label=" : Enable Custom Tariff" title="Use Custom Tariff Instead of Octopus Agile:" golgi:ref="enableCustomTariff" golgi:hook="customTariff" />
+
+        <sbadmin-spacer /> 
+        <sbadmin-checkbox-group name="enablePeakExport" switch="true" scale="1.8" value="yes" offValue="no" label=" : Enable Peak Time Export Control" title="Export surplus energy at Peak Time:" golgi:ref="enablePeakExport" golgi:hook="peakExport" />
+
       </sbadmin-form>
 
     </sbadmin-card-body>
@@ -44,7 +48,8 @@ export function load() {
             let table = {
               head: [
                 {value: 'Hour'},
-                {value: 'Price (p)'}
+                {value: 'Price (p)'},
+                {value: 'Calculation Cutoff Time'}
               ],
               body: []
             };
@@ -55,21 +60,27 @@ export function load() {
               if (json.prices[hour]) {
                 value = json.prices[hour].price;
               }
-              table.body.push([{value: hrText}, {value: value, isInput: true, id: 'hr-' + hour}]);
+              table.body.push([{value: hrText}, {value: value, isInput: true, id: 'hr-' + hour},  {value: hrText, isInput: true, id: 'cutoff-' + hour, type: 'radio'}]);
             }
             _this.table.render(table);
+            let cutoff = +json.cutoff.split(':')[0];
+            _this.table.rootElement.querySelector('#cutoff-' + cutoff).checked = true;
           }
 
           _this.saveBtn.on('clicked', async function() {
             let prices = [];
-            let inputs = [..._this.table.rootElement.querySelectorAll('input')];
+            let inputs = [..._this.table.rootElement.querySelectorAll('input[type=text]')];
             for (let input of inputs) {
               let hour = +input.id.split('hr-')[1];
               let price = +input.value;
               prices.push({hour: hour, price: price});
             }
+
+            let radio = _this.table.rootElement.querySelector('input[type=radio]:checked');
+
             let body = {
-              prices: prices
+              prices: prices,
+              cutoff: radio.value
             }
             let json = await _this.context.request('/agility/octopus/customTariff', 'POST', body);
             if (json.error) {
@@ -127,6 +138,52 @@ export function load() {
               else {
                 contentPage.toast.headerTxt = 'Attention!';
                 contentPage.toast.display('Agility will no longer use your Custom Tariff');
+              }
+            }
+          });
+        });
+      },
+      peakExport: function() {
+        let _this = this;
+        this.on('cbReady', async function(cb) {
+          // see if charging is enabled
+          let contentPage = _this.getParentComponent('sbadmin-content-page');
+
+          let json = await _this.context.request('/agility/isPeakExportEnabled');
+          if (json.error) {
+            contentPage.toast.headerTxt = 'Error';
+            contentPage.toast.display(json.error);
+          }
+          if (json.enabled) {
+            cb.check();
+          }
+          else {
+            cb.uncheck();
+          }
+
+          cb.on('clicked', async function() {
+            let json;
+            if (cb.checked) {
+              json = await _this.context.request('/agility/enablePeakExport');
+              if (json.error) {
+                contentPage.toast.headerTxt = 'Error';
+                contentPage.toast.display(json.error);
+                cb.uncheck();
+              }
+              else {
+                contentPage.toast.headerTxt = 'Success!';
+                contentPage.toast.display('Agility will now export any surplus electricity between 4pm and 7pm');
+              }
+            }
+            else {
+              json = await _this.context.request('/agility/disablePeakExport');
+              if (json.error) {
+                contentPage.toast.headerTxt = 'Error';
+                contentPage.toast.display(json.error);
+              }
+              else {
+                contentPage.toast.headerTxt = 'Attention!';
+                contentPage.toast.display('Agility will no longer export surplus electricity at peak time');
               }
             }
           });

@@ -130,8 +130,9 @@ document.addEventListener('touchend', function (event) {
                         let slot = tooltipItems[0].label;
                         let decision = json.chargeDecisionHistory[slot];
                         let lines = [];
-                        let until = 'until 22:30 today: ';
-                        if (decision.untilTomorrow) until = 'until 22:30 tomorrow: ';
+                        let cutoffTime = decision.calculationCutoffTime || '22:30';
+                        let until = 'until ' + cutoffTime + ' today: ';
+                        if (decision.untilTomorrow) until = 'until ' + cutoffTime + ' tomorrow: ';
                         let load = +decision.solis.load;
                         lines.push('Expected load ' + until + load.toFixed(2) + ' kWh');
                         let pv = +decision.solis.pv;

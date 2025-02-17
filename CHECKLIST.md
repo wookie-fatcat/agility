@@ -18,9 +18,12 @@ Your installer should have already done this for you.
 
   - it should be set to UK/Europe (+00)
 
-- You need to use Octopus as your power supplier and sign up to use their Octopus Agile tariff.
+- You can use Agility with any tariff from any supplier (apart from Octopus *Intelligent* ones).
 
-  If you aren't currently an Octopus customer, you can use this referal link:
+  Agility was originally designed to operate against the Octopus Agile tariff, and when its prices
+are right, it's a great tariff to use.
+
+  If you decide to use an Octopus tariff, but you aren't currently an Octopus customer, you can use this referal link:
 
   [https://share.octopus.energy/lemon-crick-638](https://share.octopus.energy/lemon-crick-638)
 

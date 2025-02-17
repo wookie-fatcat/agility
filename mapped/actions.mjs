@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 4 February 2025
+ 16 February 2025
 
  */
 
@@ -54,7 +54,24 @@ class Actions {
           this.addTask('inverterGridOnly');
         }
         else {
-          this.addTask('shouldBatteryBeDischarged');
+          let now = this.date.now();
+          this.logger.write('Check if peak time');
+          this.logger.write('hour now: ' + now.hour);
+          if (now.hour > 15 && now.hour < 19) {
+            this.logger.write('Peak time: check if peak export enabled');
+            if (this.peakExportEnabled) {
+              this.logger.write('Peak export enabled');
+              this.addTask('peakExport');
+            }
+            else {
+              this.logger.write('Peak export not enabled');
+              this.addTask('shouldBatteryBeDischarged');
+            }
+          }
+          else {
+            this.logger.write('Not peak time');
+            this.addTask('shouldBatteryBeDischarged');
+          }
         }
         return {charge: charge};
       },
@@ -70,6 +87,9 @@ class Actions {
       },
       inverterCharge: async function() {
         return await this.solis.inverterCharge();
+      },
+      inverterExport: async function() {
+        return await this.solis.inverterDischarge(true);
       },
       inverterDischarge: async function() {
         let override = false;
@@ -87,6 +107,10 @@ class Actions {
       updateInverterTime: async function() {
         return await this.solis.updateInverterTime();
       },
+      peakExport: async function() {
+        return await this.battery.peakExport();
+      },
+
       deleteTodaysAlwaysUsePrice: function() {
         this.deleteTodaysAlwaysUsePrice();
         this.unsetChargingStartedFlag();

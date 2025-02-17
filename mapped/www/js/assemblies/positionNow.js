@@ -31,10 +31,10 @@ export function load() {
           else {
             let until;
             if (json.untilTomorrow) {
-              until = '22:30 tomorrow';
+              until = json.calculationCutoffTime + ' tomorrow';
             }
             else {
-              until = '22:30 today';
+              until = json.calculationCutoffTime + ' today';
             }
 
             // render results in table

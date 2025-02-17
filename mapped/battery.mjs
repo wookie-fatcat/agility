@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 11 February 2025
+ 16 February 2025
 
  */
 
@@ -34,6 +34,7 @@ class Battery {
 
   constructor(agility) {
     this.config = agility.config.$('battery');
+    this.operation = agility.config.$('operation');
     this.logger = agility.logger;
     this.date = agility.date;
     this.solis = agility.solis;
@@ -152,6 +153,23 @@ class Battery {
     return history;
   }
 
+  get latestChargeDecision() {
+    let now = this.date.now();
+    let data = this.chargeDecisionHistory.$([now.dateIndex, now.slotTimeIndex]).document;
+    return data;
+  }
+
+  get calculationCutoffTime() {
+    let node = this.operation.$('calculationCutoffTime');
+    if (!node.exists) return '22:30';
+    return node.value;
+  }
+
+  set calculationCutoffTime(value) {
+    this.operation.$('calculationCutoffTime').value = value;
+  }
+
+
   netPowerBetween(fromTimeText, toTimeText, override, log) {
     if (typeof log === 'undefined') log = true;
 
@@ -263,9 +281,11 @@ class Battery {
         //this.logger.write('now: ' + now.timeIndex + '; ' + now.hour);
         //this.logger.write('firstPVTimeToday: ' + firstPVTimeToday.timeIndex);
         if (now.hour > 18 || now.timeIndex < firstPVTimeToday.timeIndex) {
+          let todayOnly = true;
+          if (now.hour > 18) todayOnly = false;
           this.logger.write('Current time is earlier than first PV production today');
           this.logger.write('Get power balance position from now to first PV time: ' + firstPVTimeText);
-          let firstPVPositionNow = this.positionNow(false, firstPVTimeText);
+          let firstPVPositionNow = this.positionNow(false, firstPVTimeText, todayOnly);
           this.logger.write(firstPVPositionNow);
           if (firstPVPositionNow.chargeSlotsNeeded > 0) {
             this.octopus.sortSlots(firstPVTimeText);
@@ -440,9 +460,10 @@ class Battery {
     return false;
   }
 
-  positionNow(log, toTimeText) {
+  positionNow(log, toTimeText, todayOnly) {
     if (typeof log === 'undefined') log = true;
-    toTimeText = toTimeText || '22:30';
+    todayOnly = todayOnly || false;
+    toTimeText = toTimeText || this.calculationCutoffTime; //'22:30';
     let d = this.date.now();
     let fromTimeText = d.slotTimeText;
     let slotEndTimeText = this.date.at(d.slotEndTimeIndex).timeText;
@@ -450,7 +471,7 @@ class Battery {
     if (d.hour > 15 && d.hour < 19) isPeakTime = true;
     let solis;
 
-    if (this.octopus.tomorrowsTariffsAvailable) {
+    if (!todayOnly && this.octopus.tomorrowsTariffsAvailable) {
       let power1 = this.solis.averagePowerBetween(fromTimeText, '23:30', log);
       let power2 = this.solis.averagePowerBetween('00:00', toTimeText, log);
       solis = {
@@ -466,7 +487,7 @@ class Battery {
       enabled: false
     };
     if (this.solcast.isEnabled) {
-      let spv = +this.solcast.expectedPowerBetween(fromTimeText, toTimeText, false, false, log);
+      let spv = +this.solcast.expectedPowerBetween(fromTimeText, toTimeText, todayOnly, false, log);
       let adjustment = +this.solcast.adjustment;
       let adjusted = spv + ((spv * adjustment) / 100);
       pv = adjusted;
@@ -496,10 +517,14 @@ class Battery {
     if (deficit > 0) chargeSlots = this.noOfSlotsToChargeBy(deficit, false);
     let increasePerCharge = this.percentIncreasePerCharge;
 
+    let untilTomorrow = this.octopus.tomorrowsTariffsAvailable;
+    if (todayOnly) untilTomorrow = false;
+
     let data = {
       slot: fromTimeText,
       slotEnd: slotEndTimeText,
-      untilTomorrow: this.octopus.tomorrowsTariffsAvailable,
+      untilTomorrow: untilTomorrow,
+      calculationCutoffTime: this.calculationCutoffTime,
       movingAveragePeriod: this.agility.movingAveragePeriod,
       solis: solis,
       solcast: solcast,
@@ -571,13 +596,40 @@ class Battery {
 
   availableSlotsByPrice(log) {
     let positionNow = this.positionNow(log);
-    this.octopus.sortSlots('19:30');
+    console.log(positionNow);
+    let to = '19:30';
+    if (this.octopus.customTariffEnabled) {
+      to = positionNow.calculationCutoffTime;
+    }
+    console.log('Sorting slots until ' + to);
+    this.octopus.sortSlots(to);
     let slots = this.octopus.cheapestSlotArray;
 
     return {
       slots: slots,
       positionNow: positionNow
     };
+  }
+
+  peakExport() {
+    let chargeData = this.latestChargeDecision;
+    if (chargeData) {
+      let powerAddedPerCharge = +chargeData.battery.powerAddedPerCharge;
+      let surplus = -chargeData.deficit;
+      this.logger.write('Peak Export check');
+      this.logger.write('Current surplus: ' + surplus);
+      this.logger.write('Power Added Per Charge: ' + powerAddedPerCharge);
+      if (surplus > powerAddedPerCharge) {
+        this.agility.addTask('inverterExport');
+        return {status: 'Sufficient surplus energy to allow discharge during this slot'};
+      }
+      else {
+        return {status: 'Insufficient surplus energy to allow any export'};
+      }
+    }
+    else {
+      return {status: 'Unable to find a charge decision history record for current time slot'};
+    }
   }
 
   shouldUseSlotToCharge(positionNow, slots, log, setAlwaysUsePrice) {

@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 10 February 2025
+ 16 February 2025
 
  */
 
@@ -150,6 +150,21 @@ let Agility = class {
 
   disableCharging() {
     this.config.$(['operation', 'chargingEnabled']).delete();
+  }
+
+  get peakExportEnabled() {
+    // disabled by default
+    let peakExport = this.config.$(['operation', 'peakExportEnabled']);
+    if (!peakExport.exists) return false;
+    return peakExport.value;
+  }
+
+  enablePeakExport() {
+    this.config.$(['operation', 'peakExportEnabled']).value = true;
+  }
+
+  disablePeakExport() {
+    this.config.$(['operation', 'peakExportEnabled']).delete();
   }
 
   get now() {

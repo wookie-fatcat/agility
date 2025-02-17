@@ -1,13 +1,17 @@
-# Agility: Automated Optimisation of the Octopus Agile Tariff on Solis Solar Systems
+# Agility: Automated Optimisation of Electrictity Tariffs on Solis Solar Systems
 
 ## What is Agility?
 
 Agility is a software application that can be run on pretty much any computer, including a Raspberry Pi.
 
 Agility is designed for use with Solar and Battery systems, and aims to reduce your electricity bill 
-by automatically selecting the cheapest times from the Octopus Agile tariff and using them to charge your 
+by automatically selecting the cheapest times from your electricity tariff and using them to charge your 
 solar batteries, using Agility's expectations of how much grid power you need to augment your solar
 generation.
+
+Agility was originally designed to optimise usage of the Octopus Agile tariff, but it can now manage the
+use of any tariff from any supplier, except those such as the Octopus Intelligent tariffs where the supplier
+takes control of your system.
 
 Agility is designed for use with Solar and Battery systems that use a [Solis](https://www.solisinverters.com/uk) Hybrid Inverter.
 It has been tested using my own domestic Solis Inverter and [PylonTech](https://en.pylontech.com.cn/products/us5000) 
@@ -34,10 +38,16 @@ If all is OK, follow the [instructions for installing on a Raspberry Pi](./PI_IN
 
 If you are trying to install Agility on another technology or platform, modify the instructions appropriately.
 
+To set up Agility to work with a tariff other than Octopus Agile, refer to the 
+[instructions for setting up the Octopus Flux tariff](./FLUX_CONFIG.md).  
+
+Adapt the instructions to match
+the prices and times for any other tariff from any other supplier.
+
 
 ## The Octopus Agile Tariff
 
-Agility is designed to automatically optimise use of the Octopus Agile electricity tariff.  This is a 
+Agility was originally designed to automatically optimise use of the Octopus Agile electricity tariff.  This is a 
 highly dynamic tariff from the UK energy provider, [Octopus](https://octopus.energy/).  
 Unlike other tariffs, in the [Agile Tariff](https://octopus.energy/smart/agile/) 
 the price of electricity varies every half-hour throughout the day, based on actual wholesale
@@ -95,6 +105,23 @@ see the amount of power you've consumed each day and how much (or little!) it's 
 actually rather addictive!
 
 
+## Using Agility with Other Tariffs
+
+Agility isn't restricted to using the Octopus Agile Tariff.  You can quickly and easily define within Agility a *custom tariff* which is
+then used as if it was the Agile tariff by Agility.  When used in this way, you aren't restricted to Octopus tariffs:
+most tariffs from any supplier can be used, though of course it only makes sense to use Agility with tariffs that
+have a mixture of cheap and more expensive time periods each day.
+
+Agility will manage when and how much electricity you purchase each day based on its calculations of:
+
+- the amount of energy you would be expected to use throughout each day
+- the amount of solar power you are expected to generate that day (assuming you have solar panels)
+- the current level of charge in your batteries.
+
+Agility will aim to buy what you need at the cheapest times of your tariff, but may, sometimes, require topping up your batteries
+at more expensive times.  Agility will never attempt to charge your batteries duing the 4pm-7pm peak times.
+
+
 ## How Much Does Agility Cost?
 
 Nothing!  I've made it available free of charge as what's known as an Open Source product.
@@ -117,12 +144,12 @@ I'd recommend that you have sufficient battery storage to cover at least a third
 typical daily power needs.  Basically the more battery storage you can afford the better.  The good
 news is that battery storage continues to fall in price, and there's no VAT on domestic batteries.
 
-The more power you typically use, the more Agile slots you'll need to charge your batteries, so you'll
+The more power you typically use, the more Agile or tariff time slots you'll need to charge your batteries, so you'll
 begin to need to use more expensive slots.  So if you're also charging an EV and running a heat pump,
 your potential savings may be less than if you consume at or below the UK average of 7kWh per day.
 
 So I can't make any guarantees, but over the last year, by way of example, I've seen my average price
-for electrictity to be around 12p/kWh - about half the Ofgem capped price.  
+for electrictity to be around 12p/kWh when using Octopus Agile - about half the Ofgem capped price.  
 
 To put that into context, I don't have an EV or Heat Pump,
 but we're an above-average power consumer.  I have sufficient battery storage for between 75% and 100% of
@@ -169,9 +196,13 @@ A quick and simple automated update mechanism is included in Agility's web-based
 - Your Solis system needs to be registered to use the SolisCloud system and associate Apps.
 Your installer should have already done this for you.
 
-- You need to use Octopus as your power supplier and sign up to use their Octopus Agile tariff.
+- You can use Agility with any tariff from any supplier (apart from Octopus *Intelligent* ones or any others where
+your supplier takes control of your system).
 
-  If you aren't currently an Octopus customer, please use this referal link:
+  Agility was originally designed to operate against the Octopus Agile tariff, and when its prices
+are right, it's a great tariff to use.
+
+  If you decide to use an Octopus tariff, but you aren't currently an Octopus customer, you can use this referal link:
 
   [https://share.octopus.energy/lemon-crick-638](https://share.octopus.energy/lemon-crick-638)
 
@@ -228,7 +259,7 @@ may begin to directly use grid power, potentially during a high-priced slot.
 
 ## License
 
- Copyright (c) 2024 MGateway Ltd,                           
+ Copyright (c) 2024-25 MGateway Ltd,                           
  Redhill, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
