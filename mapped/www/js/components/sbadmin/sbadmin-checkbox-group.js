@@ -229,7 +229,7 @@ label-hidden {
       // [{value: 'red', label: 'Red', checked: true}, {value: 'green', label: 'green'}]
       // specify the method setState in the StateMap to get these applied automatically
 
-      await this.renderComponentMap('sbadmin-checkbox', this.childrenTarget, ctx, arr, 'cb_items:setState');
+      await this.renderComponentMap('sbadmin-checkbox', this.childrenTarget, this.context, arr, 'cb_items:setState');
     }
 
   

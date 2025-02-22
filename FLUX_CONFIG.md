@@ -133,3 +133,26 @@ difference is the calculation "horizon" time.  Future Octopus Agile tariff prici
 until 4pm each day, whereas your Custom Tariff's times and prices are entirely predictable, and you can decide when
 to set the calculation "horizon" time to allow Agility to make best use of the tariff structure.
 
+### Handling Saving Sessions
+
+From time to time, Octopus will announce, often at short notice, Saving Sessions which encourage you to reduce your
+energy usage during, typically an hour of the peak period between 4pm and 7pm, eg between 5:30pm and 6:30pm.
+
+You can increase your returns during such periods by exporting excess from your battery: a negative flow of energy
+from your meter counts as a saving.
+
+if you have Peak Export enabled in Agility (see earlier), then Agility will automatically export any battery-stored
+energy that it calculates is unnecessary to meet the needs until 4am the next day (the calculation cutoff).  It will
+begin to do this at 4pm.  If a Saving Session doesn't start until 5:30pm, the risk is that by then you'll have no
+available excess to export.
+
+So Agility provides a way for you to temporarily customise the peak period which by default is set to
+4pm - 7pm.  Take a look in the *Configuration / Operation* Menu option.  At the bottom of the page you'll
+see a set of checkboxes that indicate the current peak hours: all should be normally checked.
+
+If you unchecked the 4pm, 4:30pm and 5pm ones, then Agility will not begin its Peak Export calculations until
+5:30pm if that's when the Saving Session begins.  You can then let Agility handle the rest, exporting what it can
+during the Saving Session automatically for you (and beyond if it still detects a surplus).
+
+At 7pm, Agility will automatically reset your Peak Hours to the full 4pm - 7pm period.
+

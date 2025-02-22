@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 16 February 2025
+ 19 February 2025
 
  */
 
@@ -335,6 +335,10 @@ let Agility = class {
       if (now.slotTimeText === '16:00') {
         this.addTask('deleteTodaysAlwaysUsePrice');
       }
+      if (now.slotTimeText === '19:00') {
+        this.addTask('resetPeakHours');
+      }
+
     }
     if (now.minute === 15 || now.minute === 45) {
       this.addTask('backup');

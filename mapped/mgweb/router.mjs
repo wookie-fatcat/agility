@@ -729,6 +729,26 @@ router.post('/agility/octopus/urlfields', async (Request, ctx) => {
 
 });
 
+router.post('/agility/operation/peakSlots', async (Request, ctx) => {
+
+  let body = Request.body;
+  if (body && body.slots) {
+    let peakSlots = agility.config.$(['operation', 'peakSlots']);
+    peakSlots.delete();
+    for (let slot in body.slots) {
+      peakSlots.$(slot).value = body.slots[slot];
+    }
+  }
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+
 router.get('/agility/positionNow', async (Request, ctx) => {
 
   let obj = agility.battery.availableSlotsByPrice(false);

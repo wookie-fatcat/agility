@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 1 February 2025
+ 21 February 2025
 
 */
 
@@ -221,6 +221,12 @@ let Solcast = class {
       res = await fetch(this.url, options);
     }
     catch(err) {
+      if (!res) {
+        res = {
+          status: 'unknown',
+          statusText: err
+        };
+      }
       return {
         error: 'Request for Solcast Data failed',
         status: res.status,
@@ -241,7 +247,8 @@ let Solcast = class {
       return {
         error: 'Request for Solcast Data failed',
         status: res.status,
-        statusText: res.statusText
+        statusText: res.statusText,
+        err: err
       };
     }
   }

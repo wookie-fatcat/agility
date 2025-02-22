@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 16 February 2025
+ 19 February 2025
 
  */
 
@@ -110,7 +110,9 @@ class Actions {
       peakExport: async function() {
         return await this.battery.peakExport();
       },
-
+      resetPeakHours: function() {
+        return this.battery.resetPeakHours();
+      },
       deleteTodaysAlwaysUsePrice: function() {
         this.deleteTodaysAlwaysUsePrice();
         this.unsetChargingStartedFlag();

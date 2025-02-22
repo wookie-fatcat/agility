@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 16 February 2025
+ 19 February 2025
 
  */
 
@@ -131,12 +131,12 @@ class Battery {
   }
 
   get minimumLevel() {
-    if (this.config.$('minimumnLevel').exists) return 20;
+    if (this.config.$('minimumLevel').exists) return 20;
     return +this.config.$('minimumLevel').value;
   }
 
   set minimumLevel(value) {
-    this.config.$('minimumnLevel').value = value;
+    this.config.$('minimumLevel').value = value;
   }
 
   updateChargeDecisionHistory(positionNow) {
@@ -179,11 +179,11 @@ class Battery {
     if (!override && this.octopus.tomorrowsTariffsAvailable) {
       if (log) this.logger.write('Tomorrows octopus tariff available so get power till ' + toTimeText + ' tomorrow');
       // first get expected power from now until 23:30
-      let power1 = this.solis.averagePowerBetween(fromTimeText, '23:30');
-      if (log) this.logger.write('Expected power from ' + fromTimeText + ' until 23:30:');
+      let power1 = this.solis.averagePowerBetween(fromTimeText, '23:50');
+      if (log) this.logger.write('Expected power from ' + fromTimeText + ' until 23:50:');
       if (log) this.logger.write(JSON.stringify(power1));
       // then get expected power from midnight until specified to time
-      let power2 = this.solis.averagePowerBetween('00:00', toTimeText);
+      let power2 = this.solis.averagePowerBetween('00:01', toTimeText);
       if (log) this.logger.write('Expected power from midnight until ' + toTimeText + ':');
       if (log) this.logger.write(JSON.stringify(power2));
       averageExpectedPower = {
@@ -472,8 +472,8 @@ class Battery {
     let solis;
 
     if (!todayOnly && this.octopus.tomorrowsTariffsAvailable) {
-      let power1 = this.solis.averagePowerBetween(fromTimeText, '23:30', log);
-      let power2 = this.solis.averagePowerBetween('00:00', toTimeText, log);
+      let power1 = this.solis.averagePowerBetween(fromTimeText, '23:50', log);
+      let power2 = this.solis.averagePowerBetween('00:01', toTimeText, log);
       solis = {
         load: +power1.load + +power2.load,
         pv: +power1.pv + +power2.pv
@@ -612,6 +612,13 @@ class Battery {
   }
 
   peakExport() {
+
+    let now = this.date.now();
+    let peakSlotNode = this.operation.$(['peakSlots', now.slotTimeText]);
+    if (peakSlotNode.exists && peakSlotNode.value === false) {
+      return {status: now.slotTimeText + ' has been disabled as a peak time slot'};
+    }
+
     let chargeData = this.latestChargeDecision;
     if (chargeData) {
       let powerAddedPerCharge = +chargeData.battery.powerAddedPerCharge;
@@ -630,6 +637,11 @@ class Battery {
     else {
       return {status: 'Unable to find a charge decision history record for current time slot'};
     }
+  }
+
+  resetPeakHours() {
+    this.operation.$('peakSlots').delete();
+    return {status: 'Peak hours reset to 16:00-19:00'};
   }
 
   shouldUseSlotToCharge(positionNow, slots, log, setAlwaysUsePrice) {

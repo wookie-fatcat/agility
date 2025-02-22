@@ -21,6 +21,11 @@ export function load() {
           <sbadmin-spacer /> 
           <sbadmin-checkbox-group name="enableClockSync" switch="true" scale="1.8" value="yes" offValue="no" label=" : Enable Synchronisation" title="Inverter Clock Synchronisation:" golgi:ref="enableClockSync" golgi:hook="clock" />
 
+          <hr />
+          <sbadmin-card-text>Peak Time Slots</sbadmin-card-text>
+          <sbadmin-checkbox-group name="peakSlots" golgi:ref="peakSlots" />
+          <sbadmin-button color="cyan" text="Update Peak Slots" golgi:ref="peakBtn" />
+
         </fieldset>
       </sbadmin-form>
 
@@ -146,6 +151,31 @@ export function load() {
           else {
             if (json.data.alwaysUseSlotPrice) _this.form.fieldsByName.get('alwaysUseSlotPrice').value = json.data.alwaysUseSlotPrice;
             if (json.data.movingAveragePeriod) _this.form.fieldsByName.get('movingAveragePeriod').value = json.data.movingAveragePeriod;
+
+            let cbArr = [
+              {value: '16:00', label: '16:00', checked: false, inline: true},
+              {value: '16:30', label: '16:30', checked: false, inline: true},
+              {value: '17:00', label: '17:00', checked: false, inline: true},
+              {value: '17:30', label: '17:30', checked: false, inline: true},
+              {value: '18:00', label: '18:00', checked: false, inline: true},
+              {value: '18:30', label: '18:30', checked: false, inline: true}
+            ];
+
+            if (!json.data.peakSlots) {
+              for (let cb of cbArr) {
+                cb.checked = true;
+              }
+            }
+            else {
+              for (let timeText in json.data.peakSlots) {
+                 let cb = cbArr.find(member => member.value === timeText);
+                 if (json.data.peakSlots[timeText] === true) cb.checked = true;
+              }
+            }
+
+            _this.peakSlots.removeAllByName('sbadmin-checkbox', _this.peakSlots.childrenTarget);
+            await _this.peakSlots.renderCheckboxes(cbArr);
+
           }
 
           _this.saveBtn.on('clicked', async () => {
@@ -164,6 +194,28 @@ export function load() {
               _this.toast.headerTxt = 'Success!';
               _this.toast.display('Update was successful');
             }
+          });
+
+          _this.peakBtn.on('clicked', async () => {
+            let slots = {};
+            for (let cb of _this.peakSlots.checkboxes) {
+              console.log(cb.value + '; ' + cb.checked);
+              slots[cb.value] = cb.checked;
+            }
+
+            let body = {
+              slots: slots
+            }
+            let json = await _this.context.request('/agility/operation/peakSlots', 'POST', body);
+            if (json.error) {
+              _this.toast.headerTxt = 'Error';
+              _this.toast.display(json.error);
+            }
+            else {
+              _this.toast.headerTxt = 'Success!';
+              _this.toast.display('Peak Slot Times updated');
+            }
+
           });
 
         });
