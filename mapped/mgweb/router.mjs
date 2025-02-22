@@ -983,6 +983,13 @@ router.get('/agility/solcast/update', async (Request, ctx) => {
 
 });
 
+router.get('/agility/solcast/latest', (Request, ctx) => {
+  return {
+    payload: agility.solcast.rawData.document
+  };
+});
+
+
 router.get('/agility/log/activity/:lastKey', (Request, ctx) => {
 
   let now = agility.date.now();

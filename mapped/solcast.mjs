@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 21 February 2025
+ 22 February 2025
 
 */
 
@@ -37,6 +37,7 @@ let Solcast = class {
     this.document = new agility.glsdb.node('solcast');
     this.predictions = this.document.$('data');
     this.totals = this.document.$('original');
+    this.rawData = this.document.$('raw');
     this.config = agility.config.$('solcast');
     this.solis = new agility.glsdb.node('solis');
     this.logger = agility.logger;
@@ -318,6 +319,8 @@ let Solcast = class {
       return false;
     }
     this.predictions.delete();
+    this.rawData.delete();
+    this.rawData.document = data;
     let totals = {};
     for (let record of data.forecasts) {
       let d = this.date.at(record.period_end);
@@ -328,7 +331,7 @@ let Solcast = class {
       if (!totals[dateIndex]) totals[dateIndex] = 0;
       totals[dateIndex] += kwh;
       let tot = totals[dateIndex];
-      if (tot > 0) tot = tot.toFixed(4);
+      if (tot > 0) tot = +tot.toFixed(4);
       this.predictions.$([dateIndex, timeIndex]).document = {
         kw: kw,
         kwh: kwh,
@@ -428,7 +431,7 @@ let Solcast = class {
     console.log('total: ' + total.toFixed(4));
     console.log('adjust by ' + this.adjustment + '%');
     total = total + ((total * this.adjustment) / 100);
-    return total.toFixed(4);
+    return +total.toFixed(4);
   }
 
   expectedPowerBetween(fromTimeText, toTimeText, override, adjust, log) {
@@ -491,7 +494,7 @@ let Solcast = class {
       total = total + ((total * this.adjustment) / 100);
       if (log) this.logger.write('Prediction after adjustment: ' + total.toFixed(2));
     }
-    return total.toFixed(4);
+    return +total.toFixed(4);
   }
 
   loadConfig(filepath) {
