@@ -504,12 +504,22 @@ router.get('/agility/soliscloud/test1', async (Request, ctx) => {
 });
 
 router.get('/agility/solis/atRead/:cid', async (Request, ctx) => {
+
   let cid = Request.params.cid;
+
+  if (Request.query && Request.query.value) {
+    let res = await agility.solis.controlAPI(cid, Request.query.value);
+    return {
+      payload: res
+    };
+  }
+
   let url = '/v2/api/atRead';
   let body = {
     inverterSn: agility.solis.inverterSn,
     cid: cid
   };
+
   let res = await agility.solis.api(url, body);
   return {
     payload: res
