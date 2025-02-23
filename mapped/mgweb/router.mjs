@@ -503,6 +503,86 @@ router.get('/agility/soliscloud/test1', async (Request, ctx) => {
 
 });
 
+router.get('/agility/solis/atRead/:cid', async (Request, ctx) => {
+  let cid = Request.params.cid;
+  let url = '/v2/api/atRead';
+  let body = {
+    inverterSn: agility.solis.inverterSn,
+    cid: cid
+  };
+  let res = await agility.solis.api(url, body);
+  return {
+    payload: res
+  };
+});
+
+router.get('/agility/solis/dataLogger', async (Request, ctx) => {
+  let url = '/v1/api/inverterDetail';
+  let body = {
+    sn: agility.solis.inverterSn
+  };
+  let res = await agility.solis.api(url, body);
+  if (res && res.data && res.data.stationId) {
+    let stationId = res.data.stationId;
+    url = '/v1/api/collectorList';
+    body = {
+      stationId: stationId
+    };
+    res = await agility.solis.api(url, body);
+    if (res && res.data && res.data.page && res.data.page.records) {
+      let dataLogger = 'Unknown';
+      for (let record of res.data.page.records) {
+        if (record.monitorModel) {
+          dataLogger = record.monitorModel;
+          break;
+        }
+      }
+      return {
+        payload: {
+          dataLogger: dataLogger
+        }
+      };
+    }
+    else {
+      let err = 'Unknown error';
+      let status = 'Unknown status';
+      let data = {};
+      if (res) {
+        if (res.status) status = res.status;
+        if (res.error) err = res.error;
+        if (res.data) data = res.data;
+      }
+      return {
+        payload: {
+          error: 'Unable to run collectorList API',
+          details: err,
+          data: data,
+          status: status
+        }
+      };
+    }
+  }
+  else {
+    let err = 'Unknown error';
+    let status = 'Unknown status';
+    let data = {};
+    if (res) {
+      if (res.status) status = res.status;
+      if (res.error) err = res.error;
+      if (res.data) data = res.data;
+    }
+    return {
+      payload: {
+        error: 'Unable to run inverterDetail API',
+        details: err,
+        data: data,
+        status: status
+      }
+    };
+  }
+});
+
+
 router.get('/agility/solis/charge/:time', async (Request, ctx) => {
 
   let res = await agility.solis.inverterChargeTest(+Request.params.time);
