@@ -534,7 +534,7 @@ class Solis {
     let toD = this.date.at(fromD.timeIndex + forMs);
 
     let firmwareVersion = await this.getFirmwareVersion();
-    if (firmwareVersion === 'post-4B00' {
+    if (firmwareVersion === 'post-4B00') {
       // set charge current for slot 1
       let resp = await this.controlAPI(5948, this.chargeCurrent);
       if (resp.error) {
