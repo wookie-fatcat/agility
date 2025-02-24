@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 19 January 2025
+ 24 February 2025
 
  */
 
@@ -97,6 +97,51 @@ class Solis {
 
   set secret(value) {
     this.config.$('secret').value = value;
+  }
+
+  async getFirmwareVersion() {
+    let node = this.config.$('firmwareVersion');
+    if (!node.exists) {
+      let ok = await this.setFirmwareVersion();
+      if (!ok) return 'Unknown';
+    }
+    return node.value;
+  }
+
+  async setFirmwareVersion() {
+    let url = '/v1/api/inverterDetail';
+    let body = {
+      sn: this.inverterSn
+    };
+    let res = await this.api(url, body);
+    if (res && res.data && res.data.stationId) {
+      let stationId = res.data.stationId;
+      url = '/v1/api/inverterList';
+      body = {
+        stationId: stationId
+      };
+      res = await this.api(url, body);
+      if (res && res.data && res.data.page && res.data.page.records) {
+        let found = false;
+        let firmwareVersion;
+        for (let record of res.data.page.records) {
+          if (record.inverterSoftwareVersion) {
+            firmwareVersion = record.inverterSoftwareVersion.toUpperCase();
+            break;
+          }
+        }
+        if (firmwareVersion) {
+          let version = 'pre-4B00';
+          if (firmwareVersion.startsWith('4')) {
+            let c2Ascii = firmwareVersion.charCodeAt(1);
+            if (c2Ascii >= 66) version = 'post-4B00';
+          }
+          this.config.$('firmwareVersion').value = version;
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   get keepInverterTimeSynchronised() {
@@ -485,14 +530,30 @@ class Solis {
 
     forMinutes = forMinutes || 5;
     let forMs = forMinutes * 60000;
+    let fromD = this.date.now();
+    let toD = this.date.at(fromD.timeIndex + forMs);
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00' {
+      // set charge current for slot 1
+      let resp = await this.controlAPI(5948, this.chargeCurrent);
+      if (resp.error) {
+        return resp;
+      }
+      resp = await this.controlAPI(5946, fromD.timeText + '-' + toD.timeText);
+      if (resp.error) {
+        return resp;
+      }
+      return {status: 'Inverter successfully set to charge between ' + fromD.timeText + ' and ' + toD.timeText};
+    }
+    // pre-4B00
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
       return resp;
     }
     let chargeString = resp.data.msg;
-    let fromD = this.date.now();
-    let toD = this.date.at(fromD.timeIndex + forMs);
     chargeString = this.chargeTimeString(chargeString, fromD.timeText, toD.timeText);
     resp = await this.chargeAPI(chargeString);
     if (resp.error) {

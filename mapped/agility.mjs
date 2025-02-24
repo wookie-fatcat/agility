@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 19 February 2025
+ 24 February 2025
 
  */
 
@@ -431,6 +431,9 @@ let Agility = class {
       this.logger.write('SolisCloud Configuration does not exist or is incomplete');
       ok = false;
     }
+    setTimeout(async function() {
+      await _this.solis.getFirmwareVersion();
+    }, 0);
     if (!ok) {
       this.logger.write('Unable to start');
       setTimeout(function() {
@@ -445,6 +448,7 @@ let Agility = class {
       this.logger.write('No historical SolisCloud Data exists, so loading it now');
       this.solis.restore();
     }
+
     setTimeout(async function() {
       await _this.octopus.getLatestTariffTable(-1);
     }, 100);
