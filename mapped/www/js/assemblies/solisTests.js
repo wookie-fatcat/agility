@@ -22,7 +22,14 @@ export function load() {
           </sbadmin-card-text>
           <sbadmin-button color="orange" text="Discover Your DataLogger Type" golgi:hook="dataLogger" />
           <hr />
-          <sbadmin-spacer />
+          <sbadmin-card-text>
+            Agility needs to know your inverter firmware version
+          </sbadmin-card-text>
+          <sbadmin-button color="cyan" text="Inverter Software Version" golgi:hook="softwareVersion" />
+          <hr />
+          <sbadmin-card-text>
+            Check whether Agility can successfully read your inverter settings
+          </sbadmin-card-text>
           <sbadmin-button color="blue" text="Read Inverter Charge Settings" golgi:hook="chargeSetting" />
           <sbadmin-spacer />
           <sbadmin-button color="green" text="Read Inverter Mode Settings" golgi:hook="modeSetting" />
@@ -82,7 +89,22 @@ export function load() {
           let resp = JSON.stringify(json, null, 2);
           contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre>`;
         });
+      },
+      softwareVersion: function() {
+        let _this = this;
+        let contentPage = this.getParentComponent('sbadmin-content-page');
+        this.on('clicked', async function() {
+          contentPage.testResults.rootElement.innerHTML = '';
+          let json = await _this.context.request('/agility/solis/softwareVersion');
+          if (json.error) {
+            contentPage.toast.headerTxt = 'Error';
+            contentPage.toast.display(json.error);
+          }
+          let resp = JSON.stringify(json, null, 2);
+          contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre>`;
+        });
       }
+
     }
   };
 

@@ -592,6 +592,73 @@ router.get('/agility/solis/dataLogger', async (Request, ctx) => {
   }
 });
 
+router.get('/agility/solis/softwareVersion', async (Request, ctx) => {
+  let url = '/v1/api/inverterDetail';
+  let body = {
+    sn: agility.solis.inverterSn
+  };
+  let res = await agility.solis.api(url, body);
+  if (res && res.data && res.data.stationId) {
+    let stationId = res.data.stationId;
+    url = '/v1/api/inverterList';
+    body = {
+      stationId: stationId
+    };
+    res = await agility.solis.api(url, body);
+    if (res && res.data && res.data.page && res.data.page.records) {
+      let found = false;
+      let results = {};
+      for (let record of res.data.page.records) {
+        for (let name in record) {
+          if (name.toLowerCase().includes('version')) {
+            results[name] = record[name];
+            found = true;
+          }
+        }
+        if (found) break;
+      }
+      return {
+        payload: results
+      };
+    }
+    else {
+      let err = 'Unknown error';
+      let status = 'Unknown status';
+      let data = {};
+      if (res) {
+        if (res.status) status = res.status;
+        if (res.error) err = res.error;
+        if (res.data) data = res.data;
+      }
+      return {
+        payload: {
+          error: 'Unable to run inverterList API',
+          details: err,
+          data: data,
+          status: status
+        }
+      };
+    }
+  }
+  else {
+    let err = 'Unknown error';
+    let status = 'Unknown status';
+    let data = {};
+    if (res) {
+      if (res.status) status = res.status;
+      if (res.error) err = res.error;
+      if (res.data) data = res.data;
+    }
+    return {
+      payload: {
+        error: 'Unable to run inverterDetail API',
+        details: err,
+        data: data,
+        status: status
+      }
+    };
+  }
+});
 
 router.get('/agility/solis/charge/:time', async (Request, ctx) => {
 
