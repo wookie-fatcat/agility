@@ -18,7 +18,7 @@
     "dischargeCurrent": 50
   },
   "operation": {
-    "movingAveragePeriod": 14,
+    "movingAveragePeriod": 21,
     "alwaysUseSlotPrice": 10,
     "chargingEnabled": true
   }

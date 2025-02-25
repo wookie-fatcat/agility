@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 February 2025
+ 25 February 2025
 
  */
 
@@ -486,6 +486,53 @@ class Solis {
     return pcs.join(',');
   }
 
+
+  async post4B00Charge(fromTimeText, toTimeText, current) {
+    current = current || this.chargeCurrent;
+    let resp = await this.controlAPI(5948, current);
+    if (resp.error) {
+      return resp;
+    }
+    if (!resp.data) {
+      this.logger.write('Solis charge current setting 5948 API failed');
+      console.log(JSON.stringify(resp, null, 2));
+      return {error: 'Solis charge current setting 5948 API failed'};
+    }
+    resp = await this.controlAPI(5946, fromTimeText + '-' + toTimeText);
+    if (resp.error) {
+      return resp;
+    }
+    if (!resp.data) {
+      this.logger.write('Solis charge setting 5946 API failed');
+      console.log(JSON.stringify(resp, null, 2));
+      return {error: 'Solis charge setting 5946 API failed'};
+    }
+    return {status: 'Inverter successfully set to charge between ' + fromTimeText + ' and ' + toTimeText};
+  }
+
+  async post4B00Discharge(fromTimeText, toTimeText, current) {
+    current = current || this.chargeCurrent;
+    let resp = await this.controlAPI(5967, current);
+    if (resp.error) {
+      return resp;
+    }
+    if (!resp.data) {
+      this.logger.write('Solis discharge current setting 5967 API failed');
+      console.log(JSON.stringify(resp, null, 2));
+      return {error: 'Solis discharge current setting 5967 API failed'};
+    }
+    resp = await this.controlAPI(5964, fromTimeText + '-' + toTimeText);
+    if (resp.error) {
+      return resp;
+    }
+    if (!resp.data) {
+      this.logger.write('Solis discharge setting 5964 API failed');
+      console.log(JSON.stringify(resp, null, 2));
+      return {error: 'Solis discharge setting 5964 API failed'};
+    }
+    return {status: 'Inverter successfully set to discharge between ' + fromTimeText + ' and ' + toTimeText};
+  }
+
   async update(offset) {
     offset = offset || 0;
     let resp = await this.inverterDayAPI(offset);
@@ -535,17 +582,11 @@ class Solis {
 
     let firmwareVersion = await this.getFirmwareVersion();
     if (firmwareVersion === 'post-4B00') {
-      // set charge current for slot 1
-      let resp = await this.controlAPI(5948, this.chargeCurrent);
-      if (resp.error) {
-        return resp;
-      }
-      resp = await this.controlAPI(5946, fromD.timeText + '-' + toD.timeText);
-      if (resp.error) {
-        return resp;
-      }
-      return {status: 'Inverter successfully set to charge between ' + fromD.timeText + ' and ' + toD.timeText};
+      // set charge for slot 1
+      let resp = await this.post4B00Charge(fromD.timeText, toD.timeText)
+      return resp;
     }
+
     // pre-4B00
 
     // first get current inverter charge settings
@@ -587,14 +628,23 @@ class Solis {
       return {status: 'Inverter Charge task ignored'};
     }
     this.startNewChargeHistoryRecord();
+    let fromD = this.date.now();
+    let toD = this.date.at(fromD.slotEndTimeIndex);
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set charge for slot 1
+      let resp = await this.post4B00Charge(fromD.timeText, toD.timeText)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
       return resp;
     }
     let chargeString = resp.data.msg;
-    let fromD = this.date.now();
-    let toD = this.date.at(fromD.slotEndTimeIndex);
+
     chargeString = this.chargeTimeString(chargeString, fromD.timeText, toD.timeText);
     resp = await this.chargeAPI(chargeString);
     if (resp.error) {
@@ -604,6 +654,14 @@ class Solis {
   }
 
   async inverterChargeBetween(fromTimeText, toTimeText) {
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set charge for slot 1
+      let resp = await this.post4B00Charge(fromTimeText, toTimeText)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
@@ -623,14 +681,23 @@ class Solis {
       this.logger.write('Discharging logic is currently disabled');
       return {status: 'Inverter Discharge task ignored'};
     }
+
+    let fromD = this.date.now();
+    let toD = this.date.at(fromD.slotEndTimeIndex);
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set discharge for slot 1
+      let resp = await this.post4B00Discharge(fromD.timeText, toD.timeText)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
       return resp;
     }
     let chargeString = resp.data.msg;
-    let fromD = this.date.now();
-    let toD = this.date.at(fromD.slotEndTimeIndex);
     chargeString = this.dischargeTimeString(chargeString, fromD.timeText, toD.timeText);
     resp = await this.dischargeAPI(chargeString);
     if (resp.error) {
@@ -641,6 +708,14 @@ class Solis {
   }
 
   async inverterDischargeBetween(fromTimeText, toTimeText) {
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set discharge for slot 1
+      let resp = await this.post4B00Discharge(fromD.timeText, toD.timeText)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
@@ -661,14 +736,23 @@ class Solis {
       this.logger.write('Charging logic is currently disabled');
       return {status: 'Inverter Grid Only task ignored'};
     }
+
+    let fromD = this.date.now();
+    let toD = this.date.at(fromD.slotEndTimeIndex);
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set discharge for slot 1
+      let resp = await this.post4B00Discharge(fromD.timeText, toD.timeText, 0)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
       return resp;
     }
     let chargeString = resp.data.msg;
-    let fromD = this.date.now();
-    let toD = this.date.at(fromD.slotEndTimeIndex);
     chargeString = this.gridOnlyTimeString(chargeString, fromD.timeText, toD.timeText);
     resp = await this.dischargeAPI(chargeString);
     if (resp.error) {
@@ -678,6 +762,14 @@ class Solis {
   }
 
   async inverterGridPowerBetween(fromTimeText, toTimeText) {
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set discharge for slot 1
+      let resp = await this.post4B00Discharge(fromTimeText, toTimeText, 0)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {
@@ -697,6 +789,14 @@ class Solis {
     if (!override && !this.agility.chargingEnabled) {
       return {error: 'Charging logic is currently disabled, so no reset command sent'};
     }
+
+    let firmwareVersion = await this.getFirmwareVersion();
+    if (firmwareVersion === 'post-4B00') {
+      // set charge for slot 1
+      let resp = await this.post4B00Charge('00:00', '00:00', 0)
+      return resp;
+    }
+
     // first get current inverter charge settings
     let resp = await this.atReadAPI();
     if (resp.error) {

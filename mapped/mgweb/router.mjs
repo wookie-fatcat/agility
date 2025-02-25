@@ -69,6 +69,41 @@ router.get('/agility/charging/disable', (Request, ctx) => {
 
 });
 
+router.get('/agility/discharging/isEnabled', (Request, ctx) => {
+
+  return {
+    payload: {
+      enabled: agility.dischargingEnabled
+    }
+  };
+
+});
+
+router.get('/agility/discharging/enable', (Request, ctx) => {
+
+  agility.enableDischarging();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+router.get('/agility/discharging/disable', (Request, ctx) => {
+
+  agility.disableDischarging();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+
+});
+
+
 router.get('/agility/start', async (Request, ctx) => {
 
   if (agility.isAlreadyRunning) {
