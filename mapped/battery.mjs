@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 19 February 2025
+ 26 February 2025
 
  */
 
@@ -131,7 +131,7 @@ class Battery {
   }
 
   get minimumLevel() {
-    if (this.config.$('minimumLevel').exists) return 20;
+    if (!this.config.$('minimumLevel').exists) return 20;
     return +this.config.$('minimumLevel').value;
   }
 
@@ -386,10 +386,12 @@ class Battery {
 
   get shouldBeDischarged() {
     let solisNow = this.solis.dataNow;
+    /*
     if (+solisNow.pvOutputNow > +solisNow.houseLoadNow) {
       this.logger.write('Currently generating more solar PV than house load, so dont attempt to discharge');
       return false;
     }
+    */
     let d = this.date.now();
     let prevD = this.date.at(d.previousSlotTimeIndex);
     let previousSlotPower = this.solis.averagePowerBetween(prevD.timeText, d.slotTimeText);
