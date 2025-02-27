@@ -33,15 +33,19 @@ document.addEventListener('touchend', function (event) {
 });
 
         this.fetchHistory = async function(dateIndex) {
-	      let jsonbatt = await _this.context.request('/agility/config/battery');
+	  let jsonbatt = await _this.context.request('/agility/config/battery');
           let json = await _this.context.request('/agility/solis/data/history/' + dateIndex);
-          if (json.error || jsonbatt.error) {
+          if (jsonbatt.error) {
             _this.toast.headerTxt = 'Error';
-            _this.toast.display(json.error) + _this.toast.display(jsonbatt.error);
+            _this.toast.display(jsonbatt.error);
+          }
+	  else if (json.error) {
+            _this.toast.headerTxt = 'Error';
+            _this.toast.display(json.error);
           }
           else {
-			      let battMax = +jsonbatt.data.chargeLimit;
-			      let battMin = +jsonbatt.data.minimumLevel;
+	    let battMax = +jsonbatt.data.chargeLimit;
+	    let battMin = +jsonbatt.data.minimumLevel;
             let labels = [];
             let batteryLevels = [];
             let prices = [];
