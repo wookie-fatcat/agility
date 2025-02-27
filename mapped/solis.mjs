@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 February 2025
+ 27 February 2025
 
  */
 
@@ -486,8 +486,8 @@ class Solis {
     return pcs.join(',');
   }
 
-
   async post4B00Charge(fromTimeText, toTimeText, current) {
+    // set current as required, SOC to 100, time period as specified
     current = current || this.chargeCurrent;
     let resp = await this.controlAPI(5948, current);
     if (resp.error) {
@@ -497,6 +497,15 @@ class Solis {
       this.logger.write('Solis charge current setting 5948 API failed');
       console.log(JSON.stringify(resp, null, 2));
       return {error: 'Solis charge current setting 5948 API failed'};
+    }
+    resp = await this.controlAPI(5928, 100);
+    if (resp.error) {
+      return resp;
+    }
+    if (!resp.data) {
+      this.logger.write('Solis charge SOC setting 5928 API failed');
+      console.log(JSON.stringify(resp, null, 2));
+      return {error: 'Solis charge SOC setting 5928 API failed'};
     }
     resp = await this.controlAPI(5946, fromTimeText + '-' + toTimeText);
     if (resp.error) {
@@ -511,7 +520,8 @@ class Solis {
   }
 
   async post4B00Discharge(fromTimeText, toTimeText, current) {
-    current = current || this.chargeCurrent;
+    // set current as required, SOC to zero, time period as specified
+    current = current || this.dischargeCurrent;
     let resp = await this.controlAPI(5967, current);
     if (resp.error) {
       return resp;
@@ -520,6 +530,15 @@ class Solis {
       this.logger.write('Solis discharge current setting 5967 API failed');
       console.log(JSON.stringify(resp, null, 2));
       return {error: 'Solis discharge current setting 5967 API failed'};
+    }
+    resp = await this.controlAPI(5965, 0);
+    if (resp.error) {
+      return resp;
+    }
+    if (!resp.data) {
+      this.logger.write('Solis discharge SOC setting 5965 API failed');
+      console.log(JSON.stringify(resp, null, 2));
+      return {error: 'Solis discharge SOC setting 5965 API failed'};
     }
     resp = await this.controlAPI(5964, fromTimeText + '-' + toTimeText);
     if (resp.error) {
