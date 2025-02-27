@@ -33,12 +33,15 @@ document.addEventListener('touchend', function (event) {
 });
 
         this.fetchHistory = async function(dateIndex) {
+	      let jsonbatt = await _this.context.request('/agility/config/battery');
           let json = await _this.context.request('/agility/solis/data/history/' + dateIndex);
-          if (json.error) {
+          if (json.error || jsonbatt.error) {
             _this.toast.headerTxt = 'Error';
-            _this.toast.display(json.error);
+            _this.toast.display(json.error) + _this.toast.display(jsonbatt.error);
           }
           else {
+			      let battMax = +jsonbatt.data.chargeLimit;
+			      let battMin = +jsonbatt.data.minimumLevel;
             let labels = [];
             let batteryLevels = [];
             let prices = [];
@@ -163,15 +166,15 @@ document.addEventListener('touchend', function (event) {
                     position: 'left',
                     title: {
                       display: true,
-                      text: 'Price (ex-VAT) (p)'
+                      text: 'Price (p)'
                     }
                   },
                   battery: {
                     type: 'linear',
                     display: true,
                     position: 'left',
-                    min: 0,
-                    max: 100,
+                    min: battMin,
+                    max: battMax,
                     title: {
                       display: true,
                       text: 'Battery Level (%)'
@@ -184,7 +187,7 @@ document.addEventListener('touchend', function (event) {
                     min: 0,
                     title: {
                       display: true,
-                      text: 'Load / Grid / PV (kWh)'
+                      text: 'Load / Grid / Solar (kWh)'
                     }
                   }
                 }
