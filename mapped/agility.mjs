@@ -542,7 +542,8 @@ let Agility = class {
 
   async getLatestVersionNo() {
     //let url = 'https://cdn.jsdelivr.net/gh/robtweed/agility/mapped/version.json';
-    let url = 'https://raw.githubusercontent.com/robtweed/agility/refs/heads/master/mapped/version.json';
+    //let url = 'https://raw.githubusercontent.com/robtweed/agility/refs/heads/master/mapped/version.json';
+    let url = 'https://raw.githubusercontent.com/wookie-fatcat/agility/refs/heads/master/mapped/version.json';
     let options = {
       method: 'GET',
       headers: {
@@ -616,7 +617,8 @@ let Agility = class {
       }); 
     }
     fs.mkdirSync(copyDir);
-    this.exec('git clone https://github.com/robtweed/agility ' + copyDir);
+    //this.exec('git clone https://github.com/robtweed/agility ' + copyDir);
+    this.exec('git clone https://github.com/wookie-fatcat/agility ' + copyDir);
     let fileArr = fs.readdirSync(copyDir + '/mapped');
     for (let filename of fileArr) {
       if (filename.endsWith('.mjs') || filename === 'version.json') {
@@ -668,4 +670,3 @@ let Agility = class {
 }
 
 export {Agility}
-
