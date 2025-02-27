@@ -143,7 +143,18 @@ let Solcast = class {
     //compare historical solcast original totals with solis historical actual totals
     // and calculate average percentage difference to apply
     // then reset into configuration document
-    
+   
+/*  Sample code for TRIMMEAN FUNCTION  
+    function getTrimmedMean(data, trimAmount) {
+    var trimCount = Math.floor(trimAmount*data.length);
+    var trimData = data.sort().slice(trimCount, data.length-trimCount);
+    return trimData.reduce((a, b) => a + b ,0)/trimData.length;
+  }  
+
+  var trimVideoStats = getTrimmedMean(videoStats, 0.4);
+  return trimVideoStats;   */
+
+  
     let count = 0;
     let totalP = 0;
     let totalA = 0;
@@ -182,6 +193,9 @@ let Solcast = class {
           let data = dateNode.document;
           let date = data.day + '/' + data.month;
           let prediction = data.total;
+          let prediction_10 = data.total_10;
+          let prediction_50 = data.total_50;
+          let prediction_90 = data.total_90;
           let lastSolisRecord = solisRecord.lastChild;
           let actualPV = lastSolisRecord.$('pvOutputTotal').value;
           //console.log('dateIndex: ' + dateNode.key);
@@ -190,6 +204,9 @@ let Solcast = class {
           history.push({
             date: date,
             prediction: prediction,
+            prediction_10: prediction_10,
+            prediction_50: prediction_50,
+            prediction_90: prediction_90,
             actual: actualPV
           });
         }
@@ -220,6 +237,7 @@ let Solcast = class {
     let res;
     try {
       res = await fetch(this.url, options);
+//use local url for testing wihout using up metered Solcast API requests      res = await fetch('http://localhost:8080/agility/solcast/latest');
     }
     catch(err) {
       if (!res) {
@@ -322,20 +340,43 @@ let Solcast = class {
     this.rawData.delete();
     this.rawData.document = data;
     let totals = {};
+    let totals_10 = {};
+    let totals_50 = {};
+    let totals_90 = {};
     for (let record of data.forecasts) {
       let d = this.date.at(record.period_end);
       let timeIndex = d.timeIndex;
       let dateIndex = d.dateIndex;
-      let kw = +record.pv_estimate;
-      let kwh = kw / 2;
+//set back to standard      let kwh = +record.pv_estimate / 2;
+      let kwh = +record.pv_estimate10 / 2;
+      let pv_10kwh = +record.pv_estimate10 / 2;
+      let pv_50kwh = +record.pv_estimate / 2;
+      let pv_90kwh = +record.pv_estimate90 / 2;
       if (!totals[dateIndex]) totals[dateIndex] = 0;
       totals[dateIndex] += kwh;
+      if (!totals_10[dateIndex]) totals_10[dateIndex] = 0;
+      totals_10[dateIndex] += pv_10kwh;
+      if (!totals_50[dateIndex]) totals_50[dateIndex] = 0;
+      totals_50[dateIndex] += pv_50kwh;
+      if (!totals_90[dateIndex]) totals_90[dateIndex] = 0;
+      totals_90[dateIndex] += pv_90kwh;
       let tot = totals[dateIndex];
       if (tot > 0) tot = +tot.toFixed(4);
+      let tot_10 = totals_10[dateIndex];
+      if (tot_10 > 0) tot_10 = +tot_10.toFixed(4);
+      let tot_50 = totals_50[dateIndex];
+      if (tot_50 > 0) tot_50 = +tot_50.toFixed(4);
+      let tot_90 = totals_90[dateIndex];
+      if (tot_90 > 0) tot_90 = +tot_90.toFixed(4);
       this.predictions.$([dateIndex, timeIndex]).document = {
-        kw: kw,
         kwh: kwh,
+        pv_10kwh: pv_10kwh,
+        pv_50kwh: pv_50kwh,
+        pv_90kwh: pv_90kwh,
         total: tot,
+        total_10: tot_10,
+        total_50: tot_50,
+        total_90: tot_90,
         day: d.dayText,
         time: d.timeText,
         month: d.monthText
@@ -359,8 +400,14 @@ let Solcast = class {
       if (dateIndex > todayDateIndex) {
         _this.totals.$(dateIndex).delete();
         let total = dateNode.lastChild.$('total').value;
+        let total_10 = dateNode.lastChild.$('total_10').value;
+        let total_50 = dateNode.lastChild.$('total_50').value;
+        let total_90 = dateNode.lastChild.$('total_90').value;
         _this.totals.$(dateIndex).document = {
           total: total,
+          total_10: total_10,
+          total_50: total_50,
+          total_90: total_90,
           month: d.monthText,
           day: d.dayText
         }
