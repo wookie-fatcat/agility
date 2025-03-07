@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 February 2025
+ 7 March 2025
 
  */
 
@@ -656,6 +656,13 @@ let Agility = class {
     for (let filename of fileArr) {
       if (filename.endsWith('.mjs')) {
         fs.copyFileSync(copyDir + '/mapped/mgweb/' + filename, '/opt/agility/mapped/mgweb/' + filename);
+      }
+    }
+
+    fileArr = fs.readdirSync(copyDir + '/mapped/control');
+    for (let filename of fileArr) {
+      if (filename.endsWith('.mjs')) {
+        fs.copyFileSync(copyDir + '/mapped/control/' + filename, '/opt/agility/mapped/control/' + filename);
       }
     }
 

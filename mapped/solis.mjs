@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 27 February 2025
+ 2 March 2025
 
  */
 
@@ -169,6 +169,15 @@ class Solis {
 
   set dischargeCurrent(value) {
     return this.agility.config.$(['battery', 'dischargeCurrent']).value;
+  }
+
+  get productionDelay() {
+    if (!this.agility.config.$(['battery', 'productionDelay']).exists) return 7200000;
+    return +this.agility.config.$(['battery', 'productionDelay']).value;
+  }
+
+  set productionDelay(value) {
+    return this.agility.config.$(['battery', 'productionDelay']).value;
   }
 
   get availableDataDates() {

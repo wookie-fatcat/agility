@@ -9,13 +9,6 @@ let filepath = '/opt/agility/mapped/logs/agility.bak';
 if (fs.existsSync(filepath)) {
 
   let agility = new Agility();
-  if (!agility.logger.logDoc.exists) {
-    await agility.backup.restore(filepath);
-    agility.solis.data.delete();
-    let sseDoc = new agility.glsdb.node('agilitySSE');
-    sseDoc.delete();
-  }
-  // start Agility Daemon
-  agility.exec('nohup /root/.bun/bin/bun /opt/agility/mapped/start.mjs >> /opt/agility/mapped/logs/agility.log 2>&1 &');
+  await agility.backup.restore(filepath, 'solcast');
   agility.glsdb.close();
 }

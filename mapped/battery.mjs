@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 26 February 2025
+ 3 March 2025
 
  */
 
@@ -275,7 +275,7 @@ class Battery {
       if (firstPVTime) {
         //this.logger.write('firstPVTime object:');
         //this.logger.write(firstPVTime);
-        let firstPVTimeIndex = firstPVTime.timeIndex + 3600000;
+        let firstPVTimeIndex = firstPVTime.timeIndex + this.solis.productionDelay;
         let firstPVTimeText = this.date.at(firstPVTimeIndex).timeText;
         let firstPVTimeToday = this.date.atTime(firstPVTimeText);
         //this.logger.write('now: ' + now.timeIndex + '; ' + now.hour);
@@ -285,7 +285,8 @@ class Battery {
           if (now.hour > 18) todayOnly = false;
           this.logger.write('Current time is earlier than first PV production today');
           this.logger.write('Get power balance position from now to first PV time: ' + firstPVTimeText);
-          let firstPVPositionNow = this.positionNow(false, firstPVTimeText, todayOnly);
+          this.logger.write('Early PV production will be ignored in this assessment');
+          let firstPVPositionNow = this.positionNow(false, firstPVTimeText, todayOnly, true);
           this.logger.write(firstPVPositionNow);
           if (firstPVPositionNow.chargeSlotsNeeded > 0) {
             this.octopus.sortSlots(firstPVTimeText);
@@ -462,7 +463,7 @@ class Battery {
     return false;
   }
 
-  positionNow(log, toTimeText, todayOnly) {
+  positionNow(log, toTimeText, todayOnly, ignorePV) {
     if (typeof log === 'undefined') log = true;
     todayOnly = todayOnly || false;
     toTimeText = toTimeText || this.calculationCutoffTime; //'22:30';
@@ -484,6 +485,7 @@ class Battery {
     else {
       solis = this.solis.averagePowerBetween(fromTimeText, toTimeText, log);
     }
+    if (ignorePV) solis.pv = 0;
     let pv = solis.pv;
     let solcast = {
       enabled: false
@@ -499,7 +501,12 @@ class Battery {
         adjustment: adjustment,
         adjustedPrediction: adjusted
       };
+      if (ignorePV) {
+        solcast.prediction = 0;
+        solcast.adjustedPrediction = 0;
+      }
     }
+    if (ignorePV) pv = 0;
     let batteryLevel = this.levelNow;
     let batteryPower = this.availablePowerNow;
 
