@@ -1,4 +1,4 @@
-# Agility: Automated Optimisation of Electrictity Tariffs on Solis Solar Systems
+# Agility: Automated Optimisation of Electricity Tariffs on Solis Solar Systems
 
 ## What is Agility?
 
