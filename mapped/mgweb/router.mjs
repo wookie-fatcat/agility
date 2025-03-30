@@ -1006,6 +1006,17 @@ router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
   };
 });
 
+router.get('/agility/solis/reload', async (Request, ctx) => {
+
+  agility.solis.data.delete();
+  await agility.solis.restore();
+
+  return {
+    payload: {
+      ok: true
+    }
+  };
+});
 
 router.get('/agility/octopus/agiletariff', async (Request, ctx) => {
 

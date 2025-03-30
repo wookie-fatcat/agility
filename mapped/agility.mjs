@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 7 March 2025
+ 30 March 2025
 
  */
 
@@ -329,7 +329,7 @@ let Agility = class {
         this.addTask('cleardownInfo');
         this.addTask('updateYesterdaysSolisData');
       }
-      if (now.slotTimeText === '02:00') {
+      if (now.slotTimeText === '04:00') {
         this.addTask('updateInverterTime');
       }
       if (now.slotTimeText === '16:00') {

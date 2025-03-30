@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 14 February 2025
+ 30 March 2025
 
 */
 
@@ -566,9 +566,11 @@ let Octopus = class {
     let _this = this;
     function createData(timeText, offset, price) {
       let d = _this.date.atTime(timeText, offset);
-      let from = d.year + '-' + d.monthText + '-' + d.dayText + 'T' + d.timeText + ':00Z';
+      let tz = 'Z';
+      if (d.daylightSaving) tz = '+01:00';
+      let from = d.year + '-' + d.monthText + '-' + d.dayText + 'T' + d.timeText + ':00' + tz;
       let d2 = _this.date.at(d.slotEndTimeIndex);
-      let to = d2.year + '-' + d2.monthText + '-' + d2.dayText + 'T' + d2.timeText + ':00Z';
+      let to = d2.year + '-' + d2.monthText + '-' + d2.dayText + 'T' + d2.timeText + ':00' + tz;
 
       return {
         value_inc_vat: price,

@@ -34,6 +34,7 @@ export function load(ctx) {
       <sbadmin-sidebar-sub-menu text="SolisCloud">
         <sbadmin-sidebar-menu-item text="SolisCloud Configuration" contentPage="solis" />
         <sbadmin-sidebar-menu-item text="Solis Inverter API Tests" contentPage="solisTests" />
+        <sbadmin-sidebar-menu-item text="Reload SolisCloud Data" contentPage="solisReload" />
       </sbadmin-sidebar-sub-menu>
       <sbadmin-sidebar-sub-menu text="Octopus">
         <sbadmin-sidebar-menu-item text="Octopus Agile" contentPage="octopus"/>
