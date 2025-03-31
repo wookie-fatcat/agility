@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 March 2025
+ 31 March 2025
 
  */
 
@@ -958,6 +958,7 @@ class Solis {
   }
 
   averagePowerBetween(from, to) {
+    //console.log('averagePowerBetween: from = ' + from + '; to = ' + to);
     from = from || '00:00';
     to = to || '23:59';
     let totalLoad = 0;
@@ -1092,6 +1093,7 @@ class Solis {
           let sum = 0;
           for (let i = 0; i < 47; i++) {
             let value = slots[i] + 0;
+            if (value < sum) value = sum;
             slots[i] = +(value - sum).toFixed(2);
             sum = value;
           }

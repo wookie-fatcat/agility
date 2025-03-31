@@ -4,7 +4,7 @@
  | Agility: Solar Battery Optimisation against Octopus Agile Tariff          |
  |           specifically for Solis Inverters                                |
  |                                                                           |
- | Copyright (c) 2024 MGateway Ltd,                                          |
+ | Copyright (c) 2024-25 MGateway Ltd,                                       |
  | Redhill, Surrey UK.                                                       |
  | All rights reserved.                                                      |
  |                                                                           |
@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 December 2024
+ 31 March 2025
 
 */
 
@@ -110,7 +110,26 @@ let atTime = function(time, timeIndex) {
 
 let atMidnight = function(offset) {
   offset = offset || 0;
-  let date = new Date(+new Date().setHours(0, 0, 0, 0)  + (offset * 86400000));
+  let date = new Date();
+  let daylightSavingNow = date.getTimezoneOffset() < 0;
+  let t12 = date.setHours(12, 0, 0, 0);
+  date = new Date(t12);
+  t12 = date.getTime();
+  let t = t12 + (offset * 86400000);
+  date = new Date(t);
+  let daylightSavingThen = date.getTimezoneOffset() < 0;
+  console.log('daylight saving then: ' + daylightSavingThen);
+  if (daylightSavingNow && !daylightSavingThen) {
+    date = date.setHours(23, 0, 0, 0);
+    date = new Date(date);
+  }
+  if (!daylightSavingNow && daylightSavingThen) {
+    date = date.setHours(1, 0, 0, 0);
+    date = new Date(date);
+  }
+  date = date.setHours(0, 0, 0, 0);
+  date = new Date(date);
+  //let date = new Date(+new Date().setHours(0, 0, 0, 0)  + (offset * 86400000));
   return parseDate(date);
 }
 
