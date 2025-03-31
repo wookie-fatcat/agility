@@ -118,7 +118,6 @@ let atMidnight = function(offset) {
   let t = t12 + (offset * 86400000);
   date = new Date(t);
   let daylightSavingThen = date.getTimezoneOffset() < 0;
-  console.log('daylight saving then: ' + daylightSavingThen);
   if (daylightSavingNow && !daylightSavingThen) {
     date = date.setHours(23, 0, 0, 0);
     date = new Date(date);

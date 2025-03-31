@@ -1008,8 +1008,7 @@ router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
 
 router.get('/agility/solis/reload', async (Request, ctx) => {
 
-  agility.solis.data.delete();
-  await agility.solis.restore();
+  await agility.solis.restore(true);
 
   return {
     payload: {

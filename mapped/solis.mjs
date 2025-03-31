@@ -1113,7 +1113,8 @@ class Solis {
     };
   }
 
-  async restore() {
+  async restore(cleardown) {
+    if (cleardown) this.data.delete();
     let noOfDaysToStore = this.agility.movingAveragePeriod + 1;
     let res = await this.update();
     if (!res.error) {
