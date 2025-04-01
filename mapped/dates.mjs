@@ -111,6 +111,11 @@ let atTime = function(time, timeIndex) {
 let atMidnight = function(offset) {
   offset = offset || 0;
   let date = new Date();
+  if (offset === 0) {
+    date = date.setHours(0, 0, 0, 0);
+    date = new Date(date);
+    return parseDate(date);
+  }
   let daylightSavingNow = date.getTimezoneOffset() < 0;
   let t12 = date.setHours(12, 0, 0, 0);
   date = new Date(t12);
