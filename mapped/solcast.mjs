@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 1 April 2025
+ 3 April 2025
 
 */
 
@@ -157,7 +157,25 @@ let Solcast = class {
           count++;
           let predictedTotal = dateNode.$('total').value;
           totalP += predictedTotal;
-          let actualTotal = solisRecord.lastChild.$('pvOutputTotal').value;
+
+          let lastSolisRecord = solisRecord.lastChild;
+          let actualTotal = lastSolisRecord.$('pvOutputTotal').value;
+          if (actualTotal === 0) {
+            let found = false;
+            do {
+              lastSolisRecord = lastSolisRecord.previousSibling;
+              if (!lastSolisRecord) {
+                actualTotal = predictedTotal;
+                found = true;
+              }
+              else {
+                actualTotal = lastSolisRecord.$('pvOutputTotal').value;
+                if (actualTotal > 0) found = true;
+              }
+            }
+            while (!found);
+          }
+          //let actualTotal = solisRecord.lastChild.$('pvOutputTotal').value;
           //console.log(d.dayText + '/' + d.monthText + ': predicted: ' + predictedTotal + '; actual: ' + actualTotal);
           totalA += actualTotal;
         }
