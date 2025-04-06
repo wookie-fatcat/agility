@@ -1,12 +1,14 @@
 (async () => {
   async function go() {
-    const {golgi} = await import(window.location.origin + '/js/golgi.min.js');
+    let version = 3.021;
+    const {golgi} = await import(window.location.origin + '/js/golgi.min.js?version=' + version);
 
     let context = {
       assemblyPath: window.location.origin + '/js/assemblies/',
       componentPaths: {
         sbadmin: window.location.origin + '/js/components/sbadmin/'
       },
+      version: version,
       Chart: Chart,
       request: async (url, method, body) => {
         url = window.location.origin + url;
@@ -41,7 +43,7 @@
     setTimeout(async function() {
       let arr = ['sbadmin-select', 'sbadmin-modal', 'sbadmin-table'];
       for (let name of arr) {
-        let _module = await import(context.componentPaths.sbadmin + name + '.js');
+        let _module = await import(context.componentPaths.sbadmin + name + '.js?version=' + version);
         _module.load();
       }
     }, 500);
