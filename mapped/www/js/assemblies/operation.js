@@ -14,6 +14,19 @@ export function load() {
       </sbadmin-form>
 
       <sbadmin-spacer />
+      <hr />
+
+      <sbadmin-card-text>PV Production Delay is the time between solar generation starting and generating a surplus (and therefore battery charging commencing)</sbadmin-card-text>
+      <sbadmin-spacer />
+      <sbadmin-form golgi:ref="productionDelayForm">
+        <fieldset>
+          <sbadmin-input type="text" name="productionDelay" label="PV Production Delay (mins):" placeholder="Numeric value" />
+          <sbadmin-button color="green" text="Save" golgi:ref="saveDelayBtn" />
+        </fieldset>
+      </sbadmin-form>
+
+      <sbadmin-spacer />
+      <hr />
 
       <sbadmin-form golgi:ref="enableform">
         <fieldset>
@@ -178,6 +191,18 @@ export function load() {
 
           }
 
+          // fetch the PV Production Delay
+
+          url = '/agility/solis/productionDelay';
+          json = await _this.context.request(url);
+          if (json.error) {
+            _this.toast.headerTxt = 'Error';
+            _this.toast.display(json.error);
+          }
+          else {
+            _this.productionDelayForm.fieldsByName.get('productionDelay').value = json.productionDelay;
+          }
+
           _this.saveBtn.on('clicked', async () => {
 
             let body = {};
@@ -186,6 +211,23 @@ export function load() {
             }
 
             let json = await _this.context.request('/agility/config/operation', 'POST', body);
+            if (json.error) {
+              _this.toast.headerTxt = 'Error';
+              _this.toast.display(json.error);
+            }
+            else {
+              _this.toast.headerTxt = 'Success!';
+              _this.toast.display('Update was successful');
+            }
+          });
+
+          _this.saveDelayBtn.on('clicked', async () => {
+
+            let body = {
+              productionDelay: _this.productionDelayForm.fieldsByName.get('productionDelay').value
+            };
+
+            let json = await _this.context.request('/agility/solis/productionDelay', 'POST', body);
             if (json.error) {
               _this.toast.headerTxt = 'Error';
               _this.toast.display(json.error);

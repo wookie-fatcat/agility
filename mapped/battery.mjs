@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 3 March 2025
+ 10 April 2025
 
  */
 
@@ -160,6 +160,9 @@ class Battery {
   }
 
   get calculationCutoffTime() {
+    if (!this.octopus.customTariffEnabled) {
+      return '22:30';
+    }
     let node = this.operation.$('calculationCutoffTime');
     if (!node.exists) return '22:30';
     return node.value;

@@ -1006,6 +1006,40 @@ router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
   };
 });
 
+router.get('/agility/solis/productionDelay', (Request, ctx) => {
+
+  let productionDelay = agility.solis.productionDelay / 60000;
+
+  return {
+    payload: {
+      productionDelay: productionDelay
+    }
+  };
+});
+
+router.post('/agility/solis/productionDelay', (Request, ctx) => {
+
+  let body = Request.body;
+  if (body && body.productionDelay && body.productionDelay !== '' && body.productionDelay >= 0 && body.productionDelay < 500) {
+    agility.solis.productionDelay = body.productionDelay * 60000;
+
+    return {
+      payload: {
+        ok: true
+      }
+    };
+  }
+  else {
+    return {
+      payload: {
+        error: 'Missing or invalid production delay value'
+      }
+    };
+  }
+});
+
+
+
 router.get('/agility/solis/reload', async (Request, ctx) => {
 
   await agility.solis.restore(true);

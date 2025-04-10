@@ -25,7 +25,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 March 2025
+ 10 April 2025
 
 */
 
@@ -127,6 +127,9 @@ let Octopus = class {
   }
 
   get calculationCutoffTime() {
+    if (!this.customTariffEnabled) {
+      return '22:30';
+    }
     let node = this.operation.$('calculationCutoffTime');
     if (!node.exists) return '22:30';
     return node.value;
