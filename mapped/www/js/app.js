@@ -1,6 +1,6 @@
 (async () => {
   async function go() {
-    let version = 3.022;
+    let version = 3.023;
     const {golgi} = await import(window.location.origin + '/js/golgi.min.js?version=' + version);
 
     let context = {

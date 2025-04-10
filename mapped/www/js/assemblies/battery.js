@@ -39,7 +39,7 @@ export function load() {
           }
           else {
             for (let name in json.data) {
-              if (name !== 'defaultPercentIncreasePerCharge') {
+              if (name !== 'defaultPercentIncreasePerCharge' && name !== 'productionDelay') {
                 _this.form.fieldsByName.get(name).value = json.data[name];
               }
             }
