@@ -84,12 +84,12 @@ export function load() {
 	  if ((msg & 64) === 64 && (msg & 1) === 0) {
             mode = 'FEED-IN PRIORITY';
           }
-          contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre>`
-		+ `<p>Decimal:          ` + msg + `</p>`
-		+ `<p>Solis bits:       ` + bits + `</p>`
-		+ `<p>Bits of interest: ` + boi + `<br>`
-		+ `<p>Mode is <b>` + mode + `</b></p>`;
-
+          contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre><table>`
+		+ `<tr><td>Decimal: </td><td>` + msg + `</td></tr>`
+		+ `<tr><td>Solis bits: </td><td>` + bits + `</td></tr>`
+		+ `<tr><td>Bits of interest: </td><td>` + boi + `</td></tr>`
+		+ `<tr><td>Mode: </td><td><b>` + mode + `</b></td></tr>`
+                + `</table>`;
         });
       },
       dataLogger: function() {
