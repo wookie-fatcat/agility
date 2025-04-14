@@ -1001,7 +1001,11 @@ router.get('/agility/solis/data/history/:dateIndex', (Request, ctx) => {
   return {
     payload: {
       history: history,
-      chargeDecisionHistory: chargeDecisionHistory
+      chargeDecisionHistory: chargeDecisionHistory,
+      battery: {
+        max: agility.battery.chargeLimit,
+        min: agility.battery.minimumLevel
+      }
     }
   };
 });

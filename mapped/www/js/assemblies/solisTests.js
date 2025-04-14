@@ -73,7 +73,23 @@ export function load() {
             contentPage.toast.display(json.error);
           }
           let resp = JSON.stringify(json, null, 2);
-          contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre>`;
+          //contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre>`;
+	  let msg = +json.data.msg;
+	  let bits = msg.toString(2).padStart(16,'0');
+	  let boi = ((msg & 1) + (msg & 64)).toString(2).padStart(16,'0');
+	  let mode = 'UNKNOWN';
+	  if ((msg & 1) === 1 && (msg & 64) === 0) {
+            mode = 'SELF-USE';
+          }
+	  if ((msg & 64) === 64 && (msg & 1) === 0) {
+            mode = 'FEED-IN PRIORITY';
+          }
+          contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre>`
+		+ `<p>Decimal:          ` + msg + `</p>`
+		+ `<p>Solis bits:       ` + bits + `</p>`
+		+ `<p>Bits of interest: ` + boi + `<br>`
+		+ `<p>Mode is <b>` + mode + `</b></p>`;
+
         });
       },
       dataLogger: function() {

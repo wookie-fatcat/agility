@@ -108,6 +108,7 @@ document.addEventListener('touchend', function (event) {
                   label: 'Grid Export',
                   data: gridExports,
                   fill: true,
+                  stepped: 'after',
                   borderColor: 'orange',
                   backgroundColor: 'yellow',
                   yAxisID: 'power'
@@ -163,15 +164,15 @@ document.addEventListener('touchend', function (event) {
                     position: 'left',
                     title: {
                       display: true,
-                      text: 'Price (ex-VAT) (p)'
+                      text: 'Price (p)'
                     }
                   },
                   battery: {
                     type: 'linear',
                     display: true,
                     position: 'left',
-                    min: 0,
-                    max: 100,
+                    min: json.battery.min,
+                    max: json.battery.max,
                     title: {
                       display: true,
                       text: 'Battery Level (%)'
@@ -184,7 +185,7 @@ document.addEventListener('touchend', function (event) {
                     min: 0,
                     title: {
                       display: true,
-                      text: 'Load / Grid / PV (kWh)'
+                      text: 'Load / Grid / Solar (kWh)'
                     }
                   }
                 }
