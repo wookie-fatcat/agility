@@ -86,8 +86,8 @@ export function load() {
           }
           contentPage.testResults.rootElement.innerHTML = `<p>Response:</p><pre>` + resp + `</pre><table>`
 		+ `<tr><td>Decimal: </td><td>` + msg + `</td></tr>`
-		+ `<tr><td>Solis bits: </td><td>` + bits + `</td></tr>`
-		+ `<tr><td>Bits of interest: </td><td>` + boi + `</td></tr>`
+		+ `<tr><td>Solis bits: </td><td><pre>` + bits + `</pre></td></tr>`
+		+ `<tr><td>Bits of interest: </td><td><pre>` + boi + `</pre></td></tr>`
 		+ `<tr><td>Mode: </td><td><b>` + mode + `</b></td></tr>`
                 + `</table>`;
         });
